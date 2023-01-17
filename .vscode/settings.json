@@ -1,0 +1,10 @@
+// Workspace settings
+{
+    // The following will hide the js and map files in the editor
+    "files.exclude": {
+        "*.vcxproj": true,
+        "*.vcxproj.filters": true,
+        "build.cmd": true,
+        "build.sh": true
+    }
+}
