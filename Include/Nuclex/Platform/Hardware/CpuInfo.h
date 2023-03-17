@@ -74,7 +74,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   hardware on this CPU. It can be used to tune a thread pool or to control the number
     ///   of tasks that will be launched in parallel.
     /// </remarks>
-    public: std::size_t ProcessorCount;
+    public: std::size_t ProcessorCount; // aka thread count
 
     /// <summary>Detailed information about the CPU's cores</summary>
     public: std::vector<CoreInfo> Cores;

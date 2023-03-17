@@ -28,15 +28,6 @@ option(
   OFF
 )
 
-option(
-  BENCHMARK_THIRD_PARTY_LIBRARIES
-  "Whether to include third-party libraries in the benchmarks. If you enable \
-  this option, you need to manually place the extra libraries into your \
-  source tree (easiest done by just enabling and checking the missing files \
-  in the compiler output)."
-  OFF
-)
-
 # -------------------------------------------------------------------------------------------------
 
 # Contains compiler options, compiler tag for output directory, etc.
@@ -46,6 +37,19 @@ include("../BuildSystem/cmake/cplusplus.cmake")
 # the pthreads library in order to link against it later on.
 #   https://en.wikipedia.org/wiki/Pthreads
 find_package(Threads REQUIRED)
+
+# Add Nuclex.Support.Native as a sub-project, we link it for utility methods.
+if(NOT (TARGET NuclexSupportNative))
+	add_subdirectory(
+		${PROJECT_SOURCE_DIR}/../Nuclex.Support.Native
+		${CMAKE_BINARY_DIR}/NuclexSupportNative
+	)
+endif()
+
+# Already included by Nuclex.Support.Native, CMake doesn't like a second inclusion...
+if(NOT (TARGET GoogleTest))
+	add_subdirectory(${PROJECT_SOURCE_DIR}/../ThirdParty/gtest ${CMAKE_BINARY_DIR}/gtest)
+endif()
 
 message(STATUS "Enabled options for Nuclex.Platform.Native:")
 message(STATUS "  ⚫ Build core library")
@@ -61,9 +65,6 @@ endif()
 
 if(BUILD_BENCHMARK)
 	message(STATUS "  ⚫ Build benchmark")
-	if(BENCHMARK_THIRD_PARTY_LIBRARIES)
-		message(STATUS "  ⚫ Include third-party libraries in benchmark")
-	endif()
 
 	# Add Celero as a sub-project so we can link our benchmark executable
 	if(NOT (TARGET Celero))
@@ -86,7 +87,7 @@ endif()
 #     Tests/                    All unit tests, using deeper directories as needed
 #     Benchmarks/               All benchmark files, using deeper directories as needed
 #
-# From CMake documentation:
+# CMake documentation:
 #   |  Note: We do not recommend using GLOB to collect a list of
 #   |  source files from your source tree. If no CMakeLists.txt file
 #   |  changes when a source is added or removed then the generated
@@ -120,6 +121,22 @@ file(
 
 # -------------------------------------------------------------------------------------------------
 
+function(add_third_party_libraries target_name)
+
+	# On Unix systems, the library and unit test executable should look for
+	# dependencies in its own directory first.
+	set_target_properties(
+		${target_name} PROPERTIES
+		BUILD_RPATH_USE_ORIGIN ON
+		BUILD_WITH_INSTALL_RPATH ON
+		INSTALL_RPATH_USE_LINK_PATH OFF
+		INSTALL_RPATH "\${ORIGIN}"
+	)
+
+endfunction()
+
+# -------------------------------------------------------------------------------------------------
+
 # Shared library that can be linked to other projects
 add_library(NuclexPlatformNative SHARED)
 
@@ -146,11 +163,15 @@ target_sources(
 	PRIVATE ${sourceFiles}
 )
 
-# Link against PThreads
+# Link against PThreads and Nuclex.Support.Native
 target_link_libraries(
 	NuclexPlatformNative
 	PRIVATE Threads::Threads
+	PUBLIC NuclexSupportNative
 )
+
+# Add include directories and static libraries of all enabled image formats
+add_third_party_libraries(NuclexPlatformNative)
 
 # On Windows, we want the shared library to be named Nuclex.Platform.Native.dll
 if(WIN32)
@@ -181,7 +202,7 @@ if(BUILD_UNIT_TESTS)
 	# additional unused code and warn about it)
 	target_compile_definitions(
 		NuclexPlatformNativeTests
-		PRIVATE NUCLEX_SUPPORT_EXECUTABLE
+		PRIVATE NUCLEX_PIXELS_EXECUTABLE
 	)
 
 	# Add directory with public headers to include path
@@ -206,7 +227,10 @@ if(BUILD_UNIT_TESTS)
 		PRIVATE GoogleTest::Static
 		PRIVATE GoogleTest::Main
 		PRIVATE Threads::Threads
+		PUBLIC NuclexSupportNative
 	)
+
+	add_third_party_libraries(NuclexPlatformNativeTests)
 
 	# On Windows, we want the executable to be named Nuclex.Platform.Native.Tests.exe
 	if(WIN32)
@@ -225,7 +249,7 @@ if(BUILD_BENCHMARK)
 	# Executable that runs the benchmark (main() supplied by Celero)
 	add_executable(NuclexPlatformNativeBenchmark)
 
-	# Enable compiler warnings only if this library is compiles on its own.
+	# Enable compiler warnings only if this library is compiled on its own.
 	# If it's used as a sub-project, the including project's developers aren't
 	# interested in seeing warnings from a project they're not maintaining.
 	if(${CMAKE_PROJECT_NAME} STREQUAL "NuclexPlatformNative")
@@ -239,24 +263,8 @@ if(BUILD_BENCHMARK)
 	# additional unused code and warn about it)
 	target_compile_definitions(
 		NuclexPlatformNativeBenchmark
-		PRIVATE NUCLEX_SUPPORT_EXECUTABLE
+		PRIVATE NUCLEX_PIXELS_EXECUTABLE
 	)
-
-	if(BENCHMARK_THIRD_PARTY_LIBRARIES)
-		target_compile_definitions(
-			NuclexPlatformNativeBenchmark
-			PRIVATE HAVE_BOOST_SIGNALS
-			PRIVATE HAVE_LSIGNAL
-			PRIVATE HAVE_NANO_SIGNALS
-			PRIVATE HAVE_JEAIII_ITOA
-		)
-		if(NOT WIN32)
-			target_compile_definitions(
-				NuclexPlatformNativeBenchmark
-				PRIVATE HAVE_AMDN_ITOA
-			)
-		endif()
-	endif()
 
 	# Add directory with public headers to include path
 	target_include_directories(
@@ -273,13 +281,16 @@ if(BUILD_BENCHMARK)
 		PRIVATE ${benchmarkFiles}
 	)
 
-	# Link GoogleTest and the main() function supplied by GoogleTest
+	# Link Celero
 	# Also link against PThreads
 	target_link_libraries(
 		NuclexPlatformNativeBenchmark
 		PRIVATE Celero
 		PRIVATE Threads::Threads
+		PUBLIC NuclexSupportNative
 	)
+
+	add_third_party_libraries(NuclexPlatformNativeBenchmark)
 
 	# On Windows, we want the executable to be named Nuclex.Platform.Native.Benchmark.exe
 	if(WIN32)
@@ -304,12 +315,14 @@ install(
 	RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
 )
 
-# Install .pdb files on Windows platforms.
-#
-# CMake forgets installing .pdb files for debug builds. These are needed by
-# Microsoft compilers when debugging to associate machine code locations to
-# source files and line numbers.
-install_debug_symbols(NuclexPlatformNative)
+# Do the same for Nuclex.Support.Native. Since we depend on this library
+# and have set the rpath accordingly, it needs to be in the same directory
+install(
+	TARGETS NuclexSupportNative
+	ARCHIVE DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
+	LIBRARY DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
+	RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
+)
 
 # Install unit tests in same location as shared library.
 if(BUILD_UNIT_TESTS)
@@ -329,7 +342,7 @@ if(BUILD_BENCHMARK)
 		RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
 	)
 
-	# Install .pdb files on Windows platforms for the unit tests, too.
+	# Install .pdb files on Windows platforms for the benchmark, too.
 	install_debug_symbols(NuclexPlatformNativeBenchmark)
 endif()
 
@@ -371,7 +384,7 @@ file(
 #
 #    add_subdirectory(
 #        \"\${PROJECT_SOURCE_DIR}/../Nuclex.Platform.Native\"
-#        \"\${CMAKE_BINARY_DIR}/nuclex.platform.native\"
+#        \"\${CMAKE_BINARY_DIR}/nuclex.pixels.native\"
 #    )
 #
 #    target_link_libraries(

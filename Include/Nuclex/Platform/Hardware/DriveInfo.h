@@ -41,26 +41,35 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// <summary>Whether this is a solid state drive</summary>
     public: bool IsSolidState;
 
+    /// <summary>Human-readable name of the drive's manufacturer</summary>
     public: std::string ManufacturerName;
 
+    /// <summary>Model name of the drive</summary>
     public: std::string ModelName;
 
+    /// <summary>Total capacity of this drive in megabytes (1024-based)</summary>
     public: std::size_t CapacityInMegabytes;
 
-    /// <summary>Detailed information about the drive's partitions</summary>
+    /// <summary>Detailed information about the mounted partitions from the drive</summary>
     public: std::vector<PartitionInfo> Partitions;
 
   };
 
   // ------------------------------------------------------------------------------------------- //
 
-  /// <summary>Informations about a physical CPU installed in the system</summary>
+  /// <summary>Informations about a partition mounted for access by the system</summary>
   class PartitionInfo {
 
-    public: std::string MountPoint;
+    /// <summary>Root path to which this partition has been mounted</summary>
+    public: std::string Path;
 
-    public: std::size_t SizeInMegabytes;
+    /// <summary>Label that has been assigned to the partition via the file system</summary>
+    public: std::string Label;
 
+    /// <summary>Total (theoretical) capacity of the partition in megabytes</summary>
+    public: std::size_t CapacityInMegabytes;
+
+    /// <summary>Name describing the type of file system used</summary>
     public: std::string FileSystemTypeName;
 
   };
