@@ -54,13 +54,13 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   TEST(ResourceManifestTest, CanBeConstructedWithTwoResources) {
     std::shared_ptr<ResourceManifest> manifest = ResourceManifest::Create(
       ResourceType::SystemMemory, 512 * 1024 * 1024,
-      ResourceType::Drive, 2
+      ResourceType::NetworkAdapter, 2
     );
 
     ASSERT_EQ(manifest->Count, 2U);
     EXPECT_EQ(manifest->Resources[0].Type, ResourceType::SystemMemory);
     EXPECT_EQ(manifest->Resources[0].Amount, 512U * 1024U * 1024U);
-    EXPECT_EQ(manifest->Resources[1].Type, ResourceType::Drive);
+    EXPECT_EQ(manifest->Resources[1].Type, ResourceType::NetworkAdapter);
     EXPECT_EQ(manifest->Resources[1].Amount, 2U);
   }
 
@@ -91,7 +91,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     );
     std::shared_ptr<ResourceManifest> second = ResourceManifest::Create(
       ResourceType::SystemMemory, 1536U * 1024 * 1024,
-      ResourceType::VideoMemory, 1
+      ResourceType::NetworkAdapter, 1
     );
 
     std::shared_ptr<ResourceManifest> combined = ResourceManifest::Combine(
@@ -105,7 +105,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     EXPECT_EQ(combined->Resources[1].Amount, 6U);
     EXPECT_EQ(combined->Resources[2].Type, ResourceType::SystemMemory);
     EXPECT_EQ(combined->Resources[2].Amount, 1536U * 1024U * 1024U);
-    EXPECT_EQ(combined->Resources[3].Type, ResourceType::Drive);
+    EXPECT_EQ(combined->Resources[3].Type, ResourceType::NetworkAdapter);
     EXPECT_EQ(combined->Resources[3].Amount, 1U);
   }
 
