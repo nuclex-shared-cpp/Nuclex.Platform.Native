@@ -115,6 +115,6 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Videl::Tasks
+}}} // namespace Nuclex::Platform::Tasks
 
 #endif // NUCLEX_PLATFORM_TASKS_RESOURCEMANIFEST_H

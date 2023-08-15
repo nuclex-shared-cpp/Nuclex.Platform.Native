@@ -52,6 +52,6 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Videl::Plugins
+}}} // namespace Nuclex::Platform::Tasks
 
 #endif // NUCLEX_PLATFORM_TASKS_RESOURCETYPE_H
