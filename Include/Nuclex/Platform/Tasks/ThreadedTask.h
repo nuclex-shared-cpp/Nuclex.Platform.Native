@@ -84,7 +84,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     public: void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
-    ) override;
+    ) noexcept override;
 
     /// <summary>
     ///   Called in parallel on the specified number of threads to perform the task's work
@@ -105,7 +105,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     protected: virtual void ThreadedRun(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
-    ) = 0;
+    ) noexcept = 0;
 
     /// <summary>
     ///   Used internally to calls the ThreadedRun() method the a thread pool thread

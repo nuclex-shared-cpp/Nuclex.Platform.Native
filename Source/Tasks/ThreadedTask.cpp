@@ -68,8 +68,27 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   void ThreadedTask::Run(
     const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
     const CancellationWatcher &cancellationWatcher
-  ) {
-    if(maximumThreadCount >= 2) {
+  ) noexcept {
+    if(maximumThreadCount * sizeof(std::future<void>[2]) >= 256) { // Stack-allocated
+      const std::size_t requiredMemory = (
+        sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
+      );
+      std::uint8_t *memory = reinterpret_cast<std::uint8_t *>(alloca(requiredMemory));
+
+      FutureJoiner joiner(reinterpret_cast<std::future<void> *>(memory));
+
+      // Launch all threads and remember their 'std::future's they return
+      for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
+        new(reinterpret_cast<std::future<void> *>(memory + index)) std::future(
+          std::move(
+            this->threadPool.Schedule(
+              &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
+            )
+          )
+        );
+        ++joiner.FutureCount;
+      }
+    } else if(maximumThreadCount >= 2) { // Heap-allocated
       const std::size_t requiredMemory = (
         sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
       );
@@ -88,7 +107,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
         );
         ++joiner.FutureCount;
       }
-    } else if(maximumThreadCount == 1) {
+    } else if(maximumThreadCount == 1) { // Single task (I'll slap you if this happens)
       ThreadedRun(resourceUnitIndices, cancellationWatcher);
     }
   }

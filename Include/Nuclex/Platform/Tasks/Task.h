@@ -74,7 +74,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     public: virtual void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
-    ) = 0;
+    ) noexcept = 0;
 
   };
 
