@@ -23,7 +23,7 @@ License along with this library
 
 #include "Nuclex/Platform/Config.h"
 
-#include "Nuclex/Support/Errors/CanceledError.h"
+#include <Nuclex/Support/Errors/CanceledError.h>
 
 #include <string> // for std::string
 #include <atomic> // for std::atomic, std::atomic_thread_fence

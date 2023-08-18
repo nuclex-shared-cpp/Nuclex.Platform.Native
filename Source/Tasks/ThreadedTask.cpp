@@ -23,9 +23,86 @@ License along with this library
 
 #include "Nuclex/Platform/Tasks/ThreadedTask.h"
 
-// --------------------------------------------------------------------------------------------- //
+#include <Nuclex/Support/Threading/ThreadPool.h> // for ThreadPool
 
-// This file is only here to guarantee that its associated header has no hidden
-// dependencies and can be included on its own
+namespace {
 
-// --------------------------------------------------------------------------------------------- //
+  // ------------------------------------------------------------------------------------------- //
+
+  /// <summary>Calls .get() on a set of 'std::future' instances in an array</summary>
+  class FutureJoiner {
+
+    /// <summary>Initializes a new future joiner using the specified array</summary>
+    /// <param name="futures">Array of futures on which to call the .get() method</param>
+    public: FutureJoiner(std::future<void> *futures) :
+      FutureCount(0),
+      futures(futures) {}
+
+    /// <summary>
+    ///   Calls the .get() method on all futures that have been set up for the joiner
+    /// </summary>
+    public: ~FutureJoiner() {
+      while(this->FutureCount >= 1) {
+        --this->FutureCount;
+        this->futures[this->FutureCount].get();
+        this->futures[this->FutureCount].~future();
+      }
+    }
+    
+    /// <summary>Number of futures that have been constructed in the array</summary>
+    public: std::size_t FutureCount;
+
+    /// <summary>Array of futures that will be freed on destruction</summary>
+    private: std::future<void> *futures;
+
+  };
+
+  // ------------------------------------------------------------------------------------------- //
+
+} // anonymous namespace
+
+namespace Nuclex { namespace Platform { namespace Tasks {
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void ThreadedTask::Run(
+    const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
+    const CancellationWatcher &cancellationWatcher
+  ) {
+    if(maximumThreadCount >= 2) {
+      const std::size_t requiredMemory = (
+        sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
+      );
+      std::unique_ptr<std::uint8_t[]> memory(new std::uint8_t[requiredMemory]);
+
+      FutureJoiner joiner(reinterpret_cast<std::future<void> *>(memory.get()));
+
+      // Launch all threads and remember their 'std::future's they return
+      for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
+        new(reinterpret_cast<std::future<void> *>(memory.get() + index)) std::future(
+          std::move(
+            this->threadPool.Schedule(
+              &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
+            )
+          )
+        );
+        ++joiner.FutureCount;
+      }
+    } else if(maximumThreadCount == 1) {
+      ThreadedRun(resourceUnitIndices, cancellationWatcher);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void ThreadedTask::invokeThreadedRun(
+    ThreadedTask *self,
+    const std::array<std::size_t, MaximumResourceType + 1> *resourceUnitIndices,
+    const CancellationWatcher *cancellationWatcher
+  ) {
+    self->ThreadedRun(*resourceUnitIndices, *cancellationWatcher);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Platform::Tasks

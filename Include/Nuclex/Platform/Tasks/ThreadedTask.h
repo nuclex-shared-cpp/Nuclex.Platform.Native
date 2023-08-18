@@ -24,7 +24,17 @@ License along with this library
 #include "Nuclex/Platform/Config.h"
 #include "Nuclex/Platform/Tasks/Task.h" // for Task
 
-#include "Nuclex/Support/Threading/ThreadPool.h"
+#include <atomic> // for std::atomic
+
+namespace Nuclex { namespace Support { namespace Threading {
+
+  // ------------------------------------------------------------------------------------------- //
+
+  class ThreadPool;
+
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Support::Threading
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 
@@ -65,10 +75,16 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     public: virtual ~ThreadedTask() = default;
 
     /// <summary>Executes the task, using the specified resource units</summary>
+    /// <param name="resourceUnitIndices">
+    ///   Indices of the resource units the task coordinator has assigned this task
+    /// </param>
+    /// <param name="cancellationWatcher">
+    ///   Lets the task detect when it is requested to cancel its processing
+    /// </param>
     public: void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
-    ) override {}
+    ) override;
 
     /// <summary>
     ///   Called in parallel on the specified number of threads to perform the task's work
@@ -86,10 +102,30 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   Any task that takes longer than a couple of milliseconds should check for
     ///   cancellation at regular intervals to ensure the task coordinator isn't clogged.
     /// </param>
-    public: virtual void ThreadedRun(
+    protected: virtual void ThreadedRun(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
     ) = 0;
+
+    /// <summary>
+    ///   Used internally to calls the ThreadedRun() method the a thread pool thread
+    /// </summary>
+    /// <param name="self">The 'this' pointer of the threaded task instance</param>
+    /// <param name="resourceUnitIndices">
+    ///   Indices of the resource units the task coordinator has assigned this task
+    /// </param>
+    /// <param name="cancellationWatcher">
+    ///   Lets the task detect when it is requested to cancel its processing
+    /// </param>
+    /// <remarks>
+    ///   This method is used rather than std::bind() in order to not pollute the call stack
+    ///   and avoid the use of needless lambda functors in the thread pool callbacks.
+    /// </remarks>
+    private: static void invokeThreadedRun(
+      ThreadedTask *self,
+      const std::array<std::size_t, MaximumResourceType + 1> *resourceUnitIndices,
+      const CancellationWatcher *cancellationWatcher
+    );
 
     /// <summary>Thread pool that will be used to run work in multiple threads</summary>
     private: Nuclex::Support::Threading::ThreadPool &threadPool;
