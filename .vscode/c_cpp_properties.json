@@ -4,6 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/Include/**",
+                "${workspaceFolder}/../Nuclex.Support.Native/Include/**",
                 "${workspaceFolder}/../ThirdParty/gtest/build/googletest/include/**",
                 "${workspaceFolder}/../ThirdParty/celero/build/include/**"
             ],
