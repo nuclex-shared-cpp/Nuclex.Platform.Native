@@ -69,7 +69,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
     const CancellationWatcher &cancellationWatcher
   ) noexcept {
-    if(maximumThreadCount * sizeof(std::future<void>[2]) >= 256) { // Stack-allocated
+    if(maximumThreadCount * sizeof(std::future<void>[2]) >= 256) { // Heap-allocated
       const std::size_t requiredMemory = (
         sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
       );
@@ -88,7 +88,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
         );
         ++joiner.FutureCount;
       }
-    } else if(maximumThreadCount >= 2) { // Heap-allocated
+    } else if(maximumThreadCount >= 2) { // Stack-allocated
       const std::size_t requiredMemory = (
         sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
       );

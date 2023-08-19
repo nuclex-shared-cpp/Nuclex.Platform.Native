@@ -23,8 +23,8 @@ License along with this library
 
 #include "Nuclex/Platform/Tasks/ResourceManifest.h"
 
-#include "Nuclex/Support/Threading/Thread.h"
-#include "Nuclex/Support/Threading/Gate.h"
+#include <Nuclex/Support/Threading/Thread.h>
+#include <Nuclex/Support/Threading/Gate.h>
 
 #include <gtest/gtest.h>
 
