@@ -66,7 +66,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
         virtual ~ConstructibleCancellationTrigger() override = default;
       };
       std::shared_ptr<CancellationTrigger> result(
-        std::move(std::make_shared<ConstructibleCancellationTrigger>())
+        std::make_shared<ConstructibleCancellationTrigger>()
       );
 
       #if 0

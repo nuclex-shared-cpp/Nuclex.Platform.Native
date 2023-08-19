@@ -82,10 +82,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
         // Launch all threads and remember their 'std::future's they return
         for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
           new(reinterpret_cast<std::future<void> *>(memory.get()) + index) std::future(
-            std::move(
-              this->threadPool.Schedule(
-                &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
-              )
+            this->threadPool.Schedule(
+              &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
             )
           );
           ++joiner.FutureCount;
@@ -97,10 +95,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
         // Launch all threads and remember their 'std::future's they return
         for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
           new(reinterpret_cast<std::future<void> *>(memory) + index) std::future(
-            std::move(
-              this->threadPool.Schedule(
-                &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
-              )
+            this->threadPool.Schedule(
+              &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
             )
           );
           ++joiner.FutureCount;
