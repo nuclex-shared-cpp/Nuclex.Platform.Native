@@ -60,7 +60,10 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   Maximum number of threads to use. This is the number of calls that will be made
     ///   to the <see cref="ThreadedRun" /> method. If the thread pool has fewer threads than
     ///   this number, then some of the <see cref="ThreadedRun" /> calls will happen
-    ///   sequentially on the same thread (which )
+    ///   sequentially on reused threadpool threads, which may lead to poor CPU utilization
+    ///   (i.e. threaded task with 6 intended threads on 4 core CPU will keep 4 cores busy
+    ///   for a bit, then run the remaining 2 task threads and keep only 2 cores busy).
+    /// </param>
     public: ThreadedTask(
       Nuclex::Support::Threading::ThreadPool &threadPool,
       std::size_t maximumThreadCount = std::size_t(-1)
