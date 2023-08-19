@@ -69,45 +69,44 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
     const CancellationWatcher &cancellationWatcher
   ) noexcept {
-    if(maximumThreadCount * sizeof(std::future<void>[2]) >= 256) { // Heap-allocated
+    constexpr const std::size_t MaximumStackMemoryAllowed = 256; // bytes
+
+    if(maximumThreadCount >= 2) {
       const std::size_t requiredMemory = (
         sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
       );
-      std::uint8_t *memory = reinterpret_cast<std::uint8_t *>(alloca(requiredMemory));
+      if(requiredMemory >= MaximumStackMemoryAllowed) { // Heap-allocated
+        std::unique_ptr<std::uint8_t[]> memory(new std::uint8_t[requiredMemory]);
+        FutureJoiner joiner(reinterpret_cast<std::future<void> *>(memory.get()));
 
-      FutureJoiner joiner(reinterpret_cast<std::future<void> *>(memory));
-
-      // Launch all threads and remember their 'std::future's they return
-      for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
-        new(reinterpret_cast<std::future<void> *>(memory + index)) std::future(
-          std::move(
-            this->threadPool.Schedule(
-              &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
+        // Launch all threads and remember their 'std::future's they return
+        for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
+          new(reinterpret_cast<std::future<void> *>(memory.get()) + index) std::future(
+            std::move(
+              this->threadPool.Schedule(
+                &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
+              )
             )
-          )
-        );
-        ++joiner.FutureCount;
-      }
-    } else if(maximumThreadCount >= 2) { // Stack-allocated
-      const std::size_t requiredMemory = (
-        sizeof(std::future<void>[2]) * this->maximumThreadCount / 2
-      );
-      std::unique_ptr<std::uint8_t[]> memory(new std::uint8_t[requiredMemory]);
+          );
+          ++joiner.FutureCount;
+        }
+      } else { // Stack-allocated
+        std::uint8_t *memory = reinterpret_cast<std::uint8_t *>(alloca(requiredMemory));
+        FutureJoiner joiner(reinterpret_cast<std::future<void> *>(memory));
 
-      FutureJoiner joiner(reinterpret_cast<std::future<void> *>(memory.get()));
-
-      // Launch all threads and remember their 'std::future's they return
-      for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
-        new(reinterpret_cast<std::future<void> *>(memory.get() + index)) std::future(
-          std::move(
-            this->threadPool.Schedule(
-              &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
+        // Launch all threads and remember their 'std::future's they return
+        for(std::size_t index = 0; index < this->maximumThreadCount; ++index) {
+          new(reinterpret_cast<std::future<void> *>(memory) + index) std::future(
+            std::move(
+              this->threadPool.Schedule(
+                &ThreadedTask::invokeThreadedRun, this, &resourceUnitIndices, &cancellationWatcher
+              )
             )
-          )
-        );
-        ++joiner.FutureCount;
+          );
+          ++joiner.FutureCount;
+        }
       }
-    } else if(maximumThreadCount == 1) { // Single task (I'll slap you if this happens)
+    } else { // Single task (I'll slap you if this runs in production code!)
       ThreadedRun(resourceUnitIndices, cancellationWatcher);
     }
   }

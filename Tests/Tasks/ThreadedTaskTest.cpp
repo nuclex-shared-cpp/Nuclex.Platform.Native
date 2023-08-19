@@ -109,4 +109,20 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
+  TEST(ThreadedTaskTest, CanRunHighThreaded) {
+    Nuclex::Support::Threading::ThreadPool tp;
+    std::shared_ptr<CancellationTrigger> trigger = CancellationTrigger::Create();
+    {
+      TestTask test(tp, 32);
+
+      std::array<std::size_t, MaximumResourceType + 1> units;
+      const CancellationWatcher &watcher = *trigger->GetWatcher().get();
+      test.Run(units, watcher);
+
+      EXPECT_EQ(test.RunCounter.load(std::memory_order::memory_order_acquire), 32U);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 }}} // namespace Nuclex::Platform::Tasks
