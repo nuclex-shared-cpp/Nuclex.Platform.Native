@@ -38,8 +38,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     SystemMemory,
     /// <summary>Amount ot GPU memory that will be used</summary>
     VideoMemory,
-    /// <summary>Index of network adapter that will be used</summary>
-    NetworkAdapter
+    /// <summary>Number of web requests that will be generated</summary>
+    WebRequests
 
   };
 
@@ -47,7 +47,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   /// <summary>Highest value present in the ResourceType enumeration</summary>
   constexpr const std::size_t MaximumResourceType = static_cast<std::size_t>(
-    ResourceType::NetworkAdapter
+    ResourceType::WebRequests
   );
 
   // ------------------------------------------------------------------------------------------- //

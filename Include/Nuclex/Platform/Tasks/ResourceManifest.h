@@ -104,6 +104,9 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     public: std::size_t AccessedHardDriveMask;
 
+    // Could track NetworkAdapters to focus bandwidth on single action, but pointless?
+    // Could track Camera accesses, but makes little sense?
+
   };
 
   // ------------------------------------------------------------------------------------------- //
