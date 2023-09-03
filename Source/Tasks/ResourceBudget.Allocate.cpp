@@ -354,24 +354,29 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
     // Now try find units for the requested resources
     for(std::size_t index = 0; index < MaximumResourceType + 1; ++index) {
-      std::size_t closestAvailable = std::size_t(-1);
+      if(0 < required[index]) {
+        std::size_t closestAvailable = std::size_t(-1);
 
-      // Look for the unit with the tightest fit to the resources being asked for
-      std::size_t unitCount = this->resources[index].UnitCount;
-      for(std::size_t unitIndex = 0; unitIndex < unitCount; ++unitIndex) {
-        std::size_t available = this->resources[index].Remaining[unitIndex].load(
-          std::memory_order::memory_order_acquire
-        );
-        if(available >= required[index]) {
-          std::size_t surplusAvailable = required[index] - available;
-          if(surplusAvailable < closestAvailable) {
-            closestAvailable = surplusAvailable;
-            inOutUnitIndices[index] = unitIndex;
-          } else {
-            return false;
-          }
-        } // if enough of the resource is available
-      } // for each unit index
+        // Look for the unit with the tightest fit to the resources being asked for
+        std::size_t unitCount = this->resources[index].UnitCount;
+        for(std::size_t unitIndex = 0; unitIndex < unitCount; ++unitIndex) {
+          std::size_t available = this->resources[index].Remaining[unitIndex].load(
+            std::memory_order::memory_order_acquire
+          );
+          if(available >= required[index]) {
+            std::size_t surplusAvailable = available - required[index];
+            if(surplusAvailable < closestAvailable) {
+              closestAvailable = surplusAvailable;
+              inOutUnitIndices[index] = unitIndex;
+            }
+          } // if enough of the resource is available
+        } // for each unit index
+
+        // If no unit can fulfill this resource requirement, we fail
+        if(closestAvailable == std::size_t(-1)) {
+          return false;
+        }
+      } // resource type is needed
 
     } // for each resource type
 
