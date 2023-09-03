@@ -258,8 +258,8 @@ namespace {
         std::size_t newRemaining = remaining - resourceAmount;
         if(
           this->resources[resourceTypeIndex].Remaining[unitIndex].compare_exchange_weak(
-            remaining, newRemaining,
-            std::memory_order::memory_order_acquire, std::memory_order::memory_order_release
+            remaining, newRemaining
+            //std::memory_order::memory_order_release, std::memory_order::memory_order_relaxed
           )
         ) {
           return true;

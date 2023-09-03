@@ -46,12 +46,6 @@ namespace {
       ThreadedTask(threadPool, maximumThreadCount),
       RunCounter(0) {}
 
-    /// <summary>Reports the resources that the task will occupiy while it runs</summary>
-    /// <returns>A resource manifest with the resources the task will occupy</returns>
-    public: Nuclex::Platform::Tasks::ResourceManifest &GetUsedResources() const override {
-      throw std::runtime_error(u8"Not supported by the mock task");
-    }
-
     /// <summary>
     ///   Called in parallel on the specified number of threads to perform the task's work
     /// </summary>

@@ -44,7 +44,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
       public: std::size_t Amount;
 
       /// <summary>Kind of resource the task will occupy to do its work</summary>
-      public: Tasks::ResourceType Type;
+      public: ResourceType Type;
 
     };
 
@@ -55,7 +55,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resourceAmount">Amount of the resource that is required</param>
     /// <returns>A pointer to the new resource manifest</returns>
     public: static std::shared_ptr<ResourceManifest> Create(
-      Tasks::ResourceType resourceType, std::size_t resourceAmount
+      ResourceType resourceType, std::size_t resourceAmount
     );
 
     /// <summary>Creates a resource manifest with two resource requirements</summary>
@@ -65,8 +65,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resource2Amount">Amount required of the second resource</param>
     /// <returns>A pointer to the new resource manifest</returns>
     public: static std::shared_ptr<ResourceManifest> Create(
-      Tasks::ResourceType resource1Type, std::size_t resource1Amount,
-      Tasks::ResourceType resource2Type, std::size_t resource2Amount
+      ResourceType resource1Type, std::size_t resource1Amount,
+      ResourceType resource2Type, std::size_t resource2Amount
     );
 
     /// <summary>Creates a resource manifest with three resource requirements</summary>
@@ -78,9 +78,9 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resource3Amount">Amount required of the third resource</param>
     /// <returns>A pointer to the new resource manifest</returns>
     public: static std::shared_ptr<ResourceManifest> Create(
-      Tasks::ResourceType resource1Type, std::size_t resource1Amount,
-      Tasks::ResourceType resource2Type, std::size_t resource2Amount,
-      Tasks::ResourceType resource3Type, std::size_t resource3Amount
+      ResourceType resource1Type, std::size_t resource1Amount,
+      ResourceType resource2Type, std::size_t resource2Amount,
+      ResourceType resource3Type, std::size_t resource3Amount
     );
 
     /// <summary>Builds the sum of two resource manifests</summary>

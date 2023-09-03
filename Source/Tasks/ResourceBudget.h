@@ -49,6 +49,11 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   class ResourceBudget {
 
     /// <summary>Short alias for a shared pointer to a resource manifest</summary>
+    /// <remarks>
+    ///   You'll find the same typedef in ResourceManifest.h which we didn't include here
+    ///   to keep dependencies small. It's only used for readability readons and it's a nested
+    ///   typedef to avoid clashes when ResourceManifest.h gets included before this file.
+    /// </remarks>
     private: typedef std::shared_ptr<ResourceManifest> ResourceManifestPointer;
 
     /// <summary>Initalizes a new resource budget</summary>
@@ -79,10 +84,19 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resourceType">Type of resource the task manager can allocate</param>
     /// <param name="amountAvailable">Amount of the resource available on the system</param>
     /// <remarks>
-    ///   Calling this method multiple times with the same resource type will not accumulate
-    ///   resources but instead handle it as an alternative resource set (for example,
-    ///   adds two times 16 GiB video memory does not allow the coordinator to run tasks
-    ///   requiring 32 GiB video memory, but it will allow for two tasks to run in parallel).
+    ///   <para>
+    ///     Calling this method multiple times with the same resource type will not accumulate
+    ///     resources but instead handle it as an alternative resource unit (for example,
+    ///     adding two times 16 GiB video memory does not allow the coordinator to run tasks
+    ///     requiring 32 GiB video memory, but it will allow for two tasks to run in parallel).
+    ///   </para>
+    ///   <para>
+    ///     The order of calls matters and sets up the individual resource units. For example,
+    ///     if you add two sets of video memory, the video memory added in the first call is
+    ///     treated as resource unit 0 and the video memory from the second all as resource
+    ///     unit 1. This is important when the task coordinator tells tasks which resource unit
+    ///     they are supposed to use.
+    ///   </para>
     /// </remarks>
     public: void AddResource(ResourceType resourceType, std::size_t amountAvailable);
 
@@ -97,6 +111,11 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     public: std::size_t QueryResource(Tasks::ResourceType resourceType) const;
 
+    /// <summary>Counts the number of resource units that exist for a given resource</summary>
+    /// <param name="resourceType">Type of resource whose units will be counted</param>
+    /// <returns>The number of resource units providing the specified resource</returns>
+    public: std::size_t CountResourceUnits(ResourceType resourceType) const;
+
     /// <summary>Picks resource units that can provide the requested resources</summary>
     /// <param name="inOutUnitIndices">
     ///   <para>
@@ -114,7 +133,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="taskResources">Task-specific resources that will be blocked</param>
     /// <returns>
     ///   True if the budget had enough reserves to allocate all requested resources
-    ///   (and unit have been picked, but no resource amounts deducted!), false if one
+    ///   (and units have been picked, but no resource amounts deducted!), false if one
     ///   or more resources were insufficient.
     /// </returns>
     /// <remarks>
@@ -153,7 +172,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="secondaryResources">Second resource set that will also be blocked</param>
     /// <returns>
     ///   True if the budget had enough reserves to allocate all requested resources
-    ///   (and unit have been picked, but no resource amounts deducted!), false if one
+    ///   (and units have been picked, but no resource amounts deducted!), false if one
     ///   or more resources were insufficient.
     /// </returns>
     /// <remarks>
@@ -165,7 +184,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   <para>
     ///     It is normally followed by a call to <see cref="Allocate" />, possibly only
     ///     to claim the environment memory but not the task memory in case the goal is to
-    ///     active an environment, while merely making sure it is put on resource units
+    ///     activate an environment, while merely making sure it is put on resource units
     ///     that can later carry a task using that environment.
     ///   </para>
     /// </remarks>
@@ -250,29 +269,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
       const ResourceManifestPointer &primaryResources,
       const ResourceManifestPointer &secondaryResources = ResourceManifestPointer()
     );
-/*
-    /// <summary>Blocks the specified amount of resources from being used</summary>
-    /// <param name="environment">Task environment whose resources will be returned</param>
-    /// <param name="taskResources">Task-specific resources that will be returned</param>
-    /// <remarks>
-    ///   This method is destructive in the sense that if less than the requested amount of
-    ///   a resource is available, it will still take whatever there is. This renders
-    ///   further accurate resource budgeting impossible and should therefore only be used
-    ///   on a copy of the resource budget, typically to make sure 
-    /// </remarks>
-    public: void DestructiveBlock(
-      const std::shared_ptr<TaskEnvironment> &environment,
-      const ResourceManifestPointer &taskResources = ResourceManifestPointer()
-    );
 
-    /// <summary>Blocks the specified amount of resources from being used</summary>
-    /// <param name="primaryResources">First resource set that will be returned</param>
-    /// <param name="secondaryResources">Second resource set that will also be returned</param>
-    public: void DestructiveBlock(
-      const ResourceManifestPointer &primaryResources,
-      const ResourceManifestPointer &secondaryResources = ResourceManifestPointer()
-    );
-*/
     /// <summary>Checks whether it is at all possible to execute a task</summary>
     /// <param name="environment">Environment needed to execute the task</param>
     /// <param name="taskResources">Resources the task needs to execute</param>
@@ -333,6 +330,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     private: std::size_t busyHardDrives;
     /// <summary>Memory block storing all the resource counter arrays</summary>
     private: std::uint8_t *allocatedMemoryBlock;
+
+    //private: std::uint8_t builtInMemory[256];
 
   };
 

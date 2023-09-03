@@ -372,6 +372,16 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
+  std::size_t ResourceBudget::CountResourceUnits(ResourceType resourceType) const {
+    std::size_t index = static_cast<std::size_t>(resourceType);
+    assert(
+      (index < this->resources.size()) && u8"Resource type within range of enumeration"
+    );
+    return this->resources[index].UnitCount;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
   bool ResourceBudget::CanEverExecute(
     const std::shared_ptr<TaskEnvironment> &environment,
     const ResourceManifestPointer &taskResources /* = ResourceManifestPointer() */
