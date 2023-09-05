@@ -18,24 +18,22 @@ License along with this application
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_TASKS_TASKCOORDINATOR_H
-#define NUCLEX_PLATFORM_TASKS_TASKCOORDINATOR_H
+#ifndef NUCLEX_PLATFORM_TASKS_NAIVETASKCOORDINATOR_H
+#define NUCLEX_PLATFORM_TASKS_NAIVETASKCOORDINATOR_H
 
 #include "Nuclex/Platform/Config.h"
 
-#include "Nuclex/Platform/Tasks/ResourceType.h"
+#include "Nuclex/Platform/Tasks/TaskCoordinator.h"
+#include <Nuclex/Support/Threading/ThreadPool.h> // for ThreadPool
 
-#include <string> // for std::string
-#include <atomic> // for std::atomic, std::atomic_thread_fence
-#include <memory> // for std::shared_ptr
+#include <optional> // for std::optional
+#include <memory> // for std::unique_ptr
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class Task;
-  class TaskEnvironment;
-  class ResourceManifest;
+  class ResourceBudget;
 
   // ------------------------------------------------------------------------------------------- //
 
@@ -46,10 +44,35 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Coordinates background tasks based on their usage of system resouces</summary>
-  class TaskCoordinator {
+  class NaiveTaskCoordinator : public TaskCoordinator {
+
+    /// <summary>Initializes a new task coordinator</summary>
+    public: NaiveTaskCoordinator();
 
     /// <summary>Frees all resources owned by the task coordinator</summary>
-    public: virtual ~TaskCoordinator() = default;
+    public: ~NaiveTaskCoordinator() override;
+
+    /// <summary>Adds a resource that the task coordinator can allocate to tasks</summary>
+    /// <param name="resourceType">Type of resource the task coordinator can allocate</param>
+    /// <param name="amountAvailable">Amount of the resource available on the system</param>
+    /// <remarks>
+    ///   Calling this method multiple times with the same resource type will not accumulate
+    ///   resources but instead handle it as an alternative resource unit (for example,
+    ///   adds two times 16 GiB video memory does not allow the coordinator to run tasks
+    ///   requiring 32 GiB video memory, but it will allow for two tasks requiring up to
+    ///   16 GiB of video memory to run in parallel).
+    /// </remarks>
+    public: void AddResource(
+      Tasks::ResourceType resourceType, std::size_t amountAvailable
+    );
+
+    /// <summary>Begins execution of scheduled tasks</summary>
+    /// <remarks>
+    ///   After this method is called, the <see cref="AddResources" /> method must not be
+    ///   called anymore. It is okay to schedule tasks before calling Start(), however.
+    ///   These would simply sit in a queue and begin execution right after Start() is called.
+    /// </remarks>
+    public: void Start();
 
     /// <summary>Queries the amount of a resource the system has in total</summary>
     /// <param name="resourceType">Type of resource that will be queried</param>
@@ -59,22 +82,22 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   querying for video memory will return the highest amount of video memory available
     ///   on any single GPU. The behavior is the same for all resource units.
     /// </remarks>
-    public: virtual std::size_t QueryResourceMaximum(ResourceType resourceType) const = 0;
+    public: std::size_t QueryResourceMaximum(ResourceType resourceType) const override;
 
     /// <summary>Schedules the specified task for execution</summary>
     /// <param name="task">Task that will be executed as soon as resources permit</param>
     /// <param name="requiredResources">Resources that the task will occupy</param>
-    public: virtual void Schedule(const std::shared_ptr<Task> &task) = 0;
+    public: void Schedule(const std::shared_ptr<Task> &task) override;
 
     /// <summary>Schedules the specified task for execution</summary>
     /// <param name-"environment">
     ///   Environment that needs to be active while the task executes
     /// </param>
     /// <param name="task">Task that will be executed as soon as resources permit</param>
-    public: virtual void Schedule(
+    public: void Schedule(
       const std::shared_ptr<TaskEnvironment> &environment,
       const std::shared_ptr<Task> &task
-    ) = 0;
+    ) override;
 
     /// <summary>Schedules a task for execution with an alternative task</summary>
     /// <param name="preferredTask">
@@ -83,10 +106,10 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="alternativeTask">
     ///   Task that can be executed instead of the preferred resources are not available
     /// </param>
-    public: virtual void ScheduleWithAlternative(
+    public: void ScheduleWithAlternative(
       const std::shared_ptr<Task> &preferredTask,
       const std::shared_ptr<Task> &alternativeTask
-    ) = 0;
+    ) override;
 
     /// <summary>Schedules a task for execution with an alternative task</summary>
     /// <param name-"environment">
@@ -98,25 +121,11 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="alternativeTask">
     ///   Task that can be executed instead of the preferred resources are not available
     /// </param>
-    public: virtual void ScheduleWithAlternative(
+    public: void ScheduleWithAlternative(
       const std::shared_ptr<TaskEnvironment> &environment,
       const std::shared_ptr<Task> &preferredTask,
       const std::shared_ptr<Task> &alternativeTask
-    ) = 0;
-
-    /// <summary>Gives priority to the specified task</summary>
-    /// <param name="task">Already scheduled task that will be given priority</param>
-    /// <returns>True if the task was found in the non-priority queue and prioritized</returns>
-    /// <remarks>
-    ///   This may be ignored but gives a hint of the task coordinator that the given task
-    ///   should be executed out of order as soon as possible. Normally used for tasks that
-    ///   set preconditions required to queue other tasks, i.e. extracting a batch of frames
-    ///   via ffmpeg so that it can be processed.
-    /// </remarks>
-    public: virtual bool Prioritize(const std::shared_ptr<Task> &task) {
-      (void)task;
-      return false; // By default, an implementation ignores prioritization
-    }
+    ) override;
 
     /// <summary>Cancels a waiting task</summary>
     /// <param name="task">Task that will be cancelled</param>
@@ -127,14 +136,27 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   If the task has an alternative, that one will be cancelled, too. Specifying
     ///   the alternative for cancellation is not allowed.
     /// </remarks>
-    public: virtual bool Cancel(const std::shared_ptr<Task> &task) = 0;
+    public: bool Cancel(const std::shared_ptr<Task> &task) override;
 
     /// <summary>Cancels all waiting tasks</summary>
     /// <param name="forever">Whether to cancel all future tasks, too</param>
     /// <remarks>
     ///   Is usually called when the task coordinator shuts down to cancel all waiting tasks
     /// </remarks>
-    public: virtual void CancelAll(bool forever = true) = 0;
+    public: void CancelAll(bool forever = true) override;
+
+    /// <summary>Records  the resources available on the system</summary>
+    private: std::unique_ptr<ResourceBudget> availableResources;
+
+    /// <summary>Thread pool used to start off the scheduled tasks</summary>
+    /// <remarks>
+    ///   Only optional so it can be constructed at a later time. Is set when
+    ///   the <see cref="Start" /> method is called. Contains as many ready threads
+    ///   as there are cpu cores added to the task coordinator.
+    /// </remarks>
+    private: std::optional<Nuclex::Support::Threading::ThreadPool> threadPool;
+    /// <summary>Number of CPU cores that have been added as resources in total</summary>
+    private: std::size_t totalCpuCoreCount;
 
   };
 
@@ -142,4 +164,4 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
 }}} // namespace Nuclex::Platform::Tasks
 
-#endif // NUCLEX_PLATFORM_TASKS_TASKCOORDINATOR_H
+#endif // NUCLEX_PLATFORM_TASKS_NAIVETASKCOORDINATOR_H

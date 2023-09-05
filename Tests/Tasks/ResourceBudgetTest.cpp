@@ -171,7 +171,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-  TEST(ResourceBudgetTest, AllocateBlockAssignedResources) {
+  TEST(ResourceBudgetTest, AllocateBlocksAssignedResources) {
     ResourceBudget budget;
     budget.AddResource(ResourceType::CpuCores, 4U);
     budget.AddResource(ResourceType::CpuCores, 4U);
@@ -344,6 +344,62 @@ namespace Nuclex { namespace Platform { namespace Tasks {
       )
     );
     EXPECT_FALSE(canExecute);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(ResourceBudgetTest, CanBeCopied) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+
+    std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
+    std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
+
+    // First allocation, should pick units 0, 0
+    assignedUnits.fill(std::size_t(-1));
+    bool wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 0U);
+
+    ResourceBudget copy = budget;
+
+    // Second allocation, should pick units 1, 1
+    assignedUnits.fill(std::size_t(-1)); // to request unit selection
+    wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 1U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 1U);
+
+    // Second allocation on copy, should also pick units 1, 1
+    assignedUnits.fill(std::size_t(-1)); // to request unit selection
+    wasAllocated = copy.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 1U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 1U);
   }
 
   // ------------------------------------------------------------------------------------------- //
