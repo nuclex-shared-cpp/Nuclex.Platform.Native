@@ -91,10 +91,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     );
 
     EXPECT_TRUE(wasPicked);
-
     std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
     EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
-
     std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
     EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 2U);
   }
@@ -143,10 +141,8 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     );
 
     EXPECT_TRUE(wasAllocated);
-
     std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
     EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
-
     std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
     EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 2U);
   }
@@ -271,8 +267,6 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   TEST(ResourceBudgetTest, ReleaseFreesResources) {
     ResourceBudget budget;
     budget.AddResource(ResourceType::CpuCores, 4U);
-    budget.AddResource(ResourceType::CpuCores, 4U);
-    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
     budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
 
     std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
@@ -314,6 +308,42 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     EXPECT_TRUE(wasAllocated);
     EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
     EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 0U);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(ResourceBudgetTest, CanCheckIfAllocationIsPossible) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+
+    std::shared_ptr<ResourceManifest> resources = ResourceManifest::Create(
+      ResourceType::VideoMemory, 6U * 1024U * 1024U,
+      ResourceType::CpuCores, 3U
+    );
+
+    // At the beginning, there should be enough resources left
+    EXPECT_TRUE(budget.CanExecuteNow(resources));
+    EXPECT_TRUE(budget.CanEverExecute(resources));
+
+    // Allocate most of the available resources
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+    assignedUnits.fill(std::size_t(-1));
+    bool wasAllocated = budget.Allocate(assignedUnits, resources);
+    EXPECT_TRUE(wasAllocated);
+
+    // Now the resource budget should report a lack of resources
+    EXPECT_FALSE(budget.CanExecuteNow(resources));
+    EXPECT_TRUE(budget.CanEverExecute(resources));
+
+    // Now see if resouces that can never be available are detected
+    bool canExecute = budget.CanEverExecute(
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 10U * 1024U * 1024U,
+        ResourceType::CpuCores, 6U
+      )
+    );
+    EXPECT_FALSE(canExecute);
   }
 
   // ------------------------------------------------------------------------------------------- //
