@@ -148,4 +148,4 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Videl::Tasks
+}}} // namespace Nuclex::Platform::Tasks

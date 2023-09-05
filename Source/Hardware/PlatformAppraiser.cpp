@@ -19,24 +19,13 @@ License along with this library
 #pragma endregion // CPL License
 
 // If the library is compiled as a DLL, this ensures symbols are exported
-#define NUCLEX_PLATFORM_SOURCE 1
+#define NUCLEX_SUPPORT_SOURCE 1
 
-//#include "Nuclex/Support/Variant.h"
-#include <gtest/gtest.h>
+#include "Nuclex/Platform/Hardware/PlatformAppraiser.h"
 
-// https://cplusplus.github.io/LWG/issue3121
-// #define NUCLEX_SUPPORT_VARIANT_WITH_STDANY_CONSTRUCTOR
+// --------------------------------------------------------------------------------------------- //
 
-namespace Nuclex { namespace Support {
+// This file is only here to guarantee that its associated header has no hidden
+// dependencies and can be included on its own
 
-  // ------------------------------------------------------------------------------------------- //
-
-  TEST(VariantTest, CanBeCreated) {
-    EXPECT_NO_THROW(
-      int i = 0;
-    );
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
-}} // namespace Nuclex::Support
+// --------------------------------------------------------------------------------------------- //

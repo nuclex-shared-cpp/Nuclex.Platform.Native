@@ -18,8 +18,8 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_HARDWARE_HARDWAREMETRICS_H
-#define NUCLEX_PLATFORM_HARDWARE_HARDWAREMETRICS_H
+#ifndef NUCLEX_PLATFORM_HARDWARE_PLATFORMAPPRAISER_H
+#define NUCLEX_PLATFORM_HARDWARE_PLATFORMAPPRAISER_H
 
 #include "Nuclex/Platform/Config.h"
 
@@ -57,13 +57,13 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   ///   optimal use of CPU cores (i.e. put more resources towards a slow stage rather than
   ///   just letting all stages burn as much CPU as they want).
   /// </remarks>
-  class PlatformAssessor {
+  class PlatformAppraiser {
 
     /// <summary>Initializes a new hardware metrics provider</summary>
-    public: PlatformAssessor();
+    public: PlatformAppraiser();
 
     /// <summary>Frees all resources owned by the hardware metrics provider</summary>
-    public: ~PlatformAssessor() = default;
+    public: ~PlatformAppraiser() = default;
 
     //public: std::future<
 
@@ -193,4 +193,4 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
 }}} // namespace Nuclex::Videl::Systems
 
-#endif // NUCLEX_PLATFORM_HARDWARE_HARDWAREMETRICS_H
+#endif // NUCLEX_PLATFORM_HARDWARE_PLATFORMAPPRAISER_H

@@ -39,7 +39,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Videl::Tasks
+}}} // namespace Nuclex::Platform::Tasks
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 
@@ -337,6 +337,6 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Videl::Tasks
+}}} // namespace Nuclex::Platform::Tasks
 
-#endif // NUCLEX_VIDEL_TASKS_RESOURCEBUDGET_H
+#endif // NUCLEX_PLATFORM_TASKS_RESOURCEBUDGET_H
