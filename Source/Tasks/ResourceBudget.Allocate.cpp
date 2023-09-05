@@ -376,7 +376,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
         if(closestAvailable == std::size_t(-1)) {
           return false;
         }
-      } // resource type is needed
+      } // if resource type is needed
 
     } // for each resource type
 

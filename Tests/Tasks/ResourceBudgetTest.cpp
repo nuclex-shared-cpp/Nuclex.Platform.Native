@@ -123,4 +123,199 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
+  TEST(ResourceBudgetTest, AllocatesAdequateResourceUnits) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 8U);
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 4U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 24U * 1024U * 1024U);
+
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+    assignedUnits.fill(std::size_t(-1));
+    
+    bool wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 16U * 1024U * 1024U,
+        ResourceType::CpuCores, 8U
+      )
+    );
+
+    EXPECT_TRUE(wasAllocated);
+
+    std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
+
+    std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 2U);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(ResourceBudgetTest, AllocateFailsOnInsufficientResources) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 4U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+    assignedUnits.fill(std::size_t(-1));
+    
+    bool wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 10U * 1024U * 1024U,
+        ResourceType::CpuCores, 2U
+      )
+    );
+
+    EXPECT_FALSE(wasAllocated);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(ResourceBudgetTest, AllocateBlockAssignedResources) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+
+    std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
+    std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
+
+    // First allocation, should pick units 0, 0
+    assignedUnits.fill(std::size_t(-1));
+    bool wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 0U);
+
+    // Second allocation, should pick units 1, 1
+    assignedUnits.fill(std::size_t(-1)); // to request unit selection
+    wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 1U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 1U);
+
+    // Third allocation should fail because resources ran out
+    assignedUnits.fill(std::size_t(-1)); // to request unit selection
+    wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_FALSE(wasAllocated);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(ResourceBudgetTest, AllocateHonorsExplicitUnitSelection) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+
+    std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
+    std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
+
+    // First allocation, should pick units 0, 0
+    assignedUnits.fill(std::size_t(-1));
+    assignedUnits.at(videoMemoryUnitIndex) = 1;
+    bool wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 1U);
+
+    // First allocation, should pick units 0, 0
+    assignedUnits.fill(std::size_t(-1));
+    assignedUnits.at(videoMemoryUnitIndex) = 1;
+    wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_FALSE(wasAllocated);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(ResourceBudgetTest, ReleaseFreesResources) {
+    ResourceBudget budget;
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::CpuCores, 4U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+    budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
+
+    std::array<std::size_t, MaximumResourceType + 1> assignedUnits;
+
+    std::size_t cpuCoreUnitIndex = static_cast<std::size_t>(ResourceType::CpuCores);
+    std::size_t videoMemoryUnitIndex = static_cast<std::size_t>(ResourceType::VideoMemory);
+
+    // First allocation, should pick units 0, 0
+    assignedUnits.fill(std::size_t(-1));
+    bool wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 0U);
+
+    // Free the resources again
+    budget.Release(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+
+    // Second allocation, should pick units 0, 0 again
+    assignedUnits.fill(std::size_t(-1));
+    wasAllocated = budget.Allocate(
+      assignedUnits,
+      ResourceManifest::Create(
+        ResourceType::VideoMemory, 6U * 1024U * 1024U,
+        ResourceType::CpuCores, 3U
+      )
+    );
+    EXPECT_TRUE(wasAllocated);
+    EXPECT_EQ(assignedUnits.at(cpuCoreUnitIndex), 0U);
+    EXPECT_EQ(assignedUnits.at(videoMemoryUnitIndex), 0U);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 }}} // namespace Nuclex::Platform::Tasks
