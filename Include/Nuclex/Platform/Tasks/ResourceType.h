@@ -39,6 +39,13 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <summary>Amount ot GPU memory that will be used</summary>
     VideoMemory,
     /// <summary>Number of web requests that will be generated</summary>
+    /// <remarks>
+    ///   I suspect this will not see much use. It allows you to have a global throttle
+    ///   on the number of web requests (feel free to abuse it for something else).
+    ///   In controlled use cases, it could also do basic load balancing (i.e. add
+    ///   3 units supporting 1 web request at a time and tasks running in parallel will
+    ///   each be given one of the units - allowing task to use i.e. 3 micro services).
+    /// </remarks>
     WebRequests
 
   };

@@ -184,7 +184,10 @@ namespace {
     if(this->primaryResources == nullptr) {
       this->primaryResources = unwrappedManifest;
     } else {
-      assert(this->secondaryResources == nullptr);
+      assert(
+        (this->secondaryResources == nullptr) &&
+        u8"The resource budgeteer can only keep track of two resource manifests at most"
+      );
       this->secondaryResources = unwrappedManifest;
     }
 

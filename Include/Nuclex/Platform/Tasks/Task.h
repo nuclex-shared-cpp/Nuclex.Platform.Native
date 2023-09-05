@@ -59,13 +59,9 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     public: virtual ~Task() = default;
 
-    /// <summary>Resources that this task environment will consume when it runs</summary>
+    /// <summary>Resources that this task will consume while it runs</summary>
     public: std::shared_ptr<ResourceManifest> Resources;
-/*
-    /// <summary>Reports the resources that the task will occupiy while it runs</summary>
-    /// <returns>A resource manifest with the resources the task will occupy</returns>
-    public: virtual ResourceManifest &GetUsedResources() const = 0;
-*/
+
     /// <summary>Executes the task, using the specified resource units</summary>
     /// <param name="resourceUnitIndices">
     ///   when you set up the task coordinator, you specify one or more &quot;units&quot;

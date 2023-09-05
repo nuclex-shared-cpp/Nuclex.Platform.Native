@@ -26,7 +26,6 @@ License along with this library
 #include <Nuclex/Support/Errors/CanceledError.h>
 
 #include <string> // for std::string
-#include <atomic> // for std::atomic, std::atomic_thread_fence
 #include <chrono> // for std::chrono::microseconds
 
 namespace Nuclex { namespace Platform { namespace Tasks {

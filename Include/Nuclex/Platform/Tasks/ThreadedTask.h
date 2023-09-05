@@ -24,8 +24,6 @@ License along with this library
 #include "Nuclex/Platform/Config.h"
 #include "Nuclex/Platform/Tasks/Task.h" // for Task
 
-#include <atomic> // for std::atomic
-
 namespace Nuclex { namespace Support { namespace Threading {
 
   // ------------------------------------------------------------------------------------------- //
