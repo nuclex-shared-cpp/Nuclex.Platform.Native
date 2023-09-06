@@ -31,68 +31,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Config.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\CancellationTrigger.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\CancellationWatcher.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\ResourceManifest.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\ResourceType.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\Task.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\TaskEnvironment.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\ThreadedTask.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Tasks\CancellationTriggerTest.cpp">
-      <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Tasks\CancellationWatcherTest.cpp">
-      <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Tasks\NaiveTaskCoordinatorTest.cpp">
-      <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Tasks\ResourceBudgetTest.cpp">
-      <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Tasks\ResourceManifestTest.cpp">
-      <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Tasks\ThreadedTaskTest.cpp">
-      <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\ResourceBudget.Allocate.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\ResourceBudget.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\ResourceBudget.Release.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\TaskCoordinator.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Include\Nuclex\Platform\Config.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationTrigger.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
@@ -114,22 +52,88 @@
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ThreadedTask.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Config.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h">
+      <Filter>Include\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h">
+      <Filter>Include\Tasks</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Tasks\CancellationTrigger.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\CancellationWatcher.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\ResourceBudget.Allocate.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\ResourceBudget.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
     <ClInclude Include="Source\Tasks\ResourceBudget.h">
       <Filter>Source\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h">
+    <ClCompile Include="Source\Tasks\ResourceBudget.Release.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\ResourceManifest.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\ResourceType.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\Task.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\TaskCoordinator.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\TaskEnvironment.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tasks\ThreadedTask.cpp">
+      <Filter>Source\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Config.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tests\Tasks\CancellationTriggerTest.cpp">
       <Filter>Tests\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h">
+    </ClCompile>
+    <ClCompile Include="Tests\Tasks\CancellationWatcherTest.cpp">
       <Filter>Tests\Tasks</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="Tests\Tasks\NaiveTaskCoordinatorTest.cpp">
+      <Filter>Tests\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\Tasks\ResourceBudgetTest.cpp">
+      <Filter>Tests\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\Tasks\ResourceManifestTest.cpp">
+      <Filter>Tests\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\Tasks\ThreadedTaskTest.cpp">
+      <Filter>Tests\Tasks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Nuclex.Support.Native.ref" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.md" />
-    <None Include="Nuclex.Platform.Native.def" />
+    <None Include="Nuclex.Platform.Native.def">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Documents\Copyright.md" />

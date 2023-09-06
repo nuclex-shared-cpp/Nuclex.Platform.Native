@@ -205,7 +205,6 @@
     <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskEnvironment.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ThreadedTask.h" />
-    <ClInclude Include="Source\Tasks\ResourceBudget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Config.cpp" />
@@ -214,6 +213,7 @@
     <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.Allocate.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.cpp" />
+    <ClInclude Include="Source\Tasks\ResourceBudget.h" />
     <ClCompile Include="Source\Tasks\ResourceBudget.Release.cpp" />
     <ClCompile Include="Source\Tasks\ResourceManifest.cpp" />
     <ClCompile Include="Source\Tasks\ResourceType.cpp" />
