@@ -24,6 +24,8 @@ License along with this library
 #include "Nuclex/Platform/Config.h"
 #include "Nuclex/Platform/Interaction/MessageService.h"
 
+#include <memory> // for std::unique_ptr
+
 namespace Nuclex { namespace Platform { namespace Interaction {
 
   // ------------------------------------------------------------------------------------------- //
@@ -35,7 +37,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     public: NUCLEX_PLATFORM_API TerminalMessageService();
 
     /// <summary>Frees all resources owned by the terminal message service</summary>
-    public: NUCLEX_PLATFORM_API ~TerminalMessageService() = default;
+    public: NUCLEX_PLATFORM_API ~TerminalMessageService();
 
     /// <summary>Whether the message service is manually word-wrapping lines</summary>
     /// <returns>True if the message service is currently word-wrapping lines</returns>
@@ -166,8 +168,11 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     private: bool doManualWordWrapping;
     /// <summary>Whether the message service currently uses CR-LF line breaks</summary>
     private: bool useWindowsLineBreaks;
-    /// <summary>A buffer used to construct intermediate lines before printing</summary>
-    private: std::string buffer;
+
+    /// <summary>Stores private data of the platform-dependent implementation</summary>
+    private: class ImplementationData;
+    /// <summary>Private data used by the platform-dependent implementation</summary>
+    private: std::unique_ptr<ImplementationData> implementationData;
 
   };
 

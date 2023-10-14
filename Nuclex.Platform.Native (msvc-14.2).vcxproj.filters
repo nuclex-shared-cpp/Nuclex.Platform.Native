@@ -23,6 +23,15 @@
     <Filter Include="Documents">
       <UniqueIdentifier>{281d21e9-54ae-41ff-b4d5-d1af944e82a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Platform">
+      <UniqueIdentifier>{bc1479f6-3664-42fc-a04a-ab2340514a68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Interaction">
+      <UniqueIdentifier>{be2c5026-1dac-4a7e-8c7d-fd48a87901e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Interaction">
+      <UniqueIdentifier>{6ee89a3e-e99c-4f4e-b419-10eac7dc419c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationTrigger.h">
@@ -54,6 +63,51 @@
     </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h">
       <Filter>Include\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\GtkApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\GtkDialogApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\PosixApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\WindowsApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\WindowsConsoleApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\WindowsFileApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\WindowsMessageBoxApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\ActiveWindowTracker.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\GuiMessageService.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\Message.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\MessageIcon.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\MessageService.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\ModernGuiMessageService.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\TerminalMessageService.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h">
+      <Filter>Source\Platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +152,45 @@
     </ClCompile>
     <ClCompile Include="Source\Config.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\GtkApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\GtkDialogApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\PosixApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\WindowsApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\WindowsConsoleApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\WindowsFileApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\WindowsMessageBoxApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\Message.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\MessageIcon.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\MessageService.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\TerminalMessageService.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\TerminalMessageService.Windows.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\WindowsTaskDialogApi.cpp">
+      <Filter>Source\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
