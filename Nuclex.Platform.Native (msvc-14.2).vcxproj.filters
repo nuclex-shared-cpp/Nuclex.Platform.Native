@@ -109,6 +109,9 @@
     <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h">
       <Filter>Source\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\ExtendedMessageService.h">
+      <Filter>Include\Interaction</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Tasks\CancellationTrigger.cpp">
@@ -191,6 +194,24 @@
     </ClCompile>
     <ClCompile Include="Source\Platform\WindowsTaskDialogApi.cpp">
       <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\ActiveWindowTracker.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\GuiMessageService.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\GuiMessageService.Gtk.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\GuiMessageService.Kde.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\GuiMessageService.Windows.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp">
+      <Filter>Source\Interaction</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

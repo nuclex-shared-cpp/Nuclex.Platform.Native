@@ -100,11 +100,9 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   void TerminalMessageService::Inform(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    if(this->doManualWordWrapping) {
-      std::size_t terminalWidth;
-      if(this->implementationData->ConsoleScreenBufferHandle == INVALID_HANDLE_VALUE) {
-        terminalWidth = 80;
-      } else {
+    if(this->implementationData->ConsoleScreenBufferHandle != INVALID_HANDLE_VALUE) {
+      if(this->doManualWordWrapping) {
+        std::string terminalWidth;
         Platform::WindowsConsoleApi::GetConsoleScreenBufferInfo(
           this->implementationData->ConsoleScreenBufferHandle,
           this->implementationData->ConsoleScreenBufferInfo
@@ -112,9 +110,14 @@ namespace Nuclex { namespace Platform { namespace Interaction {
         terminalWidth = static_cast<std::size_t>(
           this->implementationData->ConsoleScreenBufferInfo.dwSize.X
         );
-      }
-    } else {
 
+        // TODO: Print with wrapping
+
+      } else {
+
+        // TODO: Print without wrapping
+
+      }
     }
   }
 

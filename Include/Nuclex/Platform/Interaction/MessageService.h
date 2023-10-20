@@ -35,7 +35,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   class NUCLEX_PLATFORM_TYPE MessageService {
 
     /// <summary>Frees all resources owned by the instance</summary>
-    public: NUCLEX_PLATFORM_API ~MessageService() = default;
+    public: NUCLEX_PLATFORM_API virtual ~MessageService() = default;
 
 #if 0 // Requires library user to subclass message service implementation... good/bad?
     /// <summary>Whether the message service is interactive (versus unattended)</summary>
@@ -95,7 +95,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     /// <summary>Displays a question to the user, answerable with yes, no or cancel</summary>
     /// <param name="topic">Topic of the question (normally used as the window title)</param>
     /// <param name="heading">Basic question being asked (normally written in bold)</param>
-    /// <param name="message">Message text elaborating in the question and actions</param>
+    /// <param name="message">Message elaborating the question and possible actions</param>
     /// <returns>
     ///   True if the user answered yes, false if the user answered no and nothing if
     ///   the user wishes to cancel

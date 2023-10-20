@@ -59,6 +59,15 @@ namespace Nuclex { namespace Platform { namespace Interaction {
 
   // ------------------------------------------------------------------------------------------- //
 
+  GuiMessageService::GuiMessageService(
+    const std::shared_ptr<ActiveWindowTracker> &activeWindowTracker /* = (
+      std::shared_ptr<ActiveWindowTracker>()
+    ) */
+  ) :
+    activeWindowTracker(activeWindowTracker) {}
+
+  // ------------------------------------------------------------------------------------------- //
+
   void GuiMessageService::Inform(
     const std::string &topic, const std::string &, const std::string &message
   ) {
@@ -160,7 +169,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   // ------------------------------------------------------------------------------------------- //
 
   std::optional<bool> GuiMessageService::AskYesNoCancel(
-    const std::string &topic, const std::string &heading, const std::string &message
+    const std::string &topic, const std::string &, const std::string &message
   ) {
     ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
     int choice = Platform::WindowsMessageBoxApi::ShowMessageBox(

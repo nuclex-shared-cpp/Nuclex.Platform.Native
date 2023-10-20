@@ -114,7 +114,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     ) override;
 
     /// <summary>Provides the currently active top-level window</summary>
-    private: std::shared_ptr<ActiveWindowTracker> &activeWindowTracker;
+    private: std::shared_ptr<ActiveWindowTracker> activeWindowTracker;
 
   };
 

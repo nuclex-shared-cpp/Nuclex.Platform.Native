@@ -197,6 +197,7 @@
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Config.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\ActiveWindowTracker.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Interaction\ExtendedMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\GuiMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\Message.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\MessageIcon.h" />
@@ -215,6 +216,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Config.cpp" />
+    <ClCompile Include="Source\Interaction\ActiveWindowTracker.cpp" />
+    <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp" />
+    <ClCompile Include="Source\Interaction\GuiMessageService.cpp" />
+    <ClCompile Include="Source\Interaction\GuiMessageService.Gtk.cpp" />
+    <ClCompile Include="Source\Interaction\GuiMessageService.Kde.cpp" />
+    <ClCompile Include="Source\Interaction\GuiMessageService.Windows.cpp" />
     <ClCompile Include="Source\Interaction\Message.cpp" />
     <ClCompile Include="Source\Interaction\MessageIcon.cpp" />
     <ClCompile Include="Source\Interaction\MessageService.cpp" />
