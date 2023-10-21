@@ -25,6 +25,7 @@ License along with this library
 #include "Nuclex/Platform/Interaction/MessageService.h"
 
 #include <initializer_list> // for std::initializer_list
+#include <chrono> // for std::chrono::milliseconds
 
 namespace Nuclex { namespace Platform { namespace Interaction {
 
@@ -42,7 +43,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     /// <param name="message">Message text elaborating the question and choices</param>
     /// <param name="choices">Choices that are available for the user</param>
     /// <returns>The index of the choice that the user has made</returns>
-    public: virtual std::size_t GiveChoices(
+    public: virtual std::optional<std::size_t> GiveChoices(
       const std::string &topic, const std::string &heading, const std::string &message,
       const std::initializer_list<std::string> &choices
     ) = 0;
@@ -55,7 +56,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     /// <returns>True if the user gave confirmation, false otherwise</returns>
     public: virtual bool RequestConfirmation(
       const std::string &topic, const std::string &heading, const std::string &message,
-      int buttonEnableDelay = 0
+      std::chrono::milliseconds buttonEnableDelay = std::chrono::milliseconds(2000)
     ) = 0;
 
   };

@@ -213,6 +213,12 @@
     <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Interaction\ModernGuiMessageService.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Interaction\ModernGuiMessageService.Windows.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.md" />

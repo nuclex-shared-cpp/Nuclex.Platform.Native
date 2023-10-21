@@ -18,11 +18,11 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_INTERACTION_GUIMESSAGESERVICE_H
-#define NUCLEX_PLATFORM_INTERACTION_GUIMESSAGESERVICE_H
+#ifndef NUCLEX_PLATFORM_INTERACTION_MODERNGUIMESSAGESERVICE_H
+#define NUCLEX_PLATFORM_INTERACTION_MODERNGUIMESSAGESERVICE_H
 
 #include "Nuclex/Platform/Config.h"
-#include "Nuclex/Platform/Interaction/MessageService.h"
+#include "Nuclex/Platform/Interaction/ExtendedMessageService.h"
 
 #include <memory> // for std::shared_ptr
 
@@ -41,21 +41,21 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Shows notifications and questions to be displayed to an interactive user</summary>
-  class NUCLEX_PLATFORM_TYPE GuiMessageService : public MessageService {
+  class NUCLEX_PLATFORM_TYPE ModernGuiMessageService : ExtendedMessageService {
 
     /// <summary>Initializes a new GUI-based message service</summary>
     /// <param name="activeWindowTracker">
     ///   Used to obtain the active top-level window that should become the owner of any
     ///   message boxes that are displayed.
     /// </param>
-    public: NUCLEX_PLATFORM_API GuiMessageService(
+    public: NUCLEX_PLATFORM_API ModernGuiMessageService(
       const std::shared_ptr<ActiveWindowTracker> &activeWindowTracker = (
         std::shared_ptr<ActiveWindowTracker>()
       )
     );
 
-    /// <summary>Frees all resources owned by the GUI-based message service</summary>
-    public: NUCLEX_PLATFORM_API ~GuiMessageService() override = default;
+    /// <summary>Frees all resources owned by the instance</summary>
+    public: NUCLEX_PLATFORM_API ~ModernGuiMessageService() override = default;
 
     /// <summary>Displays a notification containing information to the user</summary>
     /// <param name="topic">Topic of the information (normally used as the window title)</param>
@@ -113,6 +113,28 @@ namespace Nuclex { namespace Platform { namespace Interaction {
       const std::string &topic, const std::string &heading, const std::string &message
     ) override;
 
+    /// <summary>Requires the user to choose between a set of options</summary>
+    /// <param name="topic">Topic of the question (normally used as the window title)</param>
+    /// <param name="heading">Basic question being asked (normally written in bold)</param>
+    /// <param name="message">Message text elaborating the question and choices</param>
+    /// <param name="choices">Choices that are available for the user</param>
+    /// <returns>The index of the choice that the user has made</returns>
+    public: NUCLEX_PLATFORM_API std::optional<std::size_t> GiveChoices(
+      const std::string &topic, const std::string &heading, const std::string &message,
+      const std::initializer_list<std::string> &choices
+    ) override;
+
+    /// <summary>Requests confirmation from the user for a dangerous action</summary>
+    /// <param name="topic">Topic of the question (normally used as the window title)</param>
+    /// <param name="heading">Basic question being asked (normally written in bold)</param>
+    /// <param name="message">Message text elaborating what will happen</param>
+    /// <param name="choices">Choices that are available for the user</param>
+    /// <returns>True if the user gave confirmation, false otherwise</returns>
+    public: NUCLEX_PLATFORM_API bool RequestConfirmation(
+      const std::string &topic, const std::string &heading, const std::string &message,
+      std::chrono::milliseconds buttonEnableDelay = std::chrono::milliseconds(2000)
+    ) override;
+
     /// <summary>Provides the currently active top-level window</summary>
     private: std::shared_ptr<ActiveWindowTracker> activeWindowTracker;
 
@@ -122,8 +144,4 @@ namespace Nuclex { namespace Platform { namespace Interaction {
 
 }}} // namespace Nuclex::Platform::Interaction
 
-#endif // NUCLEX_PLATFORM_INTERACTION_MESSAGESERVICE_H
-
-// Support native platform MessageBox
-// Support task bar notification
-// Support command line output
+#endif // NUCLEX_PLATFORM_INTERACTION_MODERNGUIMESSAGESERVICE_H

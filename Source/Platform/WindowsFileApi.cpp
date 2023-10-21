@@ -54,7 +54,12 @@ namespace Nuclex { namespace Platform { namespace Platform {
     );
     if(unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
       DWORD errorCode = ::GetLastError();
-      if(throwIfNoneExists || (errorCode != ERROR_FILE_NOT_FOUND)) {
+
+      bool isLackingConsole = (
+        (errorCode == ERROR_INVALID_HANDLE) ||
+        (errorCode == ERROR_FILE_NOT_FOUND)
+      );
+      if(throwIfNoneExists || (!isLackingConsole)) {
         std::string errorMessage(u8"Could not open active console screen buffer");
         Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);
       }
