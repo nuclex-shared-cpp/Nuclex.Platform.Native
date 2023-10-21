@@ -135,6 +135,19 @@ namespace Nuclex { namespace Platform { namespace Interaction {
       std::chrono::milliseconds buttonEnableDelay = std::chrono::milliseconds(2000)
     ) override;
 
+    /// <summary>Offers the user a chance to cancel an action for a limited time</summary>
+    /// <param name="topic">Topic of the action (normally used as the window title)</param>
+    /// <param name="heading">Thing that can be cancelled (normally written in bold)</param>
+    /// <param name="message">Message text elaborating what will happen</param>
+    /// <param name="autoAcceptDelay">
+    ///   Time after which the dialog will automatically be confirmed
+    /// </param>
+    /// <returns>True if the user gave confirmation, false otherwise</returns>
+    public: NUCLEX_PLATFORM_API bool OfferCancellation(
+      const std::string &topic, const std::string &heading, const std::string &message,
+      std::chrono::milliseconds autoAcceptDelay = std::chrono::milliseconds(5000)
+    ) override;
+
     /// <summary>Provides the currently active top-level window</summary>
     private: std::shared_ptr<ActiveWindowTracker> activeWindowTracker;
 

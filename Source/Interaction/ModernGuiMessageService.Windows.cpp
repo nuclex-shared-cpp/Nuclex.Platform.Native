@@ -49,6 +49,16 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>Tracks the state of a task dialog used for optional cancellation</summary>
+  struct CancellationTaskDialogState {
+
+    /// <summary>Number of milliseconds after which the dialog will be confirmed</summary>
+    public: std::size_t AutoConfirmationDelayMilliseconds;
+
+  };
+
+  // ------------------------------------------------------------------------------------------- //
+
   /// <summary>Retrieves the handle of the currently active top-level window</summary>
   /// <param name="activeWindowTracker">
   ///   Window tracker that (may be null) that knows the current top-level window
@@ -133,6 +143,52 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>Callback procedure for the confirmation task dialog</summary>
+  /// <param name="taskDialogWindowHandle">Window handle of the task dialog</param>
+  /// <param name="messageType">Type of notification the callback is invoked for</param>
+  /// <param name="firstArgument">First notification-dependent argument</param>
+  /// <param name="secondArgument">Second notification-dependent argument</param>
+  /// <param name="applicationUserData">User data that was provided to the task dialog</param>
+  /// <returns>A result handle that indicates if the callback executed successfully</returns>
+  HRESULT CancellationTaskDialogCallback(
+    ::HWND taskDialogWindowHandle,
+    ::UINT messageType,
+    ::WPARAM firstArgument,
+    ::LPARAM secondArgument,
+    ::LONG_PTR applicationUserData
+  ) {
+    switch(messageType) {
+
+      // Sent by the task dialog when the TDF_CALLBACK_TIMER flag is set,
+      // roughly every 200 milliseconds
+      case TDN_TIMER: {
+        CancellationTaskDialogState &state = *(
+          reinterpret_cast<CancellationTaskDialogState *>(applicationUserData)
+        );
+
+        std::size_t totalElapsedSeconds = static_cast<std::size_t>(firstArgument);
+        if(totalElapsedSeconds >= state.AutoConfirmationDelayMilliseconds) {
+          // Click the 'Ok' button in the dialog.
+          // The return value of this message is ignored according to
+          // https://learn.microsoft.com/en-us/windows/win32/controls/tdm-click-button
+          ::SendMessageW(
+            taskDialogWindowHandle,
+            TDM_CLICK_BUTTON,
+            IDOK,
+            0 // Unused, must be zero
+          );
+        }
+
+        break;
+      }
+
+    }
+
+    return S_OK;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 } // anonymous namespace
 
 namespace Nuclex { namespace Platform { namespace Interaction {
@@ -151,10 +207,8 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   void ModernGuiMessageService::Inform(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
-
     Platform::WindowsTaskDialogApi::TaskDialog(
-      activeWindowHandle,
+      getActiveTopLevelWindow(this->activeWindowTracker),
       ::HINSTANCE(nullptr),
       topic,
       heading,
@@ -169,10 +223,8 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   void ModernGuiMessageService::Warn(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
-
     Platform::WindowsTaskDialogApi::TaskDialog(
-      activeWindowHandle,
+      getActiveTopLevelWindow(this->activeWindowTracker),
       ::HINSTANCE(nullptr),
       topic,
       heading,
@@ -187,10 +239,8 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   void ModernGuiMessageService::Complain(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
-
     Platform::WindowsTaskDialogApi::TaskDialog(
-      activeWindowHandle,
+      getActiveTopLevelWindow(this->activeWindowTracker),
       ::HINSTANCE(nullptr),
       topic,
       heading,
@@ -205,10 +255,8 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   bool ModernGuiMessageService::AskYesNo(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
-
     int selectedButtonId = Platform::WindowsTaskDialogApi::TaskDialog(
-      activeWindowHandle,
+      getActiveTopLevelWindow(this->activeWindowTracker),
       ::HINSTANCE(nullptr),
       topic,
       heading,
@@ -228,10 +276,8 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   bool ModernGuiMessageService::AskOkCancel(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
-
     int selectedButtonId = Platform::WindowsTaskDialogApi::TaskDialog(
-      activeWindowHandle,
+      getActiveTopLevelWindow(this->activeWindowTracker),
       ::HINSTANCE(nullptr),
       topic,
       heading,
@@ -251,10 +297,8 @@ namespace Nuclex { namespace Platform { namespace Interaction {
   std::optional<bool> ModernGuiMessageService::AskYesNoCancel(
     const std::string &topic, const std::string &heading, const std::string &message
   ) {
-    ::HWND activeWindowHandle = getActiveTopLevelWindow(this->activeWindowTracker);
-
     int selectedButtonId = Platform::WindowsTaskDialogApi::TaskDialog(
-      activeWindowHandle,
+      getActiveTopLevelWindow(this->activeWindowTracker),
       ::HINSTANCE(nullptr),
       topic,
       heading,
@@ -397,6 +441,67 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     configuration.pszFooterIcon = nullptr;
     configuration.pszFooter = nullptr;
     configuration.pfCallback = &ConfirmationTaskDialogCallback;
+    configuration.lpCallbackData = reinterpret_cast<::LONG_PTR>(&dialogState);
+    configuration.cxWidth = 0; // auto-calculate
+
+    // With the task dialog configuration fully initialized, we can now call
+    // the TaskDialogIndirect() function and get the beast displayed.
+    int clickedButtonId = -1;
+    Platform::WindowsTaskDialogApi::TaskDialog(
+      configuration,
+      &clickedButtonId,
+      nullptr,
+      nullptr
+    );
+
+    return (clickedButtonId == IDOK);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  bool ModernGuiMessageService::OfferCancellation(
+    const std::string &topic, const std::string &heading, const std::string &message,
+    std::chrono::milliseconds autoAcceptDelay /* = std::chrono::milliseconds(5000) */
+  ) {
+    using Nuclex::Support::Text::StringConverter;
+
+    // UTF-16 variants of the window title, heading and message contents
+    std::wstring utf16Topic = StringConverter::WideFromUtf8(topic);
+    std::wstring utf16Heading = StringConverter::WideFromUtf8(heading);
+    std::wstring utf16Message = StringConverter::WideFromUtf8(message);
+
+    ConfirmationTaskDialogState dialogState;
+    dialogState.ConfirmationButtonEnableDelayMilliseconds = static_cast<std::size_t>(
+      autoAcceptDelay.count()
+    );
+    dialogState.WasEnableMessageSent = false;
+
+    // The extended task dialog uses a large configuration structure that we need to
+    // initialize completely because almost any number of combinations of radio buttons,
+    // command links, buttons and extra text is possible.
+    ::TASKDIALOGCONFIG configuration;
+    configuration.cbSize = sizeof(configuration);
+    configuration.hwndParent = getActiveTopLevelWindow(this->activeWindowTracker);
+    configuration.hInstance = ::HINSTANCE(nullptr);
+    configuration.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_CALLBACK_TIMER;
+    configuration.dwCommonButtons = TDCBF_OK_BUTTON | TDCBF_CANCEL_BUTTON;
+    configuration.pszWindowTitle = utf16Topic.c_str();
+    configuration.pszMainIcon = nullptr;
+    configuration.pszMainInstruction = utf16Heading.c_str();
+    configuration.pszContent = utf16Message.c_str();
+    configuration.cButtons = 0;
+    configuration.pButtons = nullptr;
+    configuration.nDefaultButton = IDCLOSE;
+    configuration.cRadioButtons = 0;
+    configuration.pRadioButtons = nullptr;
+    configuration.nDefaultRadioButton = 0;
+    configuration.pszVerificationText = nullptr;
+    configuration.pszExpandedInformation = nullptr;
+    configuration.pszExpandedControlText = nullptr;
+    configuration.pszCollapsedControlText = nullptr;
+    configuration.pszFooterIcon = nullptr;
+    configuration.pszFooter = nullptr;
+    configuration.pfCallback = &CancellationTaskDialogCallback;
     configuration.lpCallbackData = reinterpret_cast<::LONG_PTR>(&dialogState);
     configuration.cxWidth = 0; // auto-calculate
 

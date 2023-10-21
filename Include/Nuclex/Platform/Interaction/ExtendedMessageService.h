@@ -52,11 +52,26 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     /// <param name="topic">Topic of the question (normally used as the window title)</param>
     /// <param name="heading">Basic question being asked (normally written in bold)</param>
     /// <param name="message">Message text elaborating what will happen</param>
-    /// <param name="choices">Choices that are available for the user</param>
+    /// <param name="buttonEnableDelay">
+    ///   Time for which the 'Ok' button will remain disabled after the dialog is displayed
+    /// </param>
     /// <returns>True if the user gave confirmation, false otherwise</returns>
     public: virtual bool RequestConfirmation(
       const std::string &topic, const std::string &heading, const std::string &message,
       std::chrono::milliseconds buttonEnableDelay = std::chrono::milliseconds(2000)
+    ) = 0;
+
+    /// <summary>Offers the user a chance to cancel an action for a limited time</summary>
+    /// <param name="topic">Topic of the action (normally used as the window title)</param>
+    /// <param name="heading">Thing that can be cancelled (normally written in bold)</param>
+    /// <param name="message">Message text elaborating what will happen</param>
+    /// <param name="autoAcceptDelay">
+    ///   Time after which the dialog will automatically be confirmed
+    /// </param>
+    /// <returns>True if the user gave confirmation, false otherwise</returns>
+    public: virtual bool OfferCancellation(
+      const std::string &topic, const std::string &heading, const std::string &message,
+      std::chrono::milliseconds autoAcceptDelay = std::chrono::milliseconds(5000)
     ) = 0;
 
   };
