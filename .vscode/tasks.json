@@ -65,7 +65,7 @@
         "isDefault": true
       },
       "type": "shell",
-      "command": "bin/linux-gcc12.3-amd64-debug/NuclexPlatformNativeTests",
+      "command": "bin/linux-gcc13.2-amd64-debug/NuclexPlatformNativeTests",
       "args": [ ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -80,7 +80,7 @@
         "isDefault": true
       },
       "type": "shell",
-      "command": "bin/linux-gcc12.3-amd64-debug/NuclexPlatformNativeBenchmark",
+      "command": "bin/linux-gcc13.2-amd64-debug/NuclexPlatformNativeBenchmark",
       "args": [ ],
       "options": {
         "cwd": "${workspaceFolder}"

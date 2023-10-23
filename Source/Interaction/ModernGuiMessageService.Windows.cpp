@@ -107,8 +107,8 @@ namespace {
           IDOK,
           0 // Disable button
         );
-        break;
 
+        break;
       }
 
       // Sent by the task dialog when the TDF_CALLBACK_TIMER flag is set,
@@ -118,8 +118,8 @@ namespace {
           reinterpret_cast<ConfirmationTaskDialogState *>(applicationUserData)
         );
         if(!state.WasEnableMessageSent) {
-          std::size_t totalElapsedSeconds = static_cast<std::size_t>(firstArgument);
-          if(totalElapsedSeconds >= state.ConfirmationButtonEnableDelayMilliseconds) {
+          std::size_t totalElapsedMilliseconds = static_cast<std::size_t>(firstArgument);
+          if(totalElapsedMilliseconds >= state.ConfirmationButtonEnableDelayMilliseconds) {
             // Enable the 'Ok' button on the dialog.
             // The return value of this message is ignored according to
             // https://learn.microsoft.com/en-us/windows/win32/controls/tdm-enable-button
@@ -166,8 +166,8 @@ namespace {
           reinterpret_cast<CancellationTaskDialogState *>(applicationUserData)
         );
 
-        std::size_t totalElapsedSeconds = static_cast<std::size_t>(firstArgument);
-        if(totalElapsedSeconds >= state.AutoConfirmationDelayMilliseconds) {
+        std::size_t totalElapsedMilliseconds = static_cast<std::size_t>(firstArgument);
+        if(totalElapsedMilliseconds >= state.AutoConfirmationDelayMilliseconds) {
           // Click the 'Ok' button in the dialog.
           // The return value of this message is ignored according to
           // https://learn.microsoft.com/en-us/windows/win32/controls/tdm-click-button
