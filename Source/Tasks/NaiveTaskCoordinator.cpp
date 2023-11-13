@@ -41,8 +41,10 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   NaiveTaskCoordinator::NaiveTaskCoordinator() :
     availableResources(std::make_unique<ResourceBudget>()),
-    threadPool(),
-    totalCpuCoreCount(0) {}
+    totalCpuCoreCount(0),
+    queueAccessMutex(),
+    waitingTasks(),
+    threadPool() {} // leave the std::optional empty for now
 
   // ------------------------------------------------------------------------------------------- //
 
@@ -76,14 +78,46 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     if(this->threadPool.has_value()) {
       throw std::logic_error(u8"Start must not be called more than once");
     }
-    
-    this->threadPool.emplace(1, this->totalCpuCoreCount);
+
+    // Set up the thread pool.
+    //
+    // We'll allow it to grow up to the size of schedulable CPU cores, so even if the user
+    // schedules that number of invididual tasks, each blocking just 1 CPU core and riding it
+    // right in the Schedule() method, we've got enough threads.
+    //
+    std::size_t maximumThreadCount = this->totalCpuCoreCount;
+
+    // On top of that, we give it 4 threads per GPU, so that 4 more tasks could run tasks on
+    // the GPU(s) of the system.
+    //
+    // There's no surefire formula for an upper bound of the thread count, but I tried to
+    // avoid just saying INT_MAX or something here. Perhaps I should?
+    //
+    maximumThreadCount += 4 * this->availableResources->CountResourceUnits(
+      ResourceType::VideoMemory
+    );
+
+    // And one as our coordination thread, to kick off scheduled tasks. This one will run
+    // throughout the lifetime of the task coordinator and check available resources whenever
+    // a task is scheduled or finishes to potentially kick off the next one(s).
+    //
+    maximumThreadCount += 1;
+
+    // Now we create the thread pool. As the minimum, we have 2 threads to handle the first
+    // incoming tasks and 1 thread that will become our execution.
+    this->threadPool.emplace(3, maximumThreadCount);
+
+    new(reinterpret_cast<std::future<void> *>(this->coordinationThreadFuture)) std::future(
+      this->threadPool->Schedule(
+        &NaiveTaskCoordinator::invokeCoordinateAndKickOffIncomingTasks, this
+      )
+    );
   }
 
   // ------------------------------------------------------------------------------------------- //
 
   std::size_t NaiveTaskCoordinator::QueryResourceMaximum(ResourceType resourceType) const {
-    return this->availableResources->QueryResource(resourceType);
+    return this->availableResources->QueryResourceMaximum(resourceType);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -91,7 +125,10 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   void NaiveTaskCoordinator::Schedule(
     const std::shared_ptr<Task> &task
   ) {
-    (void)task;
+    std::lock_guard<std::mutex> queueAccessLock(this->queueAccessMutex);
+
+    this->waitingTasks.emplace_back(task);
+    // TODO: Check if execution thread needs to be launched by checking number of active cores
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -100,8 +137,10 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     const std::shared_ptr<TaskEnvironment> &environment,
     const std::shared_ptr<Task> &task
   ) {
-    (void)environment;
-    (void)task;
+    std::lock_guard<std::mutex> queueAccessLock(this->queueAccessMutex);
+
+    this->waitingTasks.emplace_back(task, environment);
+    // TODO: Check if execution thread needs to be launched by checking number of active cores
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -144,6 +183,19 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   void NaiveTaskCoordinator::CancelAll(bool forever /* = true */) {
     (void)forever;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void NaiveTaskCoordinator::coordinateAndKickOffIncomingTasks() {
+    
+
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void NaiveTaskCoordinator::invokeCoordinateAndKickOffIncomingTasks(NaiveTaskCoordinator *self) {
+    self->coordinateAndKickOffIncomingTasks();
   }
 
   // ------------------------------------------------------------------------------------------- //

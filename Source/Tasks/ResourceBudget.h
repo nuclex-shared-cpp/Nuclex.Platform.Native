@@ -109,7 +109,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   multiple GPUs installed, querying for video memory, for example, will return
     ///   the highest amount of video memory installed on any single device.
     /// </remarks>
-    public: std::size_t QueryResource(Tasks::ResourceType resourceType) const;
+    public: std::size_t QueryResourceMaximum(Tasks::ResourceType resourceType) const;
 
     /// <summary>Counts the number of resource units that exist for a given resource</summary>
     /// <param name="resourceType">Type of resource whose units will be counted</param>

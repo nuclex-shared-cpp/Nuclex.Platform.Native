@@ -28,6 +28,9 @@ License along with this library
 
 #include <optional> // for std::optional
 #include <memory> // for std::unique_ptr
+#include <mutex> // for std::mutex
+#include <deque> // for std::deque
+#include <array> // for std::array
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 
@@ -145,9 +148,75 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     public: void CancelAll(bool forever = true) override;
 
-    /// <summary>Records  the resources available on the system</summary>
-    private: std::unique_ptr<ResourceBudget> availableResources;
+    /// <summary>Thread that launches incoming tasks acoording to available resources</summary>
+    private: void coordinateAndKickOffIncomingTasks();
 
+    /// <summary>
+    ///   Helper that calls the <see cref="coordinateAndKickOffIncomingTasks" /> method
+    /// </summary>
+    /// <param name="self">The 'this' pointer of the task coordinator instance</param>
+    private: static void invokeCoordinateAndKickOffIncomingTasks(NaiveTaskCoordinator *self);
+
+    #pragma region class ScheduledTask
+
+    /// <summary>Task that is waiting to be executed</summary>
+    private: class ScheduledTask {
+
+      /// <summary>Initializes a new scheduled task</summary>
+      /// <param name="task">Task that will be wrapped as a scheduled task</param>
+      /// <param name="environment">Environment that is needed for the task for run</param>
+      public: ScheduledTask(
+        const std::shared_ptr<Task> &task,
+        const std::shared_ptr<TaskEnvironment> &environment = std::shared_ptr<TaskEnvironment>()
+      ) :
+        PrimaryEnvironment(environment),
+        PrimaryTask(task),
+        AssignedResourceIndices() {}
+
+      /// <summary>Environment that needs to be active for the task, can be empty</summary>
+      public: std::shared_ptr<TaskEnvironment> PrimaryEnvironment;
+      /// <summary>Task to be executed</summary>
+      public: std::shared_ptr<Task> PrimaryTask;
+      /// <summary>The indices of the resource units assigned to this task</summary>
+      /// <remarks>
+      ///   When there are multiple units providing a resource (for example, multiple GPUs),
+      ///   then the task coordinator has to decide which one to run the task on. This list
+      ///   will be filled when the task is launched to remember which of the units the task
+      ///   has been told to use so it can be freed again correctly.
+      /// </remarks>
+      public: std::array<std::size_t, MaximumResourceType + 1> AssignedResourceIndices;
+
+      //public: std::uint8_t awaitedFuture[(sizeof(std::future<void>[2]) / 2)];
+
+    };
+
+    #pragma endregion // class ScheduledTask
+
+    #pragma region struct ActiveEnvironment
+
+    /// <summary>Environment that has been activated by the task coordinator</summary>
+    struct ActiveEnvironment {
+
+      /// <summary>Task environment that is currently active</summary>
+      public: std::shared_ptr<TaskEnvironment> Environment;
+      /// <summary>Units that have been selected to provide the resources</summary>
+      public: std::array<std::size_t, MaximumResourceType + 1> SelectedUnits;
+      /// <summary>Number of tasks that are using this environment right now</summary>
+      public: std::size_t ActiveTaskCount;
+
+    };
+
+    #pragma endregion // struct ActiveEnvironment
+
+    /// <summary>Tracks the resources available on the system</summary>
+    private: std::unique_ptr<ResourceBudget> availableResources;
+    /// <summary>Number of CPU cores that have been added as resources in total</summary>
+    private: std::size_t totalCpuCoreCount;
+    
+    /// <summary>Mutex that must be held when accessing the task queues</summary>
+    private: std::mutex queueAccessMutex;
+    /// <summary>Tasks that are waiting to be executed by the task coordinator</summary>
+    private: std::deque<ScheduledTask> waitingTasks;
     /// <summary>Thread pool used to start off the scheduled tasks</summary>
     /// <remarks>
     ///   Only optional so it can be constructed at a later time. Is set when
@@ -155,8 +224,9 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   as there are cpu cores added to the task coordinator.
     /// </remarks>
     private: std::optional<Nuclex::Support::Threading::ThreadPool> threadPool;
-    /// <summary>Number of CPU cores that have been added as resources in total</summary>
-    private: std::size_t totalCpuCoreCount;
+
+    /// <summary>Memory for the std::future that tracks the coordination thread</summary>
+    private: std::uint8_t coordinationThreadFuture[sizeof(std::future<void>)];
 
   };
 

@@ -362,7 +362,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-  std::size_t ResourceBudget::QueryResource(ResourceType resourceType) const {
+  std::size_t ResourceBudget::QueryResourceMaximum(ResourceType resourceType) const {
     std::size_t index = static_cast<std::size_t>(resourceType);
     assert(
       (index < this->resources.size()) && u8"Resource type within range of enumeration"
