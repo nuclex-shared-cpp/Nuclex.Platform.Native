@@ -33,21 +33,22 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Passed to background processes to tell when when they should cancel</summary>
-  class CancellationWatcher {
+  class NUCLEX_PLATFORM_TYPE CancellationWatcher {
 
     /// <summary>Initializes a new cancellation watcher</summary>
-    protected: CancellationWatcher() : Canceled(false), CancellationReason() {}
+    protected: NUCLEX_PLATFORM_API CancellationWatcher() :
+      Canceled(false), CancellationReason() {}
 
     /// <summary>Frees all resources owned by the cancellation watcher</summary>
-    public: virtual ~CancellationWatcher() = default;
+    public: NUCLEX_PLATFORM_API virtual ~CancellationWatcher() = default;
 
     /// <summary>Checks whether a cancellation has occured</summary>
-    public: bool IsCanceled() const {
+    public: NUCLEX_PLATFORM_API bool IsCanceled() const {
       return this->Canceled.load(std::memory_order::memory_order_relaxed);
     }
 
     /// <summary>Throws an exception if a cancellation has occured</summary>
-    public: void ThrowIfCanceled() const {
+    public: NUCLEX_PLATFORM_API void ThrowIfCanceled() const {
       if(IsCanceled()) {
         std::atomic_thread_fence(std::memory_order::memory_order_acquire);
         throw Nuclex::Support::Errors::CanceledError(this->CancellationReason);

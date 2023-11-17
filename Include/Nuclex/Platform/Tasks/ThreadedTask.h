@@ -50,7 +50,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   ///     Your RunThreaded() method will be called on the number of threads you specify.
   ///   </para>
   /// </remarks>
-  class ThreadedTask : public Task {
+  class NUCLEX_PLATFORM_TYPE ThreadedTask : public Task {
 
     /// <summary>Initializes a threaded task using the specified number of threads</summary>
     /// <param name="threadPool">Thread pool that will run the task's workload</param>
@@ -62,7 +62,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   (i.e. threaded task with 6 intended threads on 4 core CPU will keep 4 cores busy
     ///   for a bit, then run the remaining 2 task threads and keep only 2 cores busy).
     /// </param>
-    public: ThreadedTask(
+    public: NUCLEX_PLATFORM_API ThreadedTask(
       Nuclex::Support::Threading::ThreadPool &threadPool,
       std::size_t maximumThreadCount = std::size_t(-1)
     ) :
@@ -73,7 +73,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <remarks>
     ///   The task must be either finished or cancelled before it may be destroyed.
     /// </remarks>
-    public: virtual ~ThreadedTask() = default;
+    public: NUCLEX_PLATFORM_API virtual ~ThreadedTask() = default;
 
     /// <summary>Executes the task, using the specified resource units</summary>
     /// <param name="resourceUnitIndices">
@@ -82,7 +82,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="cancellationWatcher">
     ///   Lets the task detect when it is requested to cancel its processing
     /// </param>
-    public: void Run(
+    public: NUCLEX_PLATFORM_API void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
     ) noexcept override;
@@ -103,7 +103,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   Any task that takes longer than a couple of milliseconds should check for
     ///   cancellation at regular intervals to ensure the task coordinator isn't clogged.
     /// </param>
-    protected: virtual void ThreadedRun(
+    protected: NUCLEX_PLATFORM_API virtual void ThreadedRun(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
     ) noexcept = 0;

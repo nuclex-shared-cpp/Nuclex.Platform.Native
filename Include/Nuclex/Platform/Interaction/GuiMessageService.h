@@ -55,7 +55,7 @@ namespace Nuclex { namespace Platform { namespace Interaction {
     );
 
     /// <summary>Frees all resources owned by the GUI-based message service</summary>
-    public: NUCLEX_PLATFORM_API ~GuiMessageService() override = default;
+    public: NUCLEX_PLATFORM_API ~GuiMessageService() override;
 
     /// <summary>Displays a notification containing information to the user</summary>
     /// <param name="topic">Topic of the information (normally used as the window title)</param>
@@ -115,6 +115,11 @@ namespace Nuclex { namespace Platform { namespace Interaction {
 
     /// <summary>Provides the currently active top-level window</summary>
     private: std::shared_ptr<ActiveWindowTracker> activeWindowTracker;
+
+    // Stores private, portentially platform-specific implementation details of the class
+    private: struct PrivateImplementationData;
+    /// <summary>Holds private and platform-specific implementation data</summary>
+    private: std::unique_ptr<PrivateImplementationData> implementationData;
 
   };
 

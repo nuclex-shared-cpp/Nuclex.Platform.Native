@@ -47,13 +47,13 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Coordinates background tasks based on their usage of system resouces</summary>
-  class NaiveTaskCoordinator : public TaskCoordinator {
+  class NUCLEX_PLATFORM_TYPE NaiveTaskCoordinator : public TaskCoordinator {
 
     /// <summary>Initializes a new task coordinator</summary>
-    public: NaiveTaskCoordinator();
+    public: NUCLEX_PLATFORM_API NaiveTaskCoordinator();
 
     /// <summary>Frees all resources owned by the task coordinator</summary>
-    public: ~NaiveTaskCoordinator() override;
+    public: NUCLEX_PLATFORM_API ~NaiveTaskCoordinator() override;
 
     /// <summary>Adds a resource that the task coordinator can allocate to tasks</summary>
     /// <param name="resourceType">Type of resource the task coordinator can allocate</param>
@@ -65,7 +65,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   requiring 32 GiB video memory, but it will allow for two tasks requiring up to
     ///   16 GiB of video memory to run in parallel).
     /// </remarks>
-    public: void AddResource(
+    public: NUCLEX_PLATFORM_API void AddResource(
       Tasks::ResourceType resourceType, std::size_t amountAvailable
     );
 
@@ -75,7 +75,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   called anymore. It is okay to schedule tasks before calling Start(), however.
     ///   These would simply sit in a queue and begin execution right after Start() is called.
     /// </remarks>
-    public: void Start();
+    public: NUCLEX_PLATFORM_API void Start();
 
     /// <summary>Queries the amount of a resource the system has in total</summary>
     /// <param name="resourceType">Type of resource that will be queried</param>
@@ -85,19 +85,21 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   querying for video memory will return the highest amount of video memory available
     ///   on any single GPU. The behavior is the same for all resource units.
     /// </remarks>
-    public: std::size_t QueryResourceMaximum(ResourceType resourceType) const override;
+    public: NUCLEX_PLATFORM_API std::size_t QueryResourceMaximum(
+      ResourceType resourceType
+    ) const override;
 
     /// <summary>Schedules the specified task for execution</summary>
     /// <param name="task">Task that will be executed as soon as resources permit</param>
     /// <param name="requiredResources">Resources that the task will occupy</param>
-    public: void Schedule(const std::shared_ptr<Task> &task) override;
+    public: NUCLEX_PLATFORM_API void Schedule(const std::shared_ptr<Task> &task) override;
 
     /// <summary>Schedules the specified task for execution</summary>
     /// <param name-"environment">
     ///   Environment that needs to be active while the task executes
     /// </param>
     /// <param name="task">Task that will be executed as soon as resources permit</param>
-    public: void Schedule(
+    public: NUCLEX_PLATFORM_API void Schedule(
       const std::shared_ptr<TaskEnvironment> &environment,
       const std::shared_ptr<Task> &task
     ) override;
@@ -109,7 +111,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="alternativeTask">
     ///   Task that can be executed instead of the preferred resources are not available
     /// </param>
-    public: void ScheduleWithAlternative(
+    public: NUCLEX_PLATFORM_API void ScheduleWithAlternative(
       const std::shared_ptr<Task> &preferredTask,
       const std::shared_ptr<Task> &alternativeTask
     ) override;
@@ -124,7 +126,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="alternativeTask">
     ///   Task that can be executed instead of the preferred resources are not available
     /// </param>
-    public: void ScheduleWithAlternative(
+    public: NUCLEX_PLATFORM_API void ScheduleWithAlternative(
       const std::shared_ptr<TaskEnvironment> &environment,
       const std::shared_ptr<Task> &preferredTask,
       const std::shared_ptr<Task> &alternativeTask
@@ -139,23 +141,34 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   If the task has an alternative, that one will be cancelled, too. Specifying
     ///   the alternative for cancellation is not allowed.
     /// </remarks>
-    public: bool Cancel(const std::shared_ptr<Task> &task) override;
+    public: NUCLEX_PLATFORM_API bool Cancel(const std::shared_ptr<Task> &task) override;
 
     /// <summary>Cancels all waiting tasks</summary>
     /// <param name="forever">Whether to cancel all future tasks, too</param>
     /// <remarks>
     ///   Is usually called when the task coordinator shuts down to cancel all waiting tasks
     /// </remarks>
-    public: void CancelAll(bool forever = true) override;
+    public: NUCLEX_PLATFORM_API void CancelAll(bool forever = true) override;
+
+    /// <summary>Short check whether the coordination thread needs to be waken up</summary>
+    /// <param name="task">Task the task coordinator has added to the queue</param>
+    /// <param name="environment">Environment required by the task to run</param>
+    /// <returns>True if the coordination thread should be woken up</returns>
+    protected: bool IsCoordinationThreadWakeUpNeeded(
+      const std::shared_ptr<Task> &task,
+      const std::shared_ptr<TaskEnvironment> &environment = std::shared_ptr<TaskEnvironment>()
+    ) const;
+
+    //protected: void Launch
 
     /// <summary>Thread that launches incoming tasks acoording to available resources</summary>
-    private: void coordinateAndKickOffIncomingTasks();
+    private: void coordinationThread();
 
     /// <summary>
     ///   Helper that calls the <see cref="coordinateAndKickOffIncomingTasks" /> method
     /// </summary>
     /// <param name="self">The 'this' pointer of the task coordinator instance</param>
-    private: static void invokeCoordinateAndKickOffIncomingTasks(NaiveTaskCoordinator *self);
+    private: static void invokeCoordinationThread(NaiveTaskCoordinator *self);
 
     #pragma region class ScheduledTask
 
@@ -195,7 +208,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     #pragma region struct ActiveEnvironment
 
     /// <summary>Environment that has been activated by the task coordinator</summary>
-    struct ActiveEnvironment {
+    private: struct ActiveEnvironment {
 
       /// <summary>Task environment that is currently active</summary>
       public: std::shared_ptr<TaskEnvironment> Environment;

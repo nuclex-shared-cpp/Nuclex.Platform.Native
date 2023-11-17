@@ -30,7 +30,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Types of resources that can be occupied on a PC</summary>
-  enum class ResourceType : std::size_t {
+  enum class NUCLEX_PLATFORM_TYPE ResourceType : std::size_t {
 
     /// <summary>Number of CPU cores that will be busied</summary>
     CpuCores,

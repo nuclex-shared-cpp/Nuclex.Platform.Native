@@ -46,10 +46,10 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Coordinates background tasks based on their usage of system resouces</summary>
-  class TaskCoordinator {
+  class NUCLEX_PLATFORM_TYPE TaskCoordinator {
 
     /// <summary>Frees all resources owned by the task coordinator</summary>
-    public: virtual ~TaskCoordinator() = default;
+    public: NUCLEX_PLATFORM_API virtual ~TaskCoordinator() = default;
 
     /// <summary>Queries the amount of a resource the system has in total</summary>
     /// <param name="resourceType">Type of resource that will be queried</param>
@@ -59,19 +59,21 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   querying for video memory will return the highest amount of video memory available
     ///   on any single GPU. The behavior is the same for all resource units.
     /// </remarks>
-    public: virtual std::size_t QueryResourceMaximum(ResourceType resourceType) const = 0;
+    public: NUCLEX_PLATFORM_API virtual std::size_t QueryResourceMaximum(
+      ResourceType resourceType
+    ) const = 0;
 
     /// <summary>Schedules the specified task for execution</summary>
     /// <param name="task">Task that will be executed as soon as resources permit</param>
     /// <param name="requiredResources">Resources that the task will occupy</param>
-    public: virtual void Schedule(const std::shared_ptr<Task> &task) = 0;
+    public: NUCLEX_PLATFORM_API virtual void Schedule(const std::shared_ptr<Task> &task) = 0;
 
     /// <summary>Schedules the specified task for execution</summary>
     /// <param name-"environment">
     ///   Environment that needs to be active while the task executes
     /// </param>
     /// <param name="task">Task that will be executed as soon as resources permit</param>
-    public: virtual void Schedule(
+    public: NUCLEX_PLATFORM_API virtual void Schedule(
       const std::shared_ptr<TaskEnvironment> &environment,
       const std::shared_ptr<Task> &task
     ) = 0;
@@ -83,7 +85,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="alternativeTask">
     ///   Task that can be executed instead of the preferred resources are not available
     /// </param>
-    public: virtual void ScheduleWithAlternative(
+    public: NUCLEX_PLATFORM_API virtual void ScheduleWithAlternative(
       const std::shared_ptr<Task> &preferredTask,
       const std::shared_ptr<Task> &alternativeTask
     ) = 0;
@@ -98,7 +100,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="alternativeTask">
     ///   Task that can be executed instead of the preferred resources are not available
     /// </param>
-    public: virtual void ScheduleWithAlternative(
+    public: NUCLEX_PLATFORM_API virtual void ScheduleWithAlternative(
       const std::shared_ptr<TaskEnvironment> &environment,
       const std::shared_ptr<Task> &preferredTask,
       const std::shared_ptr<Task> &alternativeTask
@@ -113,7 +115,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   set preconditions required to queue other tasks, i.e. extracting a batch of frames
     ///   via ffmpeg so that it can be processed.
     /// </remarks>
-    public: virtual bool Prioritize(const std::shared_ptr<Task> &task) {
+    public: NUCLEX_PLATFORM_API virtual bool Prioritize(const std::shared_ptr<Task> &task) {
       (void)task;
       return false; // By default, an implementation ignores prioritization
     }
@@ -127,14 +129,14 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   If the task has an alternative, that one will be cancelled, too. Specifying
     ///   the alternative for cancellation is not allowed.
     /// </remarks>
-    public: virtual bool Cancel(const std::shared_ptr<Task> &task) = 0;
+    public: NUCLEX_PLATFORM_API virtual bool Cancel(const std::shared_ptr<Task> &task) = 0;
 
     /// <summary>Cancels all waiting tasks</summary>
     /// <param name="forever">Whether to cancel all future tasks, too</param>
     /// <remarks>
     ///   Is usually called when the task coordinator shuts down to cancel all waiting tasks
     /// </remarks>
-    public: virtual void CancelAll(bool forever = true) = 0;
+    public: NUCLEX_PLATFORM_API virtual void CancelAll(bool forever = true) = 0;
 
   };
 

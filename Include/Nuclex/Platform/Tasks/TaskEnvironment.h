@@ -55,7 +55,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   ///     instance to the task processor).
   ///   </para>
   /// </remarks>
-  class TaskEnvironment {
+  class NUCLEX_PLATFORM_TYPE TaskEnvironment {
 
     /// <summary>How long it will take to activate this task environment</summary>
     /// <remarks>
@@ -90,7 +90,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   Here the environment can upload neural networks to the GPU, read supporting files
     ///   into memory or start external processes needed to perform its work.
     /// </remarks>
-    public: virtual void Activate() {}
+    public: NUCLEX_PLATFORM_API virtual void Activate() {}
 
     /// <summary>Shuts the task environment down</summary>
     /// <remarks>
@@ -99,7 +99,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   When called, the environment should free all resources to make them available
     ///   for other environments or other applications the user wishes to.
     /// </remarks>
-    public: virtual void Shutdown() {}
+    public: NUCLEX_PLATFORM_API virtual void Shutdown() {}
 
   };
 

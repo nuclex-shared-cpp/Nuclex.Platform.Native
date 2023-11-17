@@ -51,13 +51,13 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   ///     the same time and disk accesses aren't sequentialised for classical hard drives).
   ///   </para>
   /// </remarks>
-  class Task {
+  class NUCLEX_PLATFORM_TYPE Task {
 
     /// <summary>Frees all resources owned by the task</summary>
     /// <remarks>
     ///   The task must be either finished or cancelled before it may be destroyed.
     /// </remarks>
-    public: virtual ~Task() = default;
+    public: NUCLEX_PLATFORM_API virtual ~Task() = default;
 
     /// <summary>Resources that this task will consume while it runs</summary>
     public: std::shared_ptr<ResourceManifest> Resources;
@@ -95,7 +95,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///     data to any number of tasks.
     ///   </para>
     /// </remarks>
-    public: virtual void Run(
+    public: NUCLEX_PLATFORM_API virtual void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
       const CancellationWatcher &cancellationWatcher
     ) noexcept = 0;

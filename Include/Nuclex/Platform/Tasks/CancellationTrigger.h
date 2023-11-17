@@ -54,13 +54,13 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   ///     property is set to true (by sporadically checking it).
   ///   </para>
   /// </remarks>
-  class CancellationTrigger : protected CancellationWatcher {
+  class NUCLEX_PLATFORM_TYPE CancellationTrigger : protected CancellationWatcher {
 
     /// <summary>
     ///   Builds a new cancellation trigger, required to prevent stack allocations
     /// </suimmary>
     /// <returns>The new cancellation trigger</returns>
-    public: static std::shared_ptr<CancellationTrigger> Create() {
+    public: NUCLEX_PLATFORM_API static std::shared_ptr<CancellationTrigger> Create() {
       struct ConstructibleCancellationTrigger : public CancellationTrigger {
         ConstructibleCancellationTrigger() = default;
         virtual ~ConstructibleCancellationTrigger() override = default;
@@ -91,14 +91,14 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     }
 
     /// <summary>Initializes a new cancellation trigger</summary>
-    protected: CancellationTrigger() = default;
+    protected: NUCLEX_PLATFORM_API CancellationTrigger() = default;
 
     /// <summary>Frees all resources used by the cancellation trigger</summary>
-    public: virtual ~CancellationTrigger() override = default;
+    public: NUCLEX_PLATFORM_API virtual ~CancellationTrigger() override = default;
 
     /// <summary>Returns the trigger's cancellation watcher</summary>
     /// <returns>The cancellation watcher responding to the trigger</returns>
-    public: std::shared_ptr<const CancellationWatcher> GetWatcher() const {
+    public: NUCLEX_PLATFORM_API std::shared_ptr<const CancellationWatcher> GetWatcher() const {
       return this->watcher.lock();
     }
 
@@ -107,7 +107,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     ///   Optional reason for the cancellation, included in exception message when
     ///   <see cref="CancellationWatcher.ThrowIfCanceled" /> is used.
     /// </param>
-    public: void Cancel(const std::string &reason = std::string()) {
+    public: NUCLEX_PLATFORM_API void Cancel(const std::string &reason = std::string()) {
       assert((IsCanceled() == false) && u8"Cancellation is triggered only once");
 
       this->CancellationReason = reason;

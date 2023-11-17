@@ -33,7 +33,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Listing of resources that are needed to perform a task</summary>
-  class ResourceManifest {
+  class NUCLEX_PLATFORM_TYPE ResourceManifest {
 
     #pragma region struct Entry
 
@@ -54,7 +54,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resourceType">Type of resource the manifest should list</param>
     /// <param name="resourceAmount">Amount of the resource that is required</param>
     /// <returns>A pointer to the new resource manifest</returns>
-    public: static std::shared_ptr<ResourceManifest> Create(
+    public: NUCLEX_PLATFORM_API static std::shared_ptr<ResourceManifest> Create(
       ResourceType resourceType, std::size_t resourceAmount
     );
 
@@ -64,7 +64,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resource2Type">Type of the second resource in the manifest</param>
     /// <param name="resource2Amount">Amount required of the second resource</param>
     /// <returns>A pointer to the new resource manifest</returns>
-    public: static std::shared_ptr<ResourceManifest> Create(
+    public: NUCLEX_PLATFORM_API static std::shared_ptr<ResourceManifest> Create(
       ResourceType resource1Type, std::size_t resource1Amount,
       ResourceType resource2Type, std::size_t resource2Amount
     );
@@ -77,7 +77,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="resource3Type">Type of the third resource in the manifest</param>
     /// <param name="resource3Amount">Amount required of the third resource</param>
     /// <returns>A pointer to the new resource manifest</returns>
-    public: static std::shared_ptr<ResourceManifest> Create(
+    public: NUCLEX_PLATFORM_API static std::shared_ptr<ResourceManifest> Create(
       ResourceType resource1Type, std::size_t resource1Amount,
       ResourceType resource2Type, std::size_t resource2Amount,
       ResourceType resource3Type, std::size_t resource3Amount
@@ -87,7 +87,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <param name="first">First resource manifest to combine</param>
     /// <param name="second">First resource manifest to combine</param>
     /// <returns>A resource manifest that is the sum of both input manifests</returns>
-    public: static std::shared_ptr<ResourceManifest> Combine(
+    public: NUCLEX_PLATFORM_API static std::shared_ptr<ResourceManifest> Combine(
       const std::shared_ptr<ResourceManifest> &first,
       const std::shared_ptr<ResourceManifest> &second
     );
