@@ -34,7 +34,22 @@ namespace Nuclex { namespace Platform { namespace Platform {
   /// <summary>Offers generic methods for dealing with the GTK dialogs API</summary>
   class GtkDialogApi {
 
-    public: static bool TryLoadGtk();
+    /// <summary>Attempts to load the dynamic GTK library on the current system</summary>
+    /// <returns>A handle for the loaded GTK library or a null pointer if not found</returns>
+    public: static void *TryLoadLibrary();
+
+    /// <summary>>
+    ///   Unloads the GTK library after it has been loaded via <see cref="TryLoadLibrary" />
+    /// </summary>
+    /// <param name="gtkLibraryHandle">
+    ///   Handle that was returned by <see cref="TryLoadLibrary" /> when the GTK library
+    ///   was loaded.
+    /// </param>
+    /// <param name="throwOnError">
+    ///   Whether an exception will be thrown if the library can not be unloaded.
+    ///   This is provided to suppress errors in shutdown code or RAII destructors.
+    /// </param>
+    public: static void UnloadLibrary(void *gtkLibraryHandle, bool throwOnError = true);
 
   };
 

@@ -42,7 +42,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   TEST(ResourceBudgetTest, HasDefaultConstructor) {
     ResourceBudget budget;
-    ASSERT_EQ(budget.QueryResource(ResourceType::CpuCores), 0U);
+    ASSERT_EQ(budget.QueryResourceMaximum(ResourceType::CpuCores), 0U);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -60,13 +60,13 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   TEST(ResourceBudgetTest, ResourceMaximumIsHighestIndividualUnit) {
     ResourceBudget budget;
-    ASSERT_EQ(budget.QueryResource(ResourceType::VideoMemory), 0U);
+    ASSERT_EQ(budget.QueryResourceMaximum(ResourceType::VideoMemory), 0U);
     budget.AddResource(ResourceType::VideoMemory, 6U * 1024U * 1024U);
-    ASSERT_EQ(budget.QueryResource(ResourceType::VideoMemory), 6U * 1024U * 1024U);
+    ASSERT_EQ(budget.QueryResourceMaximum(ResourceType::VideoMemory), 6U * 1024U * 1024U);
     budget.AddResource(ResourceType::VideoMemory, 8U * 1024U * 1024U);
-    ASSERT_EQ(budget.QueryResource(ResourceType::VideoMemory), 8U * 1024U * 1024U);
+    ASSERT_EQ(budget.QueryResourceMaximum(ResourceType::VideoMemory), 8U * 1024U * 1024U);
     budget.AddResource(ResourceType::VideoMemory, 4U * 1024U * 1024U);
-    ASSERT_EQ(budget.QueryResource(ResourceType::VideoMemory), 8U * 1024U * 1024U);
+    ASSERT_EQ(budget.QueryResourceMaximum(ResourceType::VideoMemory), 8U * 1024U * 1024U);
   }
 
   // ------------------------------------------------------------------------------------------- //

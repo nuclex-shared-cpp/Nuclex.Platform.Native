@@ -93,6 +93,8 @@ namespace {
     ::LPARAM secondArgument,
     ::LONG_PTR applicationUserData
   ) {
+    (void)secondArgument; // No message we process accesses this parameter...
+
     switch(messageType) {
 
       // Sent by the task dialog after the dialog has been created but before it

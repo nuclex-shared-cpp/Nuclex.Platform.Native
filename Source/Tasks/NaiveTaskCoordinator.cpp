@@ -42,16 +42,37 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   NaiveTaskCoordinator::NaiveTaskCoordinator() :
     availableResources(std::make_unique<ResourceBudget>()),
     totalCpuCoreCount(0),
+    threadPool(), // leave the std::optional empty for now,
+    coordinationThreadRunningFlag(false),
+    coordinationThreadFuture(),
+    coordinationThreadShutdownFlag(false),
     queueAccessMutex(),
     waitingTasks(),
-    threadPool() {} // leave the std::optional empty for now
+    tasksAvailableSemaphore(0) {} 
 
   // ------------------------------------------------------------------------------------------- //
 
   NaiveTaskCoordinator::~NaiveTaskCoordinator() {
+
+    // Set everything up so a (possibly) running coordination thread will cancel at
+    // the next opportunity it has.
+    this->coordinationThreadShutdownFlag.store(true, std::memory_order::memory_order_release);
+    this->tasksAvailableSemaphore.Post(1024); // Just make sure that coordation thread wakes :)
+
+    // Now, if the coordination thread actually *was* running, wait for it to shut down.
+    bool coordinationThreadWasRunning = (
+      this->coordinationThreadRunningFlag.load(std::memory_order::memory_order_consume)
+    );
+    if(coordinationThreadWasRunning) {
+      reinterpret_cast<std::future<void> *>(this->coordinationThreadFuture)->wait();
+    }
+    
+    // Finally, if the coordination thread has stopped, we can rest assured that no
+    // tasks are running any, so we can kill the thread pool
     if(this->threadPool.has_value()) {
       this->threadPool.reset();
     }
+   
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -103,15 +124,19 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     //
     maximumThreadCount += 1;
 
-    // Now we create the thread pool. As the minimum, we have 2 threads to handle the first
-    // incoming tasks and 1 thread that will become our execution.
-    this->threadPool.emplace(3, maximumThreadCount);
+    {
+      std::lock_guard<std::mutex> queueAccessLock(this->queueAccessMutex);
 
-    new(reinterpret_cast<std::future<void> *>(this->coordinationThreadFuture)) std::future(
-      this->threadPool->Schedule(
-        &NaiveTaskCoordinator::invokeCoordinateAndKickOffIncomingTasks, this
-      )
-    );
+      // Now we create the thread pool. As the minimum, we have 2 threads to handle the first
+      // incoming tasks and 1 thread that will become our execution.
+      this->threadPool.emplace(3, maximumThreadCount);
+
+      new(reinterpret_cast<std::future<void> *>(this->coordinationThreadFuture)) std::future(
+        this->threadPool->Schedule(&NaiveTaskCoordinator::invokeCoordinationThread, this)
+      );
+
+      this->coordinationThreadRunningFlag.store(true, std::memory_order::memory_order_release);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -187,15 +212,42 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void NaiveTaskCoordinator::coordinateAndKickOffIncomingTasks() {
+  void NaiveTaskCoordinator::KickOffRunnableTasks() {
     
-
   }
 
   // ------------------------------------------------------------------------------------------- //
 
-  void NaiveTaskCoordinator::invokeCoordinateAndKickOffIncomingTasks(NaiveTaskCoordinator *self) {
-    self->coordinateAndKickOffIncomingTasks();
+  void NaiveTaskCoordinator::coordinationThread() {
+    for(;;) {
+
+      // If there are no tasks and the we're not asked to shut down, go to sleep
+      // to ensure we're not hogging a CPU core for no reason.
+      bool wasTaskAvailable = this->tasksAvailableSemaphore.WaitForThenDecrement(
+        std::chrono::milliseconds(50)
+      );
+
+      // When woken up, check if the we're being asked to shut down before anything
+      // else so we can facilitate a timely shutdown.
+      bool wasRequestedToShutDown = this->coordinationThreadShutdownFlag.load(
+        std::memory_order::memory_order_relaxed
+      );
+      if(wasRequestedToShutDown) {
+        break;
+      }
+
+      // If a task is waiting, see if we can kick off that one or another task
+      if(wasTaskAvailable) {
+        KickOffRunnableTasks();
+      }
+
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void NaiveTaskCoordinator::invokeCoordinationThread(NaiveTaskCoordinator *self) {
+    self->coordinationThread();
   }
 
   // ------------------------------------------------------------------------------------------- //

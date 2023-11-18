@@ -59,12 +59,26 @@ namespace Nuclex { namespace Platform { namespace Interaction {
 
   // ------------------------------------------------------------------------------------------- //
 
+  struct GuiMessageService::PrivateImplementationData {};
+
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Platform::Interaction
+
+namespace Nuclex { namespace Platform { namespace Interaction {
+
+  // ------------------------------------------------------------------------------------------- //
+
   GuiMessageService::GuiMessageService(
     const std::shared_ptr<ActiveWindowTracker> &activeWindowTracker /* = (
       std::shared_ptr<ActiveWindowTracker>()
     ) */
   ) :
     activeWindowTracker(activeWindowTracker) {}
+
+  // ------------------------------------------------------------------------------------------- //
+
+  GuiMessageService::~GuiMessageService() {}
 
   // ------------------------------------------------------------------------------------------- //
 

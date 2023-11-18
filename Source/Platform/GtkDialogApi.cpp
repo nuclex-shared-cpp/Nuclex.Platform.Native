@@ -41,18 +41,22 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  bool GtkDialogApi::TryLoadGtk() {
+  void *GtkDialogApi::TryLoadLibrary() {
     void *gtkLibraryHandle = PosixDynamicLibraryApi::TryDlOpen(
-      u8"libgtk-3.so.0", RTLD_LAZY | RTLD_LOCAL
+      u8"libgtk-3.so", RTLD_LAZY | RTLD_LOCAL
     );
-    if(gtkLibraryHandle == nullptr) {
-      return false;
+    if(unlikely(gtkLibraryHandle == nullptr)) {
+      // TODO Try different GTK versions and or explicit paths?
+      return nullptr;
     } else {
-      
-
-      PosixDynamicLibraryApi::DlClose(gtkLibraryHandle);
-      return true;
+      return gtkLibraryHandle;
     }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void GtkDialogApi::UnloadLibrary(void *gtkLibraryHandle, bool throwOnError /* = true */) {
+    PosixDynamicLibraryApi::DlClose(gtkLibraryHandle, throwOnError);
   }
 
   // ------------------------------------------------------------------------------------------- //

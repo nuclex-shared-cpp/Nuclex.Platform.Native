@@ -27,15 +27,32 @@ License along with this library
 
 #include "Nuclex/Platform/Interaction/ActiveWindowTracker.h"
 
-//#include "../Platform/PosixDynamicLibraryApi.h"
 #include "../Platform/GtkDialogApi.h"
+#include "../Platform/KdeWidgetsAddonsApi.h"
 
 namespace {
 
   // ------------------------------------------------------------------------------------------- //
+
   // ------------------------------------------------------------------------------------------- //
 
 } // anonymous namespace
+
+namespace Nuclex { namespace Platform { namespace Interaction {
+
+  // ------------------------------------------------------------------------------------------- //
+
+  struct GuiMessageService::PrivateImplementationData {
+
+    public: void *kdeWidgetsAddonsLibraryHandle;
+    public: void *gtkLibraryHandle;
+
+  };
+
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Platform::Interaction
+
 
 namespace Nuclex { namespace Platform { namespace Interaction {
 
@@ -46,14 +63,35 @@ namespace Nuclex { namespace Platform { namespace Interaction {
       std::shared_ptr<ActiveWindowTracker>()
     ) */
   ) :
-    activeWindowTracker(activeWindowTracker) {}
+    activeWindowTracker(activeWindowTracker),
+    implementationData(new PrivateImplementationData()) {
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  GuiMessageService::~GuiMessageService() {
+    if(static_cast<bool>(this->implementationData)) {
+      if(this->implementationData->gtkLibraryHandle) {
+        Platform::GtkDialogApi::UnloadLibrary(
+          this->implementationData->gtkLibraryHandle, false
+        );
+      }
+      if(this->implementationData->kdeWidgetsAddonsLibraryHandle) {
+        Platform::GtkDialogApi::UnloadLibrary(
+          this->implementationData->kdeWidgetsAddonsLibraryHandle, false
+        );
+      }
+    }
+  }
 
   // ------------------------------------------------------------------------------------------- //
 
   void GuiMessageService::Inform(
     const std::string &topic, const std::string &, const std::string &message
   ) {
-    bool gtkAvailable = Platform::GtkDialogApi::TryLoadGtk();
+    void *gtkLibraryHandle = Platform::GtkDialogApi::TryLoadLibrary();
+    void *kdeWidgetsAddonsLibraryHandle = Platform::KdeWidgetsAddonsApi::TryLoadLibrary();
+    
   }
 
   // ------------------------------------------------------------------------------------------- //

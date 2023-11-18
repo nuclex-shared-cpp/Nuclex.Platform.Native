@@ -25,12 +25,14 @@ License along with this library
 
 #include "Nuclex/Platform/Tasks/TaskCoordinator.h"
 #include <Nuclex/Support/Threading/ThreadPool.h> // for ThreadPool
+#include <Nuclex/Support/Threading/Semaphore.h> // for Semaphore
 
 #include <optional> // for std::optional
 #include <memory> // for std::unique_ptr
 #include <mutex> // for std::mutex
 #include <deque> // for std::deque
 #include <array> // for std::array
+#include <atomic>> // for std::atomic
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 
@@ -150,16 +152,17 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     public: NUCLEX_PLATFORM_API void CancelAll(bool forever = true) override;
 
-    /// <summary>Short check whether the coordination thread needs to be waken up</summary>
+    /// <summary>Fast check whether the coordination thread needs to be waken up</summary>
     /// <param name="task">Task the task coordinator has added to the queue</param>
     /// <param name="environment">Environment required by the task to run</param>
     /// <returns>True if the coordination thread should be woken up</returns>
-    protected: bool IsCoordinationThreadWakeUpNeeded(
+    protected: virtual bool IsCoordinationThreadWakeUpNeeded(
       const std::shared_ptr<Task> &task,
       const std::shared_ptr<TaskEnvironment> &environment = std::shared_ptr<TaskEnvironment>()
-    ) const;
+    ) const { return true; }
 
-    //protected: void Launch
+    /// <summary>Looks for runnable tasks and launches them</summary>
+    protected: virtual void KickOffRunnableTasks();
 
     /// <summary>Thread that launches incoming tasks acoording to available resources</summary>
     private: void coordinationThread();
@@ -226,10 +229,6 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// <summary>Number of CPU cores that have been added as resources in total</summary>
     private: std::size_t totalCpuCoreCount;
     
-    /// <summary>Mutex that must be held when accessing the task queues</summary>
-    private: std::mutex queueAccessMutex;
-    /// <summary>Tasks that are waiting to be executed by the task coordinator</summary>
-    private: std::deque<ScheduledTask> waitingTasks;
     /// <summary>Thread pool used to start off the scheduled tasks</summary>
     /// <remarks>
     ///   Only optional so it can be constructed at a later time. Is set when
@@ -238,8 +237,22 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     private: std::optional<Nuclex::Support::Threading::ThreadPool> threadPool;
 
+    /// <summary>Set after the coordination thread was started</summary>
+    private: std::atomic<bool> coordinationThreadRunningFlag;
     /// <summary>Memory for the std::future that tracks the coordination thread</summary>
     private: std::uint8_t coordinationThreadFuture[sizeof(std::future<void>)];
+    /// <summary>Set to shut down the coordination thread</summary>
+    private: std::atomic<bool> coordinationThreadShutdownFlag;
+
+    /// <summary>Mutex that must be held when accessing the task queues</summary>
+    private: std::mutex queueAccessMutex;
+    /// <summary>Tasks that are waiting to be executed by the task coordinator</summary>
+    private: std::deque<ScheduledTask> waitingTasks;
+    /// <summary>Semaphore that gets posted once for each available task</summary>
+    /// <remarks>
+    ///   Also gets posted for a silly number of tasks when a shutdown is requested.
+    /// </remarks>
+    private: Nuclex::Support::Threading::Semaphore tasksAvailableSemaphore;
 
   };
 

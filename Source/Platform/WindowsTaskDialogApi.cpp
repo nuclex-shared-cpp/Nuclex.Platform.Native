@@ -122,7 +122,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
         nullptr
       );
     } else {
-      BOOL verificationFlag;
+      BOOL verificationFlag = FALSE;
       result = ::TaskDialogIndirect(
         &configuration,
         clickedButtonId,
