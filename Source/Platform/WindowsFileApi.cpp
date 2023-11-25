@@ -47,19 +47,19 @@ namespace Nuclex { namespace Platform { namespace Platform {
       consoleScreenBufferName,
       GENERIC_READ | GENERIC_WRITE, // desired access
       FILE_SHARE_READ | FILE_SHARE_WRITE, // share mode,
-      nullptr,
+      nullptr, // security attributes, null means use defaults
       OPEN_EXISTING, // creation disposition
       FILE_ATTRIBUTE_NORMAL,
-      nullptr
+      nullptr // template file from which attributes should be copied
     );
     if(unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
       DWORD errorCode = ::GetLastError();
 
-      bool isLackingConsole = (
+      bool errorIsDueToLackingConsole = (
         (errorCode == ERROR_INVALID_HANDLE) ||
         (errorCode == ERROR_FILE_NOT_FOUND)
       );
-      if(throwIfNoneExists || (!isLackingConsole)) {
+      if(throwIfNoneExists || unlikely(!errorIsDueToLackingConsole)) {
         std::string errorMessage(u8"Could not open active console screen buffer");
         Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);
       }
@@ -72,7 +72,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   void WindowsFileApi::CloseFile(::HANDLE fileHandle, bool throwOnError /* = true */) {
     BOOL result = ::CloseHandle(fileHandle);
-    if(throwOnError && (result == FALSE)) {
+    if(throwOnError && unlikely(result == FALSE)) {
       DWORD errorCode = ::GetLastError();
       std::string errorMessage(u8"Could not close file handle");
       Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);

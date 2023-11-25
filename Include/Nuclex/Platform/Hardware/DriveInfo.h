@@ -36,7 +36,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Informations about a physical drive installed in the system</summary>
-  class DriveInfo {
+  class NUCLEX_PLATFORM_TYPE DriveInfo {
 
     /// <summary>Whether this is a solid state drive</summary>
     public: bool IsSolidState;
@@ -58,7 +58,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Informations about a partition mounted for access by the system</summary>
-  class PartitionInfo {
+  class NUCLEX_PLATFORM_TYPE PartitionInfo {
 
     /// <summary>Root path to which this partition has been mounted</summary>
     public: std::string Path;

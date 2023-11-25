@@ -32,7 +32,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Informations about a GPU installed in the system</summary>
-  class GpuInfo {
+  class NUCLEX_PLATFORM_TYPE GpuInfo {
 
     /// <summary>Name of the company that manufactured the GPU</summary>
     /// <remarks>

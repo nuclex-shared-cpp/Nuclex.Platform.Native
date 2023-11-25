@@ -19,13 +19,78 @@ License along with this library
 #pragma endregion // CPL License
 
 // If the library is compiled as a DLL, this ensures symbols are exported
-#define NUCLEX_SUPPORT_SOURCE 1
+#define NUCLEX_PLATFORM_SOURCE 1
 
 #include "Nuclex/Platform/Hardware/PlatformAppraiser.h"
+#include "Nuclex/Platform/Tasks/CancellationWatcher.h"
 
-// --------------------------------------------------------------------------------------------- //
+#if defined(NUCLEX_PLATFORM_WINDOWS)
+#include "../Platform/WindowsSysInfoApi.h"
+#endif
 
-// This file is only here to guarantee that its associated header has no hidden
-// dependencies and can be included on its own
+namespace Nuclex { namespace Platform { namespace Hardware {
 
-// --------------------------------------------------------------------------------------------- //
+  // ------------------------------------------------------------------------------------------- //
+
+  std::future<std::vector<CpuInfo>> PlatformAppraiser::AnalyzeCpuTopology(
+    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
+      std::shared_ptr<const Tasks::CancellationWatcher>()
+    ) */
+  ) {
+    return std::async(
+      std::launch::async,
+      &PlatformAppraiser::analyzeCpuTopologyAsync, canceller
+    );
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::future<MemoryInfo> PlatformAppraiser::AnalyzeMemory(
+    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
+      std::shared_ptr<const Tasks::CancellationWatcher>()
+    ) */
+  ) {
+    return std::async(
+      std::launch::async,
+      &PlatformAppraiser::analyzeMemoryAsync, canceller
+    );
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+#if defined(NUCLEX_PLATFORM_LINUX)
+  std::vector<CpuInfo> PlatformAppraiser::analyzeCpuTopologyAsync(
+    std::shared_ptr<const Tasks::CancellationWatcher> canceller
+  ) {
+    CpuInfo result;
+
+    // TODO
+
+    return result;
+  }
+#endif // defined(NUCLEX_PLATFORM_LINUX)
+  // ------------------------------------------------------------------------------------------- //
+
+  MemoryInfo PlatformAppraiser::analyzeMemoryAsync(
+    std::shared_ptr<const Tasks::CancellationWatcher> canceller
+  ) {
+    MemoryInfo result;
+
+#if defined(NUCLEX_PLATFORM_WINDOWS)
+    result.InstalledMegabytes = (
+      Platform::WindowsSysInfoApi::GetPhysicallyInstalledSystemMemory() / 1024
+    );
+
+    ::MEMORYSTATUSEX memoryStatus;
+    Platform::WindowsSysInfoApi::GetGlobalMemoryStatus(memoryStatus);
+    
+    result.MaximumProgramMegabytes = (
+      static_cast<std::uint64_t>(memoryStatus.ullTotalVirtual)
+    );
+#endif // defined(NUCLEX_PLATFORM_WINDOWS)
+
+    return result;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Platform::Hardware

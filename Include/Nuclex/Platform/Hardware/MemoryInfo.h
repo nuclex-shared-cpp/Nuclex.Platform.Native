@@ -32,7 +32,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Informations about a physical drive installed in the system</summary>
-  class MemoryInfo {
+  class NUCLEX_PLATFORM_TYPE MemoryInfo {
 
     /// <summary>The amount of memory installed in in the system</summary>
     public: std::size_t InstalledMegabytes;

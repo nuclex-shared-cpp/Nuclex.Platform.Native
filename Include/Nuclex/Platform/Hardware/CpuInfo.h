@@ -25,7 +25,8 @@ License along with this library
 
 #include <cstddef> // for std::size_t
 #include <string> // for std::string
-#include <vector> // for std;:vector
+#include <vector> // for std::vector
+#include <optional> // for std::optional
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 
@@ -36,7 +37,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Informations about a physical CPU installed in the system</summary>
-  class CpuInfo {
+  class NUCLEX_PLATFORM_TYPE CpuInfo {
 
     /// <summary>Manufacturer and model name of the CPU, if available</summary>
     /// <remarks>
@@ -66,7 +67,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   efficient. If this value is present, the current system uses such a CPU and we were
     ///   able to detect it as such. If empty, the core types could not be determined.
     /// </remarks>
-    public: std::size_t EcoCoreCount;
+    public: std::optional<std::size_t> EcoCoreCount;
 
     /// <summary>Number of independent units able to execute code in this CPU</summary>
     /// <remarks>
@@ -84,7 +85,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Informations about a physical CPU installed in the system</summary>
-  class CoreInfo {
+  class NUCLEX_PLATFORM_TYPE CoreInfo {
 
     /// <summary>Frequency of the CPU in Megahertz</summary>
     /// <remarks>
@@ -101,7 +102,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   underpowered systems, for complex multi-system/-socket task balancing and perhaps to
     ///   estimate how much there is to gain from running on a P-core versus an E-core.
     /// </remarks>
-    public: std::size_t BogoMips;
+    public: std::optional<std::size_t> BogoMips;
 
     /// <summary>Whether this core is a slower but power-efficient eco core</summary>
     /// <remarks>
@@ -111,7 +112,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   while the additional E-cores can be used for non-time-critical tasks or recruited
     ///   by high-threaded appications to achieve maximum throughput.
     /// </remarks>
-    public: bool IsEcoCore;
+    public: std::optional<bool> IsEcoCore;
 
     /// <summary>Number of processors provided by this core</summary>
     /// <remarks>

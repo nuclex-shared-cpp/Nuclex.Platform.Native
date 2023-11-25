@@ -26,25 +26,36 @@ License along with this library
 #include <memory> // for std::shared_ptr
 #include <string> // for std::string
 #include <vector> // for std::vector
+#include <future> // for std::future
 
-namespace Nuclex { namespace Platform { namespace Hardware {
+#include "Nuclex/Platform/Hardware/CpuInfo.h"
+#include "Nuclex/Platform/Hardware/MemoryInfo.h"
+#include "Nuclex/Platform/Hardware/GpuInfo.h"
+#include "Nuclex/Platform/Hardware/DriveInfo.h"
+
+// PlatformAnalyzer
+//   -> I wouldn't think of a hardware inventory querying system reading this name
+//
+// SystemAppraiser
+//   -> Sounds a bit too much like something from a video game
+//
+// SystemAssessor
+//   -> Yeah, but 'assessor' sounds like 'accessor' and it's an uncommon term :-/
+//
+// All of the above, with typedefs!
+//   -> Woohoo!
+
+namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CpuInfo;
-  class GpuInfo;
+  class CancellationWatcher;
 
-  // PlatformAnalyzer
-  //   -> I wouldn't think of a hardware inventory querying system reading this name
-  //
-  // SystemAppraiser
-  //   -> Sounds a bit too much like something from a video game
-  //
-  // SystemAssessor
-  //   -> Yeah, but 'assessor' sounds like 'accessor' and it's an uncommon term :-/
-  //
-  // All of the above, with typedefs!
-  //   -> Woohoo!
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Platform::Tasks
+
+namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
@@ -57,15 +68,42 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   ///   optimal use of CPU cores (i.e. put more resources towards a slow stage rather than
   ///   just letting all stages burn as much CPU as they want).
   /// </remarks>
-  class PlatformAppraiser {
+  class NUCLEX_PLATFORM_TYPE PlatformAppraiser {
 
-    /// <summary>Initializes a new hardware metrics provider</summary>
-    public: PlatformAppraiser();
+    /// <summary>Analyzes the CPUs installed in the system</summary>
+    /// <param name="canceller">Allows cancella
+    /// <returns>
+    ///   An <see cref="std::future" /> that will provide a description of
+    ///   the CPU topology when the detection has completed
+    /// </returns>
+    public: NUCLEX_PLATFORM_API static std::future<std::vector<CpuInfo>> AnalyzeCpuTopology(
+      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
+        std::shared_ptr<const Tasks::CancellationWatcher>()
+      )
+    );
 
-    /// <summary>Frees all resources owned by the hardware metrics provider</summary>
-    public: ~PlatformAppraiser() = default;
+    /// <summary>Analyzes the installed and available memory in the system</summary>
+    /// <returns>
+    ///   An <see cref="std::future" /> that will provide a description of
+    ///   the installed and available memory in the system
+    /// </returns>
+    public: NUCLEX_PLATFORM_API static std::future<MemoryInfo> AnalyzeMemory(
+      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
+        std::shared_ptr<const Tasks::CancellationWatcher>()
+      )
+    );
 
-    //public: std::future<
+    /// <summary>Runs in a thread to analyze the system's CPU topology</summary>
+    /// <returns>A description of the system's CPU topology</returns>
+    private: static std::vector<CpuInfo> analyzeCpuTopologyAsync(
+      std::shared_ptr<const Tasks::CancellationWatcher> canceller
+    );
+
+    /// <summary>Runs in a thread to analyze the system's memory</summary>
+    /// <returns>A description of the system's memory</returns>
+    private: static MemoryInfo analyzeMemoryAsync(
+      std::shared_ptr<const Tasks::CancellationWatcher> canceller
+    );
 
     // --------------------------------
     // old from Videl
@@ -191,6 +229,6 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Videl::Systems
+}}} // namespace Nuclex::Platform::Hardware
 
 #endif // NUCLEX_PLATFORM_HARDWARE_PLATFORMAPPRAISER_H
