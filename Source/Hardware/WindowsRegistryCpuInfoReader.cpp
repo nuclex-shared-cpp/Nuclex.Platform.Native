@@ -72,7 +72,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           // The processor's unboosted maximum frequency will be stored in a key named
           // '~MHz' quite appropriately. We need to parse this.
           std::optional<std::string> frequencyString = WindowsRegistryApi::QueryStringValue(
-            processorKeyHandle, std::wstring(L"~MHz", 4U), 64U
+            processorKeyHandle, std::wstring(L"~MHz", 4U), 16U
           );
           if(frequencyString.has_value()) {
             using Nuclex::Support::Text::lexical_cast;

@@ -86,14 +86,24 @@ namespace {
     const std::string &name,
     double frequencyInMhz
   ) {
-    Nuclex::Platform::Hardware::WindowsBasicCpuInfoReader::ProcessorInfo &processorInfo = (
-      *reinterpret_cast<Nuclex::Platform::Hardware::WindowsBasicCpuInfoReader::ProcessorInfo *>(
-        userPointer
-      )
+    Nuclex::Platform::Hardware::WindowsBasicCpuInfoReader &reader = (
+      *reinterpret_cast<Nuclex::Platform::Hardware::WindowsBasicCpuInfoReader *>(userPointer)
     );
 
-    processorInfo.Name = name;
-    processorInfo.FrequencyInMhz = frequencyInMhz;
+    // We assume the processor index in the registry is linearly incrementing,
+    // so systems with multiple processor groups or more than 64 processors will
+    // simply have subkeys '65', '66' and so on rather than a different structure.
+    std::size_t processorGroupCount = reader.GroupsOfProcessors.size();
+    for(std::size_t index = 0; index < processorGroupCount; ++index) {
+      std::size_t processorCountInGroup = reader.GroupsOfProcessors[index].size();
+      if(processorIndex < processorCountInGroup) {
+        reader.GroupsOfProcessors[index][processorIndex].Name = name;
+        reader.GroupsOfProcessors[index][processorIndex].FrequencyInMhz = frequencyInMhz;
+        break;
+      } else {
+        processorIndex -= processorCountInGroup;
+      }
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -112,6 +122,9 @@ namespace {
     typedef std::unordered_map<std::size_t, TopologyIndexAndCoreCounts> CpuMap;
 
     CpuMap cpus;
+#if 0
+    std::size_t processorGroupCount = info.GroupsOfProcessors.size();
+    for(std::size_t index = 0; index < processorGroupCount; ++index) {
 
     // Figure out how many individual cores each CPU has and pre-fill the topology list
     std::size_t processorCount = info.Processors.size();
@@ -177,6 +190,7 @@ namespace {
         cpuIterator->second.CoreCounts.size()
       );
     }
+#endif
 
     return topology;
   }
@@ -213,18 +227,23 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       canceller->ThrowIfCanceled();
     }
 
-    // Step 2: Enhance the information from the registry if possible
+    // Step 2: Enhance the information with data from the registry if possible
     bool cpuInformationFromRegistrySeemsPlausible;
     {
+      std::size_t totalProcessorCount = 0;
+      for(std::size_t index = 0; index < cpuInfoReader.GroupsOfProcessors.size(); ++index) {
+        totalProcessorCount += cpuInfoReader.GroupsOfProcessors[index].size();
+      }
+
       // Now try to add additional data into this structure by blindly assuming
-      // that processors in the registry are listen in the same order as their index
+      // that processors in the registry are listed in the same order as their index
       // in the processor masks provided by the Windows API. Also assume that if
       // multiple CPUs are involved, processors are sequentially numbered across
       // CPUs and the CPUs are in the order they are reported by the Windows API.
       //
       // Yes, a lot of assumptions, needed due to poor and thoughtless API design.
       cpuInformationFromRegistrySeemsPlausible = WindowsRegistryCpuInfoReader::TryReadCpuInfos(
-        cpuInfoReader.Processors.size(),
+        totalProcessorCount,
         &cpuInfoReader,
         &enhanceProcessorInfoFromRegistry,
         canceller

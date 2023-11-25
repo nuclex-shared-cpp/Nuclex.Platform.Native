@@ -49,7 +49,12 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
     #pragma region struct ProcessorInfo
 
-    /// <summary>Captures a summary of informations about one physical CPU</summary>
+    /// <summary>Captures a summary of informations about one processor</summary>
+    /// <remarks>
+    ///   A processor is the term used in WBEM/WMI and the Windows API to refer to
+    ///   one hardware-integrated code execution unit, i.e. one CPU core without
+    ///   HyperThreading or one HyperThread in a CPU with HyperThreading.
+    /// </remarks>
     public: struct ProcessorInfo {
 
       /// <summary>Initializes a new processor info structure</summary>
@@ -118,8 +123,6 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       const ::SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX &logicalProcessor
     );
 
-    //private: void 
-
     /// <summary>Whether there are any cores using Hyper-Threading in the system</summary>
     public: bool UsesHyperThreading;
     /// <summary>True if an efficiency value other than zero was seen</summary>
@@ -135,7 +138,12 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// <summary>Number of threads (over all processors) the system runs simultaneously</summary>
     public: std::size_t ThreadCount;
     /// <summary>Processors reported by the Windows API</summary>
-    public: std::vector<ProcessorInfo> Processors;
+    /// <remarks>
+    ///   Processors are split into groups (there could be one group per physical package
+    ///   or one group per 64 cores since that's the limit of bits the mask can store),
+    ///   all properties in the ProcessorInfo group are indices within its group.
+    /// </remarks>
+    public: std::vector<std::vector<ProcessorInfo>> GroupsOfProcessors;
 
   };
 

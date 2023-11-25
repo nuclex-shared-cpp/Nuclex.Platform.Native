@@ -39,7 +39,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     PhysicalCpuCount(0),
     CoreCount(0),
     ThreadCount(0),
-    Processors() {}
+    GroupsOfProcessors() {}
 
   // ------------------------------------------------------------------------------------------- //
 
@@ -119,6 +119,13 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           this->UsesHyperThreading = true;
         }
 
+        // The XP-age API does not have processor groups (thus limited to 64 cores),
+        // so we auto-create a single processaor group to stick everything into
+        if(this->GroupsOfProcessors.empty()) {
+          this->GroupsOfProcessors.emplace_back();
+        }
+        std::vector<ProcessorInfo> &processors = this->GroupsOfProcessors.front();
+
         // Assign all processors in the mask to a core (we simply count the cores as
         // there is no core index reported and the ordering is stated to be random)
         constexpr std::size_t bitCount = (
@@ -128,11 +135,14 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           decltype(logicalProcessor.ProcessorMask) checkedBit = 1;
           checkedBit <<= bitIndex;
 
+          // This is where the many-to-many part of the relationship comes into play.
+          // Through the bit mask, the same processors may be listed for other cores,
+          // but that would be reverse of HyperThreading - one thread on multiple cores.
           if((logicalProcessor.ProcessorMask & checkedBit) != 0) {
-            if(bitIndex >= this->Processors.size()) {
-              this->Processors.resize(bitIndex + 1);
+            if(bitIndex >= processors.size()) {
+              processors.resize(bitIndex + 1);
             }
-            this->Processors[bitIndex].CoreIndex = this->CoreCount;
+            processors[bitIndex].CoreIndex = this->CoreCount;
           }
         }
 
@@ -143,6 +153,14 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       case LOGICAL_PROCESSOR_RELATIONSHIP::RelationProcessorPackage: {
         ++this->PhysicalCpuCount;
 
+        // The XP-age API does not have processor groups (thus limited to 64 cores),
+        // so we auto-create a single processaor group to stick everything into
+        if(this->GroupsOfProcessors.empty()) {
+          this->GroupsOfProcessors.emplace_back();
+        }
+        std::vector<ProcessorInfo> &processors = this->GroupsOfProcessors.front();
+
+        // Assign the physical CPU index to all processors included in the bit mask
         constexpr std::size_t bitCount = (
           std::numeric_limits<decltype(logicalProcessor.ProcessorMask)>::digits
         );
@@ -151,10 +169,10 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           checkedBit <<= bitIndex;
 
           if((logicalProcessor.ProcessorMask & checkedBit) != 0) {
-            if(bitIndex >= this->Processors.size()) {
-              this->Processors.resize(bitIndex + 1);
+            if(bitIndex >= processors.size()) {
+              processors.resize(bitIndex + 1);
             }
-            this->Processors[bitIndex].PhysicalCpuIndex = this->PhysicalCpuCount;
+            processors[bitIndex].PhysicalCpuIndex = this->PhysicalCpuCount;
           }
         }
 
@@ -202,6 +220,13 @@ namespace Nuclex { namespace Platform { namespace Hardware {
         for(std::size_t index = 0; index < groupCount; ++index) {
           const ::GROUP_AFFINITY &groupMask = logicalProcessor.Processor.GroupMask[index];
 
+          // The bits all reference the processors in the stated group only,
+          // so we may need to set up the group first
+          if(groupMask.Group >= this->GroupsOfProcessors.size()) {
+            this->GroupsOfProcessors.resize(groupMask.Group + 1);
+          }
+          std::vector<ProcessorInfo> &processors = this->GroupsOfProcessors[groupMask.Group];
+
           // Assign all processors in the mask to a core (we simply count the cores as
           // there is no core index reported and the ordering is stated to be random)
           constexpr std::size_t bitCount = (
@@ -211,12 +236,15 @@ namespace Nuclex { namespace Platform { namespace Hardware {
             decltype(groupMask.Mask) checkedBit = 1;
             checkedBit <<= bitIndex;
 
+            // This is where the many-to-many part of the relationship comes into play.
+            // Through the bit mask, the same processors may be listed for other cores,
+            // but that would be reverse of HyperThreading - one thread on multiple cores.
             if((groupMask.Mask & checkedBit) != 0) {
-              if(bitIndex >= this->Processors.size()) {
-                this->Processors.resize(bitIndex + 1);
+              if(bitIndex >= processors.size()) {
+                processors.resize(bitIndex + 1);
               }
-              this->Processors[bitIndex].CoreIndex = this->CoreCount;
-              this->Processors[bitIndex].Efficiency = efficiency;
+              processors[bitIndex].CoreIndex = this->CoreCount;
+              processors[bitIndex].Efficiency = efficiency;
             }
           }
         }
@@ -235,6 +263,13 @@ namespace Nuclex { namespace Platform { namespace Hardware {
         for(std::size_t index = 0; index < groupCount; ++index) {
           const ::GROUP_AFFINITY &groupMask = logicalProcessor.Processor.GroupMask[index];
 
+          // The bits all reference the processors in the stated group only,
+          // so we may need to set up the group first
+          if(groupMask.Group >= this->GroupsOfProcessors.size()) {
+            this->GroupsOfProcessors.resize(groupMask.Group + 1);
+          }
+          std::vector<ProcessorInfo> &processors = this->GroupsOfProcessors[groupMask.Group];
+
           // Assign all processors in the mask to a core (we simply count the cores as
           // there is no core index reported and the ordering is stated to be random)
           constexpr std::size_t bitCount = (
@@ -245,10 +280,10 @@ namespace Nuclex { namespace Platform { namespace Hardware {
             checkedBit <<= bitIndex;
 
             if((groupMask.Mask & checkedBit) != 0) {
-              if(bitIndex >= this->Processors.size()) {
-                this->Processors.resize(bitIndex + 1);
+              if(bitIndex >= processors.size()) {
+                processors.resize(bitIndex + 1);
               }
-              this->Processors[bitIndex].PhysicalCpuIndex = this->PhysicalCpuCount;
+              processors[bitIndex].PhysicalCpuIndex = this->PhysicalCpuCount;
             }
           }
         }

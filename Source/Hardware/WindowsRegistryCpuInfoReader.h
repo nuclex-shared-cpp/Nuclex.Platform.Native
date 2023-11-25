@@ -78,6 +78,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   Callback that will be invoked for each processor, provided with the
     ///   user pointer, processor index, processor name and base frequency in GHz
     /// </param>
+    /// <param name="canceller">Allows the enumeration to be cancelled early</param>
     /// <returns>
     ///   True if all informations were in the expected place, complete and in
     ///   the expected format and the callback was invoked for each processor.
