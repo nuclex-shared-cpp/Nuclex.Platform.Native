@@ -75,7 +75,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   hardware on this CPU. It can be used to tune a thread pool or to control the number
     ///   of tasks that will be launched in parallel.
     /// </remarks>
-    public: std::size_t ProcessorCount; // aka thread count
+    public: std::size_t ThreadCount;
 
     /// <summary>Detailed information about the CPU's cores</summary>
     public: std::vector<CoreInfo> Cores;
@@ -114,15 +114,15 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// </remarks>
     public: std::optional<bool> IsEcoCore;
 
-    /// <summary>Number of processors provided by this core</summary>
+    /// <summary>Number of threads that can run on this core</summary>
     /// <remarks>
     ///   With HyperThreading and similar techniques, CPU cores are treated as two or more
     ///   processors (aka hardware threads). While such processors share some or all of
     ///   the underlying circuits, the hardware itself can be able to run some instructions
     ///   in parallel or seamlessly continue running the other processor's instructions when
-    ///   on of them is waiting (i.e. for a memory access, thread signal or such).
+    ///   one of them is waiting (i.e. for a memory access, an FPU calculation or such).
     /// </remarks>
-    public: std::size_t ProcessorCount;
+    public: std::size_t ThreadCount;
 
   };
 

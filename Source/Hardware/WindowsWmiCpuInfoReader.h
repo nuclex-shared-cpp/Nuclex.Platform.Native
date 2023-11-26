@@ -49,7 +49,9 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// </summary>
     public: typedef void CallbackFunction(
       void *userPointer,
-      std::size_t processorIndex,
+      std::size_t physicalCpuIndex,
+      std::size_t coreCount,
+      std::size_t threadCount,
       const std::string &name,
       double frequencyInMhz
     );
@@ -64,9 +66,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// <param name="canceller">
     ///   Cancellation watcher by which the query process can be aborted early
     /// </param>
-    /// <returns>True if the informations were successfully fetched via WMI</returns>
-    public: static bool TryQueryCpuInfos(
-      std::size_t processorCount,
+    public: static void TryQueryCpuInfos(
       void *userPointer,
       CallbackFunction *callback,
       const std::shared_ptr<const Tasks::CancellationWatcher> &canceller

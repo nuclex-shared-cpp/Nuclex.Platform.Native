@@ -148,8 +148,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-  bool WindowsWmiCpuInfoReader::TryQueryCpuInfos(
-    std::size_t processorCount,
+  void WindowsWmiCpuInfoReader::TryQueryCpuInfos(
     void *userPointer,
     CallbackFunction *callback,
     const std::shared_ptr<const Tasks::CancellationWatcher> &canceller
@@ -209,7 +208,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           );
           if(FAILED(result)) {
             Platform::WindowsApi::ThrowExceptionForHResult(
-              u8"Could not get enumerator for Win32_Processor objects viaWbemServices query",
+              u8"Could not get enumerator for Win32_Processor objects via WbemServices query",
               result
             );
           }
@@ -267,14 +266,15 @@ namespace Nuclex { namespace Platform { namespace Hardware {
                 std::size_t coreCount = WindowsWmiApi::GetWbemPropertyValueAsUnsignedInteger(
                   wbemObjects[index], L"NumberOfCores"
                 );
-                std::size_t processorId = WindowsWmiApi::GetWbemPropertyValueAsUnsignedInteger(
-                  wbemObjects[index], L"ProcessorId"
-                );
                 double frequencyInMhz = WindowsWmiApi::GetWbemPropertyValueAsDouble(
                   wbemObjects[index], L"MaxClockSpeed"
                 );
 
-                callback(userPointer, processorIndex, name, frequencyInMhz);
+                callback(
+                  userPointer,
+                  processorIndex, coreCount, logicalProcessorCount,
+                  name, frequencyInMhz
+                );
                 ++processorIndex;
               }
             } // wbemObjects scope
@@ -282,8 +282,6 @@ namespace Nuclex { namespace Platform { namespace Hardware {
         } // wbemEnumerator scope
       } // wbemServices scope
     } // wbemLocator scope
-
-    return true;
   }
 
   // ------------------------------------------------------------------------------------------- //
