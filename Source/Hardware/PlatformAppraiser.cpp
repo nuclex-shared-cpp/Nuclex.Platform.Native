@@ -70,27 +70,4 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 #endif // defined(NUCLEX_PLATFORM_LINUX)
   // ------------------------------------------------------------------------------------------- //
 
-  MemoryInfo PlatformAppraiser::analyzeMemoryAsync(
-    std::shared_ptr<const Tasks::CancellationWatcher> canceller
-  ) {
-    MemoryInfo result;
-
-#if defined(NUCLEX_PLATFORM_WINDOWS)
-    result.InstalledMegabytes = (
-      Platform::WindowsSysInfoApi::GetPhysicallyInstalledSystemMemory() / 1024
-    );
-
-    ::MEMORYSTATUSEX memoryStatus;
-    Platform::WindowsSysInfoApi::GetGlobalMemoryStatus(memoryStatus);
-    
-    result.MaximumProgramMegabytes = (
-      static_cast<std::uint64_t>(memoryStatus.ullTotalVirtual)
-    );
-#endif // defined(NUCLEX_PLATFORM_WINDOWS)
-
-    return result;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
 }}} // namespace Nuclex::Platform::Hardware

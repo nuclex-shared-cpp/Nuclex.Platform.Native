@@ -119,7 +119,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>Nuclex.Platform.Native.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Nuclex.Support.Native\bin\windows-msvc14.2-$(SanePlatform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Nuclex.Support.Native.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Nuclex.Support.Native.lib;ComCtl32.Lib;wbemuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,7 +138,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>Nuclex.Platform.Native.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Nuclex.Support.Native\bin\windows-msvc14.2-$(SanePlatform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Nuclex.Support.Native.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Nuclex.Support.Native.lib;ComCtl32.Lib;wbemuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -165,7 +165,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>Nuclex.Platform.Native.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Nuclex.Support.Native\bin\windows-msvc14.2-$(SanePlatform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Nuclex.Support.Native.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Nuclex.Support.Native.lib;ComCtl32.Lib;wbemuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -191,11 +191,16 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>Nuclex.Platform.Native.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Nuclex.Support.Native\bin\windows-msvc14.2-$(SanePlatform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Nuclex.Support.Native.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Nuclex.Support.Native.lib;ComCtl32.Lib;wbemuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Config.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\DriveInfo.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\GpuInfo.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\MemoryInfo.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\PlatformAppraiser.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\ActiveWindowTracker.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\ExtendedMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\GuiMessageService.h" />
@@ -216,6 +221,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Config.cpp" />
+    <ClCompile Include="Source\Hardware\CpuInfo.cpp" />
+    <ClCompile Include="Source\Hardware\DriveInfo.cpp" />
+    <ClCompile Include="Source\Hardware\GpuInfo.cpp" />
+    <ClCompile Include="Source\Hardware\MemoryInfo.cpp" />
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.cpp" />
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsCpuInfo.cpp" />
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsMemoryInfo.cpp" />
+    <ClCompile Include="Source\Hardware\StringHelper.cpp" />
+    <ClInclude Include="Source\Hardware\StringHelper.h" />
+    <ClCompile Include="Source\Hardware\WindowsBasicCpuInfoReader.cpp" />
+    <ClInclude Include="Source\Hardware\WindowsBasicCpuInfoReader.h" />
+    <ClCompile Include="Source\Hardware\WindowsRegistryCpuInfoReader.cpp" />
+    <ClInclude Include="Source\Hardware\WindowsRegistryCpuInfoReader.h" />
+    <ClCompile Include="Source\Hardware\WindowsWmiCpuInfoReader.cpp" />
+    <ClInclude Include="Source\Hardware\WindowsWmiCpuInfoReader.h" />
     <ClCompile Include="Source\Interaction\ActiveWindowTracker.cpp" />
     <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp" />
     <ClCompile Include="Source\Interaction\GuiMessageService.cpp" />
@@ -230,26 +250,34 @@
     <ClCompile Include="Source\Interaction\TerminalMessageService.cpp" />
     <ClCompile Include="Source\Interaction\TerminalMessageService.Windows.cpp" />
     <ClCompile Include="Source\Platform\GtkApi.cpp" />
+    <ClInclude Include="Source\Platform\GtkApi.h" />
     <ClCompile Include="Source\Platform\GtkDialogApi.cpp" />
+    <ClInclude Include="Source\Platform\GtkDialogApi.h" />
     <ClCompile Include="Source\Platform\PosixApi.cpp" />
+    <ClInclude Include="Source\Platform\PosixApi.h" />
+    <ClCompile Include="Source\Platform\PosixDynamicLibraryApi.cpp" />
+    <ClInclude Include="Source\Platform\PosixDynamicLibraryApi.h" />
     <ClCompile Include="Source\Platform\WindowsApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsApi.h" />
     <ClCompile Include="Source\Platform\WindowsConsoleApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsConsoleApi.h" />
     <ClCompile Include="Source\Platform\WindowsFileApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsFileApi.h" />
     <ClCompile Include="Source\Platform\WindowsMessageBoxApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsMessageBoxApi.h" />
+    <ClCompile Include="Source\Platform\WindowsRegistryApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsRegistryApi.h" />
+    <ClCompile Include="Source\Platform\WindowsSysInfoApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsSysInfoApi.h" />
     <ClCompile Include="Source\Platform\WindowsTaskDialogApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h" />
+    <ClCompile Include="Source\Platform\WindowsWmiApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsWmiApi.h" />
     <ClCompile Include="Source\Tasks\CancellationTrigger.cpp" />
     <ClCompile Include="Source\Tasks\CancellationWatcher.cpp" />
     <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.Allocate.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.cpp" />
-    <ClInclude Include="Source\Platform\GtkApi.h" />
-    <ClInclude Include="Source\Platform\GtkDialogApi.h" />
-    <ClInclude Include="Source\Platform\PosixApi.h" />
-    <ClInclude Include="Source\Platform\WindowsApi.h" />
-    <ClInclude Include="Source\Platform\WindowsConsoleApi.h" />
-    <ClInclude Include="Source\Platform\WindowsFileApi.h" />
-    <ClInclude Include="Source\Platform\WindowsMessageBoxApi.h" />
-    <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h" />
     <ClInclude Include="Source\Tasks\ResourceBudget.h" />
     <ClCompile Include="Source\Tasks\ResourceBudget.Release.cpp" />
     <ClCompile Include="Source\Tasks\ResourceManifest.cpp" />

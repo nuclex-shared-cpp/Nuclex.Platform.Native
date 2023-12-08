@@ -93,7 +93,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   detection has a choice, it will be without). It is for display and possibly
     ///   performance-prioritized scheduling (if a CPU has performance + eco cores).
     /// </remarks>
-    public: std::size_t FrequencyInMHz;
+    public: double FrequencyInMHz;
 
     /// <summary>Estimated average instructions per second this core can execute</summary>
     /// <remarks>

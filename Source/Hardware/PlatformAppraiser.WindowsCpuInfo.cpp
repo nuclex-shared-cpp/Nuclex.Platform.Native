@@ -36,14 +36,9 @@ License along with this library
 #include "./WindowsWmiCpuInfoReader.h"
 
 #include "./StringHelper.h" // for StringHelper
-#include "../Platform/WindowsRegistryApi.h" // for WindowsRegistryApi, WindowsApi
-#include "../Platform/WindowsSysInfoApi.h" // for WindowsSysInfoApi
 
 #include <vector> // for std::vector
-#include <limits> // for std::numeric_limits
-#include <unordered_set> // for std::unordered_set
 #include <unordered_map> // for std::unordered_map
-#include <cassert> // for assert()
 
 namespace {
 
@@ -83,6 +78,30 @@ namespace {
     // Fallback if we cannot parse the frequency from the CPU make and model
     std::uint32_t tenthGhz = static_cast<std::uint32_t>(maxMhzSeen / 100.0 + 0.5);
     return static_cast<double>(tenthGhz) / 10.0;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  /// <summary>Removes boilerplate contents from a CPUs make and model string</summary>
+  /// <param name="cpuName">CPU make and model string that will be sanitized</param>
+  /// <returns>The CPU name minus any trademark signs and filler words</returns>
+  std::string sanitizeCpuName(const std::string_view &cpuName) {
+    using Nuclex::Platform::Hardware::StringHelper;
+
+    std::string sanitized(cpuName);
+    StringHelper::EraseSubstrings(sanitized, u8"(R)"); // Registered
+    StringHelper::EraseSubstrings(sanitized, u8"(TM)"); // Trademark
+    StringHelper::EraseSubstrings(sanitized, u8"CPU"); // Filler word
+    StringHelper::EraseSubstrings(sanitized, u8" 0 "); // Meaningless
+                                                                               // Frequency delimiter
+    std::string::size_type atIndex = sanitized.find(u8'@');
+    if(atIndex != std::string::npos) {
+      sanitized.erase(atIndex);
+    }
+
+    StringHelper::EraseDuplicateWhitespace(sanitized);
+
+    return sanitized;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -139,20 +158,22 @@ namespace {
     Nuclex::Platform::Hardware::WindowsBasicCpuInfoReader &info,
     bool nameAndFrequencyPresent
   ) {
-    std::vector<Nuclex::Platform::Hardware::CpuInfo> topology;
 
-    // Map for counting cores. First index is the core index, second index
-    // stores the counter. For a CPU with HyperThreading, we expect to see each
-    // core twice, thus each core's counter would be incremented to two.
-    typedef std::unordered_map<std::size_t, std::size_t> CoreCountMap;
-
-    // 
-    struct TopologyIndexAndCoreCounts {
-      public: std::size_t TopologyIndex;
-      public: CoreCountMap CoreCounts;
+    // <summary>Maps a core ID reported via WinAPI to an index in our core list</summary>
+    typedef std::unordered_map<std::size_t, std::size_t> CoreIndexMap;
+    /// <summary>Stores the cores indices and index of a CPU in the topology list</summary>
+    struct CpuInfoIndexAndCoreIndices {
+      public: CpuInfoIndexAndCoreIndices(std::size_t cpuInfoIndex) :
+        CpuInfoIndex(cpuInfoIndex) {}
+      /// <summary>Index of the CPU in our final CpuInfo list</summary>
+      public: std::size_t CpuInfoIndex;
+      /// <summary>Maps core IDs from the Windows API to core indices</summary>
+      public: CoreIndexMap CoreIndices;
     };
-    typedef std::unordered_map<std::size_t, TopologyIndexAndCoreCounts> CpuMap;
+    /// <summary>Maps physical CPU IDs to indices in our CpuInfo list</summary>
+    typedef std::unordered_map<std::size_t, CpuInfoIndexAndCoreIndices> CpuMap;
 
+    std::vector<Nuclex::Platform::Hardware::CpuInfo> cpuInfos;
     CpuMap cpus;
 
     // Go through the processors in all groups. We just treat the groups as a flat
@@ -161,6 +182,7 @@ namespace {
     std::size_t processorGroupCount = info.GroupsOfProcessors.size();
     for(std::size_t groupIndex = 0; groupIndex < processorGroupCount; ++groupIndex) {
       using Nuclex::Platform::Hardware::WindowsBasicCpuInfoReader;
+      using Nuclex::Platform::Hardware::CoreInfo;
 
       // Now iterate over all the processors in the processor group
       const std::vector<WindowsBasicCpuInfoReader::ProcessorInfo> &processors = (
@@ -169,69 +191,90 @@ namespace {
       std::size_t processorCount = processors.size();
       for(std::size_t index = 0; index < processorCount; ++index) {
 
-        // CoreIndex and PhysicalCpuIndex are intentionally one-based, so if it remained
-        // zero on any processor, there is a gap in the processors reported by the Windows API.
+        // CoreIndex and PhysicalCpuIndex are intentionally one-based, so if either
+        // is still zero, there is a gap in the processors reported by the Windows API.
+        // Only here in the spirit of defensive programming and shouldn't ever occur.
         bool isValid = (
-          (processors[index].CoreIndex != 0) &&
-          (processors[index].PhysicalCpuIndex != 0)
+          (processors[index].PhysicalCpuIndex != 0) &&
+          (processors[index].CoreIndex != 0)
         );
         if(isValid) {
           CpuMap::iterator cpuIterator = cpus.find(processors[index].PhysicalCpuIndex);
-          if(cpuIterator == cpus.end()) { // CPU seen for the first time
 
-            TopologyIndexAndCoreCounts cpu;
-            cpu.TopologyIndex = topology.size();
-            cpu.CoreCounts.insert(CoreCountMap::value_type(processors[index].CoreIndex, 1));
-            cpus.insert(CpuMap::value_type(processors[index].PhysicalCpuIndex, cpu));
-
-            Nuclex::Platform::Hardware::CpuInfo cpuInfo;
-            cpuInfo.ThreadCount = 1;
+          // If this is the first time we're seeing this physical CPU, we need to
+          // add it into the CpuInfo list we're generating.
+          if(unlikely(cpuIterator == cpus.end())) {
+            cpuIterator = cpus.emplace(
+              processors[index].PhysicalCpuIndex,
+              CpuInfoIndexAndCoreIndices(cpuInfos.size())
+            ).first;
+            
+            Nuclex::Platform::Hardware::CpuInfo &newCpuInfo = cpuInfos.emplace_back();
+            newCpuInfo.CoreCount = 0;
             if(nameAndFrequencyPresent) {
-              cpuInfo.ModelName = processors[index].Name;
+              newCpuInfo.ModelName = sanitizeCpuName(processors[index].Name);
             } else {
-              cpuInfo.ModelName.assign(u8"CPU #   ", 8);
-              cpuInfo.ModelName.resize(5);
+              newCpuInfo.ModelName.assign(u8"CPU #   ", 8);
+              newCpuInfo.ModelName.resize(5);
               Nuclex::Support::Text::lexical_append(
-                cpuInfo.ModelName, processors[index].PhysicalCpuIndex
+                newCpuInfo.ModelName, processors[index].PhysicalCpuIndex
               );
             }
-            topology.push_back(cpuInfo);
+            newCpuInfo.ThreadCount = 0;
+          }
 
-          } else { // CPU was already present in our list
+          CpuInfoIndexAndCoreIndices &indices = cpuIterator->second;
+          Nuclex::Platform::Hardware::CpuInfo &cpuInfo = cpuInfos[indices.CpuInfoIndex];
 
-            TopologyIndexAndCoreCounts &cpu = cpuIterator->second;
-            CoreCountMap::iterator coreIterator = (
-              cpu.CoreCounts.find(processors[index].CoreIndex)
-            );
-            if(coreIterator == cpu.CoreCounts.end()) {
-              cpu.CoreCounts.insert(
-                CoreCountMap::value_type(processors[index].CoreIndex, 1)
-              );
+          // Each processor increments the thread count (that's what a processor is)
+          ++cpuInfo.ThreadCount;
+
+          // ...but we have to check if we visited this core already before we can
+          // increment the core count of the CPU.
+          std::pair<CoreIndexMap::iterator, bool> result = indices.CoreIndices.emplace(
+            processors[index].CoreIndex, cpuInfo.Cores.size()
+          );
+          if(result.second) {
+            ++cpuInfo.CoreCount;
+
+            CoreInfo &newCoreInfo = cpuInfo.Cores.emplace_back();
+            if(nameAndFrequencyPresent) {
+              newCoreInfo.FrequencyInMHz = processors[index].FrequencyInMhz;
             } else {
-              ++coreIterator->second;
+              newCoreInfo.FrequencyInMHz = 0.0;
             }
+            newCoreInfo.ThreadCount = 1;
+          }
 
-            ++topology[cpu.TopologyIndex].ThreadCount;
+          // Update the core
+          {
+            CoreInfo &coreInfo = cpuInfo.Cores[result.first->second];
+            ++coreInfo.ThreadCount;
 
-          } // if cpu found
-        } // if currently enumerated processor valid
-      } // for each reported processor
-    } // for each reported processor group
+            if(info.NonZeroEfficiencySpotted) {
+              std::size_t distanceToHighestEfficiency = (
+                info.HighestEfficiencySeen - processors[index].Efficiency
+              );
+              std::size_t distanceToLowestEfficiency = (
+                processors[index].Efficiency - info.LowestEfficiencySeen
+              );
 
-    // Now just fill out the number of unique cores we left empty above.
-    // Normally this is either the same as the number of processors we've processed or
-    // half that if each core has two processors due to HyperThreading.
-    for(
-      CpuMap::const_iterator cpuIterator = cpus.begin();
-      cpuIterator != cpus.end();
-      ++cpuIterator
-    ) {
-      topology[cpuIterator->second.TopologyIndex].CoreCount = (
-        cpuIterator->second.CoreCounts.size()
-      );
-    }
+              coreInfo.IsEcoCore = (distanceToHighestEfficiency >= distanceToLowestEfficiency);
+              if(coreInfo.IsEcoCore) {
+                if(cpuInfo.EcoCoreCount.has_value()) {
+                  cpuInfo.EcoCoreCount = cpuInfo.EcoCoreCount.value() + 1;
+                } else {
+                  cpuInfo.EcoCoreCount = 1;
+                }
+              }
+            } // if non-zero efficiency value (eco cores) spotted
+          } // CPU core update beauty scope
+        } // if processor package and core index valid
 
-    return topology;
+      } // for each processor in group
+    } // for each group
+
+    return cpuInfos;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -244,6 +287,10 @@ namespace {
     const std::string &name,
     double frequencyInMhz
   ) {
+    // We don't need this parameter. The WMI info reader does not invoke its callback
+    // more than once per physical CPU and we're just putting them in a list one after another.
+    (void)physicalCpuIndex;
+
     std::vector<Nuclex::Platform::Hardware::CpuInfo> &cpuInfos = (
       *reinterpret_cast<std::vector<Nuclex::Platform::Hardware::CpuInfo> *>(cpuInfosAsVoid)
     );
@@ -337,8 +384,6 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       canceller->ThrowIfCanceled();
     }
 
-    cpuInformationFromRegistrySeemsPlausible = false; // TESTING, REMOVE THIS!
-
     // If we got everything in this way and it seems okay, we package it up and return it.
     if(cpuInformationFromRegistrySeemsPlausible) {
       return topologyFromBasicCpuInfo(cpuInfoReader, true);
@@ -359,7 +404,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
       return cpuInfos;
     }
-    catch(const std::exception &e) {
+    catch(const std::exception &) {
       // If the WMI query failed for any reason, fall back to the basic cpu info
       // but ignore the enhanced info from the registry (those fields are in an
       // undefined state since the registry-source info enhancement failed)
