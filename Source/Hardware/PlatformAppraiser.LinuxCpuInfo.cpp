@@ -1,7 +1,7 @@
 #pragma region CPL License
 /*
 Nuclex Native Framework
-Copyright (C) 2002-2021 Nuclex Development Labs
+Copyright (C) 2002-2023 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -108,6 +108,8 @@ namespace {
     double frequencyInMhz,
     double bogoMips
   ) {
+    std::string saneName = sanitizeCpuName(name);
+    double saneFrequency = sanitizeCpuFrequency(name, frequencyInMhz);
 
   }
 

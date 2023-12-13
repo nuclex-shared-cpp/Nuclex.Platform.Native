@@ -1,7 +1,7 @@
 #pragma region CPL License
 /*
 Nuclex Native Framework
-Copyright (C) 2002-2021 Nuclex Development Labs
+Copyright (C) 2002-2023 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -53,15 +53,19 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     // so it makes sense to check once before actually doing anything.
     canceller->ThrowIfCanceled();
 
+    // We can get all the information we need from the /proc/meminfo pseudofile.
     MemoryInfo result = LinuxProcMemInfoReader::TryReadMemInfo(canceller);
+
+    canceller->ThrowIfCanceled();
 
     // The value we get usually is a little bit below the installed memory (maybe the kernel
     // subtracts off-limits memory or certain resources?). So we make the following assumption:
-    // There are no more than 16 memory modules on a motherboard. That means we can guess
+    // There are no more than 16 memory modules on one motherboard. That means we can guess
     // the size of the installed memory modules and thus, guess the actually installed memory.
     // If we parsed the SMBIOS/DMI data, we could know for sure, but I'd like to avoid that.
     {
       const std::size_t MaximumMemoryModuleCount = 16;
+
       std::size_t memoryModuleSize = result.InstalledMegabytes / MaximumMemoryModuleCount;
       if(memoryModuleSize == 0) {
         memoryModuleSize = 1; // No memory modules below 1 MiB exist. Done.
@@ -77,10 +81,11 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     }
 
     return result;
+
   }
 
   // ------------------------------------------------------------------------------------------- //
 
 }}} // namespace Nuclex::Platform::Hardware
 
-#endif // !defined(NUCLEX_PLATFORM_WINDOWS)
+#endif // defined(NUCLEX_PLATFORM_LINUX)
