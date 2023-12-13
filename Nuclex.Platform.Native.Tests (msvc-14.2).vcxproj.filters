@@ -38,6 +38,12 @@
     <Filter Include="Source\Tasks">
       <UniqueIdentifier>{aa0fd183-37f7-4f68-b4b5-cb30cfa82301}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{56e5cb89-1259-433c-b502-7e90be281981}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\Tasks">
+      <UniqueIdentifier>{2bbe504a-85b3-4c42-b387-5b3aeb023aa6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h">
@@ -309,8 +315,6 @@
     <ClCompile Include="Source\Config.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Tests\Tasks\CancellationTriggerTest.cpp">
       <Filter>Tests\Tasks</Filter>
     </ClCompile>

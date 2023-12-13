@@ -87,7 +87,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     // in undefined order. So now we need to sort through these to obtain our information.
     std::size_t offset = 0;
     while(bufferSize >= offset + sizeof(::SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)) {
-      const const ::SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX &logicalProcesorInformation = (
+      const ::SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX &logicalProcesorInformation = (
         *reinterpret_cast<const ::SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *>(
           extendedLogicalProcessorInformationBuffer.data() + offset
         )

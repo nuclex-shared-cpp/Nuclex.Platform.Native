@@ -71,7 +71,9 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   class NUCLEX_PLATFORM_TYPE PlatformAppraiser {
 
     /// <summary>Analyzes the CPUs installed in the system</summary>
-    /// <param name="canceller">Allows cancella
+    /// <param name="canceller">
+    ///   Allows cancellation of the data collection process before it is finished
+    /// </param>
     /// <returns>
     ///   An <see cref="std::future" /> that will provide a description of
     ///   the CPU topology when the detection has completed

@@ -50,40 +50,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
     /// <summary>Collapses all whitespaces between words to one space each</summary>
     /// <param name="target">String in which duplicate whitespace will be collapsed</param>
-    public: static void EraseDuplicateWhitespace(std::string &target) {
-      std::string::size_type length = target.length();
-
-      std::string::size_type toIndex = 0;
-      {
-        bool previousWasWhitespace = true; // effectively trims whitespace at the beginning
-
-        for(std::string::size_type fromIndex = 0; fromIndex < length; ++fromIndex) {
-          bool isWhitespace = Nuclex::Support::Text::ParserHelper::IsWhitespace(
-            static_cast<std::uint8_t>(target[fromIndex])
-          );
-          if(isWhitespace) {
-            if(!previousWasWhitespace) {
-              previousWasWhitespace = true;
-              target[toIndex] = u8' ';
-              ++toIndex;
-            }
-          } else {
-            previousWasWhitespace = false;
-            target[toIndex] = target[fromIndex];
-            ++toIndex;
-          }
-        }
-
-        // If the string ended in a whitespace, take that off again
-        if(previousWasWhitespace) {
-          if(toIndex > 0) {
-            --toIndex;
-          }
-        }
-      }
-
-      target.resize(toIndex);
-    }
+    public: static inline void EraseDuplicateWhitespace(std::string &target);
 
     /// <summary>Locates the next floating-point number within a string</summary>
     /// <param name="text">Text in which the next floating-point numbers will be found</param>
@@ -94,6 +61,43 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     );
 
   };
+
+  // ------------------------------------------------------------------------------------------- //
+
+  inline void StringHelper::EraseDuplicateWhitespace(std::string &target) {
+    std::string::size_type length = target.length();
+
+    std::string::size_type toIndex = 0;
+    {
+      bool previousWasWhitespace = true; // effectively trims whitespace at the beginning
+
+      for(std::string::size_type fromIndex = 0; fromIndex < length; ++fromIndex) {
+        bool isWhitespace = Nuclex::Support::Text::ParserHelper::IsWhitespace(
+          static_cast<std::uint8_t>(target[fromIndex])
+        );
+        if(isWhitespace) {
+          if(!previousWasWhitespace) {
+            previousWasWhitespace = true;
+            target[toIndex] = u8' ';
+            ++toIndex;
+          }
+        } else {
+          previousWasWhitespace = false;
+          target[toIndex] = target[fromIndex];
+          ++toIndex;
+        }
+      }
+
+      // If the string ended in a whitespace, take that off again
+      if(previousWasWhitespace) {
+        if(toIndex >= 1) {
+          --toIndex;
+        }
+      }
+    }
+
+    target.resize(toIndex);
+  }
 
   // ------------------------------------------------------------------------------------------- //
 

@@ -30,6 +30,8 @@ License along with this library
 #include <Nuclex/Support/Text/UnicodeHelper.h> // for UnicodeHelper
 #include <Nuclex/Support/ScopeGuard.h> // for ScopeGuard
 
+#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+
 #include "./StringHelper.h" // for StringHelper
 #include "../Platform/WindowsWmiApi.h" // for WindowsWmiApi, WindowsApi
 
@@ -222,8 +224,10 @@ namespace Nuclex { namespace Platform { namespace Hardware {
             std::array<IWbemClassObject *, BatchSize> wbemObjects;
             ULONG objectCount = 0;
 
+            canceller->ThrowIfCanceled();
+
             // Request the next batch of objects from the enumerator. Most examples on
-            // the web query one-by-one but that seems to be mere lazyness ;-)
+            // the web query one-by-one but that seems to be mere laziness ;-)
             result = wbemEnumerator->Next(
               5000, // milliseconds timeout (we're local, so this should suffice!)
               BatchSize, // number of objects to query and return

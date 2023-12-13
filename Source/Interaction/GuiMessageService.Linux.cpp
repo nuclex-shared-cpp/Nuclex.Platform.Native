@@ -23,7 +23,7 @@ License along with this library
 
 #include "Nuclex/Platform/Interaction/GuiMessageService.h"
 
-#if !defined(NUCLEX_PLATFORM_WINDOWS)
+#if defined(NUCLEX_PLATFORM_LINUX)
 
 #include "Nuclex/Platform/Interaction/ActiveWindowTracker.h"
 
@@ -136,4 +136,4 @@ namespace Nuclex { namespace Platform { namespace Interaction {
 
 }}} // namespace Nuclex::Platform::Interaction
 
-#endif // defined(NUCLEX_PLATFORM_WINDOWS)
+#endif // defined(NUCLEX_PLATFORM_LINUX)

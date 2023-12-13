@@ -32,7 +32,7 @@ License along with this library
 #include <mutex> // for std::mutex
 #include <deque> // for std::deque
 #include <array> // for std::array
-#include <atomic>> // for std::atomic
+#include <atomic> // for std::atomic
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 

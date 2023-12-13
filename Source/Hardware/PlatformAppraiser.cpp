@@ -57,17 +57,5 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   }
 
   // ------------------------------------------------------------------------------------------- //
-#if defined(NUCLEX_PLATFORM_LINUX)
-  std::vector<CpuInfo> PlatformAppraiser::analyzeCpuTopologyAsync(
-    std::shared_ptr<const Tasks::CancellationWatcher> canceller
-  ) {
-    CpuInfo result;
-
-    // TODO
-
-    return result;
-  }
-#endif // defined(NUCLEX_PLATFORM_LINUX)
-  // ------------------------------------------------------------------------------------------- //
 
 }}} // namespace Nuclex::Platform::Hardware

@@ -29,6 +29,8 @@ License along with this library
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast<>
 #include <Nuclex/Support/ScopeGuard.h> // for ScopeGuard
 
+#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+
 #include "../Platform/WindowsRegistryApi.h" // for WindowsRegistryApi
 #include "./StringHelper.h" // for StringHelper
 
@@ -104,6 +106,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       } else { // Registry subkey for the whole processor was not found
         gotEverything = false;
       }
+
+      canceller->ThrowIfCanceled();
 
       // Cut off the processor index from the registry path so we can append
       // the index of the next processor that we want to query.

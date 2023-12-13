@@ -23,6 +23,8 @@ License along with this library
 
 #include "Nuclex/Platform/Config.h"
 
+#if defined(NUCLEX_PLATFORM_WINDOWS)
+
 #include <string> // for std::string
 #include <cstddef> // for std::size_t
 #include <memory> // for std::shared_ptr
@@ -95,5 +97,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
 }}} // namespace Nuclex::Platform::Hardware
+
+#endif // defined(NUCLEX_PLATFORM_WINDOWS)
 
 #endif // NUCLEX_PLATFORM_HARDWARE_WINDOWSREGISTRYCPUINFOREADER_H
