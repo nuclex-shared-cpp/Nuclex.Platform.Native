@@ -279,6 +279,13 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>Creates a new CPU info entry when the WMI reader callback is invoked</summary>
+  /// <param name="cpuInfosAsVoid">Vector of CPU infos that will be filled</param>
+  /// <param name="physicalCpuIndex">Index of the socket the CPU is installed in</param>
+  /// <param name="coreCount">Number of cores the CPU has</param>
+  /// <param name="threadCount">Number of threads the CPU has</param>
+  /// <param name="name">Manufacturer and model name reported by WMI</param>
+  /// <param name="frequencyInMhz">Unboosted maximum frequency of the CPU</param>
   void createCpuInfoFromWmiCallback(
     void *cpuInfosAsVoid,
     std::size_t physicalCpuIndex,

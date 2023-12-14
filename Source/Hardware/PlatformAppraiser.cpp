@@ -24,10 +24,6 @@ License along with this library
 #include "Nuclex/Platform/Hardware/PlatformAppraiser.h"
 #include "Nuclex/Platform/Tasks/CancellationWatcher.h"
 
-#if defined(NUCLEX_PLATFORM_WINDOWS)
-#include "../Platform/WindowsSysInfoApi.h"
-#endif
-
 namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
@@ -53,6 +49,19 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     return std::async(
       std::launch::async,
       &PlatformAppraiser::analyzeMemoryAsync, canceller
+    );
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::future<std::vector<VolumeInfo>> PlatformAppraiser::AnalyzeStorageVolumes(
+    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
+      std::shared_ptr<const Tasks::CancellationWatcher>()
+    ) */
+  ) {
+    return std::async(
+      std::launch::async,
+      &PlatformAppraiser::analyzeStorageVolumesAsync, canceller
     );
   }
 

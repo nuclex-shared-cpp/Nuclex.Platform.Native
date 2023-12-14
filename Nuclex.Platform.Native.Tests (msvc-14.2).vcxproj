@@ -198,8 +198,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Config.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h" />
     <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h" />
-    <ClInclude Include="Include\Nuclex\Platform\Hardware\DriveInfo.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\VolumeInfo.h" />
     <ClInclude Include="Include\Nuclex\Platform\Hardware\GpuInfo.h" />
     <ClInclude Include="Include\Nuclex\Platform\Hardware\MemoryInfo.h" />
     <ClInclude Include="Include\Nuclex\Platform\Hardware\PlatformAppraiser.h" />
@@ -223,14 +224,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Config.cpp" />
+    <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp" />
     <ClCompile Include="Source\Hardware\CpuInfo.cpp" />
-    <ClCompile Include="Source\Hardware\DriveInfo.cpp" />
+    <ClCompile Include="Source\Hardware\VolumeInfo.cpp" />
     <ClCompile Include="Source\Hardware\GpuInfo.cpp" />
+    <ClCompile Include="Source\Hardware\LinuxProcCpuInfoReader.cpp" />
+    <ClCompile Include="Source\Hardware\LinuxProcMemInfoReader.cpp" />
+    <ClCompile Include="Source\Hardware\LinuxSysCpuTreeReader.cpp" />
     <ClCompile Include="Source\Hardware\MemoryInfo.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.cpp" />
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxCpuInfo.cpp" />
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxMemoryInfo.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsCpuInfo.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsMemoryInfo.cpp" />
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsStorageInfo.cpp" />
     <ClCompile Include="Source\Hardware\StringHelper.cpp" />
+    <ClInclude Include="Source\Hardware\LinuxProcCpuInfoReader.h" />
+    <ClInclude Include="Source\Hardware\LinuxProcMemInfoReader.h" />
+    <ClInclude Include="Source\Hardware\LinuxSysCpuTreeReader.h" />
     <ClInclude Include="Source\Hardware\StringHelper.h" />
     <ClCompile Include="Source\Hardware\WindowsBasicCpuInfoReader.cpp" />
     <ClInclude Include="Source\Hardware\WindowsBasicCpuInfoReader.h" />

@@ -31,7 +31,7 @@ License along with this library
 #include "Nuclex/Platform/Hardware/CpuInfo.h"
 #include "Nuclex/Platform/Hardware/MemoryInfo.h"
 #include "Nuclex/Platform/Hardware/GpuInfo.h"
-#include "Nuclex/Platform/Hardware/DriveInfo.h"
+#include "Nuclex/Platform/Hardware/VolumeInfo.h"
 
 // PlatformAnalyzer
 //   -> I wouldn't think of a hardware inventory querying system reading this name
@@ -95,15 +95,37 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       )
     );
 
+    /// <summary>Analyzes the installed and mounted storage volumes in the system</summary>
+    /// <returns>
+    ///   An <see cref="std::future" /> that will provide a description of
+    ///   the installed and mounted storage volumes in the system
+    /// </returns>
+    public: NUCLEX_PLATFORM_API static std::future<
+      std::vector<VolumeInfo>
+    > AnalyzeStorageVolumes(
+      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
+        std::shared_ptr<const Tasks::CancellationWatcher>()
+      )
+    );
+
     /// <summary>Runs in a thread to analyze the system's CPU topology</summary>
+    /// <param name="canceller">Allows the information collection to be cancelled</param>
     /// <returns>A description of the system's CPU topology</returns>
     private: static std::vector<CpuInfo> analyzeCpuTopologyAsync(
       std::shared_ptr<const Tasks::CancellationWatcher> canceller
     );
 
     /// <summary>Runs in a thread to analyze the system's memory</summary>
+    /// <param name="canceller">Allows the information collection to be cancelled</param>
     /// <returns>A description of the system's memory</returns>
     private: static MemoryInfo analyzeMemoryAsync(
+      std::shared_ptr<const Tasks::CancellationWatcher> canceller
+    );
+
+    /// <summary>Runs in a thread to analyze th system's storage volumes</summary>
+    /// <param name="canceller">Allows the information collection to be cancelled</param>
+    /// <returns>A description of the system's storage volumes</returns>
+    private: static std::vector<VolumeInfo> analyzeStorageVolumesAsync(
       std::shared_ptr<const Tasks::CancellationWatcher> canceller
     );
 
@@ -111,26 +133,9 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     // old from Videl
     // --------------------------------
 
-
+#if 0
     /// <summary>Re-queries the hardware metrics</summary>
     public: void Refresh();
-
-    /// <summary>Retrieves the system's topology of CPUs and their cores</summary>
-    /// <returns>A list of physical CPUs in the system with their specifications</returns>
-    /// <remarks>
-    ///   This is the most detailed view into the installed CPUs.
-    /// </remarks>
-    public: const std::vector<CpuInfo> &GetCpuTopology() const {
-      return this->cpuTopology;
-    }
-
-    /// <summary>Counts the number of CPU cores available</summary>
-    /// <returns>The system's number of CPU cores</returns>
-    public: std::size_t CountCpuCores() const { return this->cpuCoreCount; }
-
-    /// <summary>Counts the number of usable processors</summary>
-    /// <returns>The amount of usable processors in the system</returns>
-    public: std::size_t CountUsableProcessors() const { return this->cpuProcessorCount; }
 
     /// <summary>Provides a short string summarizing the system's installed CPUs</summary>
     /// <returns>A short description of the CPUs in the system</returns>
@@ -226,6 +231,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     private: std::size_t gpuMaximumVideoMemoryBytes;
     /// <summary>Short string describing the make and model of the GPU(s)</summary>
     private: std::string gpuNames;
+#endif
 
   };
 

@@ -21,7 +21,7 @@ License along with this library
 // If the library is compiled as a DLL, this ensures symbols are exported
 #define NUCLEX_PLATFORM_SOURCE 1
 
-#include "Nuclex/Platform/Hardware/DriveInfo.h"
+#include "Nuclex/Platform/Hardware/VolumeInfo.h"
 
 // --------------------------------------------------------------------------------------------- //
 

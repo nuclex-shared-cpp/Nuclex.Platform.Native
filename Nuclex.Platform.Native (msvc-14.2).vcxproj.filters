@@ -38,12 +38,18 @@
     <Filter Include="Source\Tasks">
       <UniqueIdentifier>{aa0fd183-37f7-4f68-b4b5-cb30cfa82301}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Errors">
+      <UniqueIdentifier>{9e8a74af-891a-4672-be13-9819aaf76b03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Errors">
+      <UniqueIdentifier>{33981dc2-f22c-4949-94b9-8b8850a3267c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h">
       <Filter>Include\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Hardware\DriveInfo.h">
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\VolumeInfo.h">
       <Filter>Include\Hardware</Filter>
     </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Hardware\GpuInfo.h">
@@ -109,12 +115,24 @@
     <ClInclude Include="Include\Nuclex\Platform\Config.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Hardware\LinuxProcCpuInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\LinuxProcMemInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\LinuxSysCpuTreeReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h">
+      <Filter>Include\Errors</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Hardware\CpuInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\DriveInfo.cpp">
+    <ClCompile Include="Source\Hardware\VolumeInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\GpuInfo.cpp">
@@ -129,7 +147,7 @@
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsCpuInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsMemoryInfo.cpp">
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsStorageInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\StringHelper.cpp">
@@ -308,6 +326,27 @@
     </ClCompile>
     <ClCompile Include="Source\Config.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\LinuxProcCpuInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\LinuxProcMemInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\LinuxSysCpuTreeReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxCpuInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxMemoryInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsMemoryInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp">
+      <Filter>Source\Errors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

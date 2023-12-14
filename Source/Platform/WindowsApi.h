@@ -50,6 +50,9 @@ License along with this library
 #undef GetFullPathName
 #undef GetWindowsDirectory
 #undef GetSystemDirectory
+#undef FindFirstVolume
+#undef FindNextVolume
+#undef GetVolumePathNamesForVolumeName
 
 #include <string> // for std::string
 
