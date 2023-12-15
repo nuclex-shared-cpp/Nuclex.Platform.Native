@@ -31,7 +31,7 @@ License along with this library
 #include "Nuclex/Platform/Hardware/CpuInfo.h"
 #include "Nuclex/Platform/Hardware/MemoryInfo.h"
 #include "Nuclex/Platform/Hardware/GpuInfo.h"
-#include "Nuclex/Platform/Hardware/VolumeInfo.h"
+#include "Nuclex/Platform/Hardware/StoreInfo.h"
 
 // PlatformAnalyzer
 //   -> I wouldn't think of a hardware inventory querying system reading this name
@@ -56,6 +56,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 }}} // namespace Nuclex::Platform::Tasks
 
 namespace Nuclex { namespace Platform { namespace Hardware {
+  void removeTrailingSlash(std::wstring& volumeName);
 
   // ------------------------------------------------------------------------------------------- //
 

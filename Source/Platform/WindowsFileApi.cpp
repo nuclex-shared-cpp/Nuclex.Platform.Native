@@ -28,6 +28,7 @@ License along with this library
 #include <stdexcept> // for std::invalid_argument
 
 #include "Nuclex/Support/Text/UnicodeHelper.h" // for UTF-16 <-> UTF-8 conversion
+#include "Nuclex/Support/Text/StringConverter.h" // for StringConverter
 
 namespace {
 
@@ -60,12 +61,39 @@ namespace Nuclex { namespace Platform { namespace Platform {
         (errorCode == ERROR_FILE_NOT_FOUND)
       );
       if(throwIfNoneExists || unlikely(!errorIsDueToLackingConsole)) {
-        std::string errorMessage(u8"Could not open active console screen buffer");
+        std::string errorMessage(u8"Could not open active console screen buffer", 43);
         Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);
       }
     }
 
     return fileHandle;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  HANDLE WindowsFileApi::OpenExistingFileForSharedReading(
+    const std::wstring &path
+  ) {
+    HANDLE volumeFileHandle = ::CreateFileW(
+      path.c_str(),
+      GENERIC_READ,
+      FILE_SHARE_READ | FILE_SHARE_WRITE,
+      nullptr,
+      OPEN_EXISTING,
+      0, // flags and attributes
+      nullptr // template file to copy permissions from
+    );
+    if(unlikely(volumeFileHandle == INVALID_HANDLE_VALUE)) {
+      using Nuclex::Support::Text::StringConverter;
+
+      DWORD errorCode = ::GetLastError();
+      std::string errorMessage(u8"Could not open file '", 21);
+      errorMessage.append(StringConverter::Utf8FromWide(path));
+      errorMessage.append(u8"' for shared reading", 20);
+      Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);
+    }
+
+    return volumeFileHandle;
   }
 
   // ------------------------------------------------------------------------------------------- //

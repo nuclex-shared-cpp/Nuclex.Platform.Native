@@ -28,7 +28,10 @@ License along with this library
 #include <cstdint> // for std::uint64_t
 #include <vector> // for std::vector
 
-#include "WindowsApi.h"
+#include "WindowsApi.h" // for WindowsAPI and error handling
+#include <winioctl.h> // for DeviceIoControl() and structures
+
+#undef GetVolumeInformation
 
 namespace Nuclex { namespace Platform { namespace Platform {
 
@@ -104,7 +107,11 @@ namespace Nuclex { namespace Platform { namespace Platform {
     /// <param name="pathNames">
     ///   Receives the path names that are mapped to the volume
     /// </param>
-    public: static void GetVolumePathNamesForVolumeName(
+    /// <returns>
+    ///   True if the volume name was valid and could be checked (the number of paths
+    ///   returned may still be zero)
+    /// </returns>
+    public: static bool TryGetVolumePathNamesForVolumeName(
       const std::wstring &volumeName, std::vector<std::string> &pathNames
     );
 
@@ -113,15 +120,17 @@ namespace Nuclex { namespace Platform { namespace Platform {
     ///   Name of the volume for which informations will be queried
     /// </param>
     /// <param name="serialNumber">Receives the serial number of the volume</param>
+    /// <param name="label">Label the user has given the volume</param>
     /// <param name="fileSystem">The name of the file system used on the volume</param>
     public: static void GetVolumeInformation(
-      const std::wstring &volumeName, DWORD &serialNumber, std::string &fileSystem
+      const std::wstring &volumeName,
+      DWORD &serialNumber, std::string &label, std::string &fileSystem
     );
 
-
-          //public: static void QueryDosDevice(const std::wstring &)
-          //GetVolumeInformationA
-          //GetVolumeLabel
+    public: static void DeviceIoControlStorageGetDeviceNumbers(
+      ::HANDLE volumeFileHandle,
+      ::STORAGE_DEVICE_NUMBER &storageDeviceNumber
+    );
 
   };
 

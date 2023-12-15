@@ -43,6 +43,15 @@ namespace Nuclex { namespace Platform { namespace Platform {
       bool throwIfNoneExists = true
     );
 
+    /// <summary>
+    ///   Opens an existing file for read access while allowing other processes to access it
+    /// </summary>
+    /// <param name="path">Path to the file or volume to open for shared reading</param>
+    /// <returns>The handle representing the opened file or volume</returns>
+    public: static HANDLE OpenExistingFileForSharedReading(
+      const std::wstring &path
+    );
+
     /// <summary>Closes the specified file</summary>
     /// <param name="fileHandle">Handle of the file that will be closed</param>
     /// <param name="throwOnError">

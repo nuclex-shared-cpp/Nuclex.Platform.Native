@@ -32,6 +32,23 @@ License along with this library
 namespace {
 
   // ------------------------------------------------------------------------------------------- //
+
+  /// <summary>Shrinks a string to stop at the first null character it contains</summary>
+  /// <param name="stringToShrink">String that will be shrunk</param>
+  void shrinkStringToZeroTerminator(std::wstring &stringToShrink) {
+    for(std::wstring::size_type index = 0; index < stringToShrink.length(); ++index) {
+      if(unlikely(stringToShrink[index] == 0)) {
+        if(unlikely(index == 0)) {
+          stringToShrink.clear();
+          return;
+        } else {
+          stringToShrink.resize(index);
+          return;
+        }
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
 
 } // anonymous namespace
@@ -43,6 +60,9 @@ namespace Nuclex { namespace Platform { namespace Platform {
   std::uint64_t WindowsSysInfoApi::GetPhysicallyInstalledSystemMemory() {
     ULONGLONG memoryInKilobytes;
 
+    // This actually parses the SMBIOS/DMI information of the system and can fail with
+    // ERROR_INVALID_DATA if said data is malformed. Which is the case for virtual machines
+    // running inside VirtualBox.
     BOOL result = ::GetPhysicallyInstalledSystemMemory(&memoryInKilobytes);
     if(unlikely(result != TRUE)) {
       DWORD lastErrorCode = ::GetLastError();
@@ -201,15 +221,8 @@ namespace Nuclex { namespace Platform { namespace Platform {
       );
     }
 
-    // Figure out how long the string is and shrink it to that size. If this threw
-    // an exception we'd leak the handle, but all string implementations I know of
-    // won't actually perform a new, smaller allocation when the string gets shorter.
-    for(std::string::size_type index = 0; index < MAX_PATH; ++index) {
-      if(unlikely(volumeName[index] == 0)) {
-        volumeName.resize(index);
-        break;
-      }
-    }
+    // Make sure the string's reported size matches its length
+    shrinkStringToZeroTerminator(volumeName);
 
     return findHandle;
   }
@@ -237,13 +250,8 @@ namespace Nuclex { namespace Platform { namespace Platform {
       }
     }
 
-    // Figure out how long the string is and shrink it to that size.
-    for(std::string::size_type index = 0; index < MAX_PATH; ++index) {
-      if(unlikely(volumeName[index] == 0)) {
-        volumeName.resize(index);
-        break;
-      }
-    }
+    // Make sure the string's reported size matches its length
+    shrinkStringToZeroTerminator(volumeName);
 
     return true;
   }
@@ -263,7 +271,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void WindowsSysInfoApi::GetVolumePathNamesForVolumeName(
+  bool WindowsSysInfoApi::TryGetVolumePathNamesForVolumeName(
     const std::wstring &volumeName, std::vector<std::string> &pathNames
   ) {
     std::wstring pathNamesAsUtf16;
@@ -290,7 +298,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
       DWORD lastErrorCode = ::GetLastError();
       if(likely(lastErrorCode == ERROR_MORE_DATA)) {
         --attemptsRemaining;
-        if(unlikely(attemptsRemaining >= 1)) {
+        if(likely(attemptsRemaining >= 1)) {
           pathNamesAsUtf16.resize(static_cast<std::string::size_type>(actualOrRequiredLength));
         } else { // Asking for a bigger buffer yet again
           Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
@@ -298,14 +306,21 @@ namespace Nuclex { namespace Platform { namespace Platform {
             lastErrorCode
           );
         }
+      } else if(
+        (lastErrorCode == ERROR_INVALID_NAME) ||
+        (lastErrorCode == ERROR_FILE_NOT_FOUND)
+      ) {
+        pathNames.clear();
+        return false;
       } else { // an error other than ERROR_MORE_DATA occurred
         Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
           u8"Could not obtain paths for storage volume via GetVolumePathNamesForVolumeName()",
           lastErrorCode
         );
       }
-    } // for(;;) until attempts run out
+    } // for(;;) until attempt successful
 
+    // Now begin filling the path name list by plucking apart the returtned path name set
     pathNames.clear();
     {
       using Nuclex::Support::Text::StringConverter;
@@ -315,7 +330,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
       std::wstring::size_type startIndex = 0;
       for(std::wstring::size_type index = 0; index < pathNamesAsUtf16.length(); ++index) {
         if(unlikely(pathNamesAsUtf16[index] == 0)) {
-          if(startIndex + 1 < index) { // should be at least 1 character long
+          if(likely(startIndex + 1 < index)) { // should be at least 1 character long
             pathNames.push_back(
               StringConverter::Utf8FromWide(
                 pathNamesAsUtf16.substr(startIndex, index - startIndex)
@@ -330,13 +345,120 @@ namespace Nuclex { namespace Platform { namespace Platform {
       // also process the final bit of text. This branch will likely never be entered
       // on a Windows system since GetVolumePathNamesForVolumeNameW() always terminates
       // its returned string with a zero byte, even when no paths are mapped.
-      if(startIndex < pathNamesAsUtf16.length()) {
-        if(pathNamesAsUtf16[startIndex] != 0) { // If it's not just a lone zero terminator
+      if(unlikely(startIndex < pathNamesAsUtf16.length())) {
+        if(unlikely(pathNamesAsUtf16[startIndex] != 0)) { // If it's not just a lone zero terminator
           pathNames.push_back(
             StringConverter::Utf8FromWide(pathNamesAsUtf16.substr(startIndex))
           );
         } // if remainder isn't just a lone zero terminator
       } // if more characters follow the last discovered zero terminator
+    }
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void WindowsSysInfoApi::GetVolumeInformation(
+    const std::wstring &volumeName,
+    DWORD &serialNumber, std::string &label, std::string &fileSystem
+  ) {
+    std::wstring fileSystemName;
+    fileSystemName.resize(256);
+
+    std::wstring volumeLabel;
+    volumeLabel.resize(256);
+
+    // If the GetVolumeInformationW() method complains about the buffers being too small,
+    // give it 3 chances, each time doubling the buffer size. Since we don't know which
+    // buffer was too small, we'll have to resize all buffers.
+    //
+    // The GetVolumeInformationW() method is also documented to fail if even one
+    // of the requested items of information cannot be provided. Currently, this does not
+    // appear to be a problem (even an empty CD/DVD has a label - blank one), but perhaps
+    // in the spirit of robustness, we should query the three pieces of information one by one?
+    std::size_t attemptsRemaining = 3;
+    for(;;) {
+      BOOL successful = ::GetVolumeInformationW(
+        volumeName.c_str(),
+        volumeLabel.data(),
+        static_cast<DWORD>(volumeLabel.size()),
+        &serialNumber,
+        nullptr,
+        nullptr,
+        fileSystemName.data(),
+        static_cast<DWORD>(fileSystemName.size())
+      );
+      if(likely(successful != FALSE)) {
+        break;
+      }
+
+      // If something went wrong, check to see whether it was just the buffers being
+      // too small. Otherwise, bail out with an exception
+      DWORD lastErrorCode = ::GetLastError();
+      if(lastErrorCode == ERROR_MORE_DATA) {
+        --attemptsRemaining;
+        if(likely(attemptsRemaining >= 1)) {
+          fileSystemName.resize(fileSystemName.capacity() * 2);
+          volumeLabel.resize(volumeLabel.capacity() * 2);
+        } else { // Asking for a bigger buffer yet again
+          Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
+            u8"GetVolumeInformation() keeps asking for larger buffers",
+            lastErrorCode
+          );
+        }
+      } else { // Different kind of error we can't compensate for
+        Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
+          u8"Could not query volume label and file system via GetVolumeInformation()",
+          lastErrorCode
+        );
+      }
+    }
+
+    // This method fills our buffers without telling us the number of characters,
+    // so now we need to count out characters and trim the returned strings.
+    shrinkStringToZeroTerminator(fileSystemName);
+    shrinkStringToZeroTerminator(volumeLabel);
+
+    // Serial number is already assigned, convert the pesky UTF-16 strings into
+    // UTF-8 strings that we can handle and hand them over to the caller.
+    fileSystem.assign(
+      std::move(Nuclex::Support::Text::StringConverter::Utf8FromWide(fileSystemName))
+    );
+    label.assign(
+      std::move(Nuclex::Support::Text::StringConverter::Utf8FromWide(volumeLabel))
+    );
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  void WindowsSysInfoApi::DeviceIoControlStorageGetDeviceNumbers(
+    ::HANDLE volumeFileHandle,
+    ::STORAGE_DEVICE_NUMBER &storageDeviceNumber
+  ) {
+    DWORD returnedByteCount = 0;
+
+    BOOL successful = ::DeviceIoControl(
+      volumeFileHandle,
+      IOCTL_STORAGE_GET_DEVICE_NUMBER,
+      nullptr,
+      0,
+      reinterpret_cast<LPVOID>(&storageDeviceNumber),
+      static_cast<DWORD>(sizeof(storageDeviceNumber)),
+      &returnedByteCount,
+      nullptr
+    );
+    if(unlikely(successful == FALSE)) {
+      DWORD lastErrorCode = ::GetLastError();
+      Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
+        u8"Could not query storage device number via DeviceIoControl()",
+        lastErrorCode
+      );
+    }
+    if(unlikely(returnedByteCount != static_cast<DWORD>(sizeof(storageDeviceNumber)))) {
+      throw std::runtime_error(
+        u8"DeviceIoControl() for storage device number returned an unexpected number of bytes"
+      );
     }
   }
 

@@ -49,7 +49,7 @@
     <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h">
       <Filter>Include\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Hardware\VolumeInfo.h">
+    <ClInclude Include="Include\Nuclex\Platform\Hardware\StoreInfo.h">
       <Filter>Include\Hardware</Filter>
     </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Hardware\GpuInfo.h">
@@ -127,12 +127,15 @@
     <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h">
       <Filter>Include\Errors</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Hardware\WindowsVolumeStoreInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Hardware\CpuInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\VolumeInfo.cpp">
+    <ClCompile Include="Source\Hardware\StoreInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\GpuInfo.cpp">
@@ -347,6 +350,9 @@
     </ClCompile>
     <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp">
       <Filter>Source\Errors</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\WindowsVolumeStoreInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

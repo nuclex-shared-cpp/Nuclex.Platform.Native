@@ -32,7 +32,10 @@ License along with this library
 
 #include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
 
-#include "../Platform/WindowsSysInfoApi.h"
+#include "./WindowsVolumeStoreInfoReader.h" // for WindowsBasicStoreInfoReader
+
+#include "../Platform/WindowsSysInfoApi.h" // for WindowsSysInfoApi
+#include "../Platform/WindowsFileApi.h" // for WindowsFileApi
 
 namespace {
 
@@ -50,41 +53,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   ) {
     std::vector<VolumeInfo> result;
 
-    //DWORD consumedDriveLetters = ::GetLogicalDrives();
-
-    // Enumerate all the volumes the Windows system knows about. In the context of our
-    // reported topology, these are on the level of partitions - mapped network shares,
-    // disk drives and actual partitions on hard disks or SSD.
-    std::wstring volumeName;
-    ::HANDLE findVolumeHandle = Platform::WindowsSysInfoApi::FindFirstVolume(volumeName);
-    {
-      ON_SCOPE_EXIT{
-        Platform::WindowsSysInfoApi::FindVolumeClose(findVolumeHandle, false);
-      };
-
-      // Keep enumerating until we have fetched each volume the Windows API is letting us see.
-      bool nextVolumeEnumerated;
-      do {
-        using Nuclex::Support::Text::StringConverter;
-
-        //result.emplace_back();
-        //VolumeInfo &newVolumeInfo = result.back();
-        //newVolumeInfo.Identifier = StringConverter::Utf8FromWide(volumeName);
-
-        std::vector<std::string> mappedPaths;
-        Platform::WindowsSysInfoApi::GetVolumePathNamesForVolumeName(volumeName, mappedPaths);
-
-        for(std::size_t pathIndex = 0; pathIndex < mappedPaths.size(); ++pathIndex) {
-          //newVolumeInfo.Partitions.emplace_back();
-          //PartitionInfo &newPartition = newVolumeInfo.Partitions.back();
-          //newPartition.MountPath.assign(std::move(mappedPaths[pathIndex]));
-        }
-
-        nextVolumeEnumerated = Platform::WindowsSysInfoApi::FindNextVolume(
-          findVolumeHandle, volumeName
-        );
-      } while(nextVolumeEnumerated);
-    }
+    WindowsBasicStoreInfoReader r;
+    r.EnumerateVolumes();
 
     return result;
   }
