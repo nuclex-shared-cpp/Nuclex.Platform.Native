@@ -48,13 +48,13 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-  std::vector<VolumeInfo> PlatformAppraiser::analyzeStorageVolumesAsync(
+  std::vector<StoreInfo> PlatformAppraiser::analyzeStorageVolumesAsync(
     std::shared_ptr<const Tasks::CancellationWatcher> canceller
   ) {
-    std::vector<VolumeInfo> result;
+    std::vector<StoreInfo> result;
 
     WindowsBasicStoreInfoReader r;
-    r.EnumerateVolumes();
+    r.EnumerateWindowsVolumes();
 
     return result;
   }

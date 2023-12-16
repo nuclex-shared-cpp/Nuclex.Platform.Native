@@ -71,12 +71,12 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  HANDLE WindowsFileApi::OpenExistingFileForSharedReading(
-    const std::wstring &path
+  HANDLE WindowsFileApi::TryOpenExistingFileForSharedReading(
+    const std::wstring &path, DWORD accessPermissions
   ) {
     HANDLE volumeFileHandle = ::CreateFileW(
       path.c_str(),
-      GENERIC_READ,
+      accessPermissions,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
       nullptr,
       OPEN_EXISTING,
@@ -84,13 +84,23 @@ namespace Nuclex { namespace Platform { namespace Platform {
       nullptr // template file to copy permissions from
     );
     if(unlikely(volumeFileHandle == INVALID_HANDLE_VALUE)) {
-      using Nuclex::Support::Text::StringConverter;
-
       DWORD errorCode = ::GetLastError();
-      std::string errorMessage(u8"Could not open file '", 21);
-      errorMessage.append(StringConverter::Utf8FromWide(path));
-      errorMessage.append(u8"' for shared reading", 20);
-      Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);
+
+      // These are the two error codes which we will consider a graceful fail because
+      // the process may not have sufficient permissions or attempted to open a file
+      // that doesn't exist (yet, anymore?).
+      bool isUndesirableError = (
+        (errorCode != ERROR_FILE_NOT_FOUND) &&
+        (errorCode != ERROR_ACCESS_DENIED)
+      );
+      if(unlikely(isUndesirableError)) {
+        using Nuclex::Support::Text::StringConverter;
+
+        std::string errorMessage(u8"Could not open file '", 21);
+        errorMessage.append(StringConverter::Utf8FromWide(path));
+        errorMessage.append(u8"' for shared reading", 20);
+        Platform::WindowsApi::ThrowExceptionForSystemError(errorMessage, errorCode);
+      }
     }
 
     return volumeFileHandle;

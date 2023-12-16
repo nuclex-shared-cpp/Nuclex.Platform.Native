@@ -136,6 +136,9 @@
     <ClInclude Include="Source\Hardware\WindowsVolumeStoreInfoReader.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Platform\WindowsDeviceApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Hardware\CpuInfo.cpp">
@@ -377,6 +380,9 @@
     </ClCompile>
     <ClCompile Include="Source\Hardware\WindowsVolumeStoreInfoReader.cpp">
       <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform\WindowsDeviceApi.cpp">
+      <Filter>Source\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

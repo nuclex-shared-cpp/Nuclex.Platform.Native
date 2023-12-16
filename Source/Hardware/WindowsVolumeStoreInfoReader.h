@@ -32,7 +32,7 @@ License along with this library
 #include <vector> // for std::vector
 #include <map> // for std::map
 
-#include "../Platform/WindowsSysInfoApi.h" // for WindowsSysInfoApi, WindowsApi
+#include "../Platform/WindowsDeviceApi.h" // for DEVICE_TYPE, WindowsApi
 
 namespace Nuclex { namespace Platform { namespace Tasks {
 
@@ -55,11 +55,35 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
     public: ~WindowsBasicStoreInfoReader() {}
 
-    public: void EnumerateVolumes();
+    /// <summary>Enumerates the volumes present in the system using the Windows API</summary>
+    /// <remarks>
+    ///   This should be fast and work on any Windows system. It uses DeviceIoControl() to
+    ///   collect some of the vital informations and the permissions required are poorly
+    ///   documented, so we work assuming minimal permissions and hope for the best.
+    /// </remarks>
+    public: void EnumerateWindowsVolumes();
 
+    /// <summary>
+    ///   Called by the <see cref="EnumerateWindowsVolumes" /> method to integrate a discovered
+    ///   partition into the list of stores and partitions.
+    /// </summary>
+    /// <param name="deviceNumber">
+    ///   The physical device number. Each hardware storage unit (HDD/SSD/memory card)
+    ///   is given one and it is never reused until the next reboot.
+    /// </param>
+    /// <param name="deviceType">Type of the storage unit</param>
+    /// <param name="isSolidStateDrive">Whether the drive is an SSD, if known</param>
+    /// <param name="volumeName">Name of the volume as used within the Windows API</param>
+    /// <param name="serialNumber">Serial number reported by the Windows API</param>
+    /// <param name="label">The user-given label of the volume</param>
+    /// <param name="fileSystem">
+    ///   Name of the file system the volume has been formatted with
+    /// </param>
+    /// <param name="mappedPaths">Root paths under which this volume can be accessed</param>
     private: void addVolumeToNewOrExistingStore(
       DWORD deviceNumber,
       DEVICE_TYPE deviceType,
+      std::optional<bool> isSolidStateDrive,
       const std::string &volumeName,
       DWORD serialNumber,
       const std::string &label,
@@ -68,7 +92,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     );
 
     /// <summary>Store descriptions the basic info reader is generating</summary>
-    private: std::vector<VolumeInfo> stores;
+    private: std::vector<StoreInfo> stores;
 
     /// <summary>Map from physical device numbers to store indices</summary>
     private: typedef std::map<DWORD, std::size_t> DeviceNumberToStoreIndexMap;

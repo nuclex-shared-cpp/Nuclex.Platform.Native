@@ -102,7 +102,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   the installed and mounted storage volumes in the system
     /// </returns>
     public: NUCLEX_PLATFORM_API static std::future<
-      std::vector<VolumeInfo>
+      std::vector<StoreInfo>
     > AnalyzeStorageVolumes(
       const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
         std::shared_ptr<const Tasks::CancellationWatcher>()
@@ -126,7 +126,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// <summary>Runs in a thread to analyze th system's storage volumes</summary>
     /// <param name="canceller">Allows the information collection to be cancelled</param>
     /// <returns>A description of the system's storage volumes</returns>
-    private: static std::vector<VolumeInfo> analyzeStorageVolumesAsync(
+    private: static std::vector<StoreInfo> analyzeStorageVolumesAsync(
       std::shared_ptr<const Tasks::CancellationWatcher> canceller
     );
 

@@ -47,9 +47,15 @@ namespace Nuclex { namespace Platform { namespace Platform {
     ///   Opens an existing file for read access while allowing other processes to access it
     /// </summary>
     /// <param name="path">Path to the file or volume to open for shared reading</param>
+    /// <param name="permissions">Permissions to request for the file handle</param>
     /// <returns>The handle representing the opened file or volume</returns>
-    public: static HANDLE OpenExistingFileForSharedReading(
-      const std::wstring &path
+    /// <remarks>
+    ///   An invalid handle (<code>INVALID_HANDLE_VALUE</code>) will be returned if
+    ///   the file cannot be found or the process lacks permissions. All other problems
+    ///   will result in exception being thrown.
+    /// </remarks>
+    public: static HANDLE TryOpenExistingFileForSharedReading(
+      const std::wstring &path, DWORD permissions = GENERIC_READ
     );
 
     /// <summary>Closes the specified file</summary>

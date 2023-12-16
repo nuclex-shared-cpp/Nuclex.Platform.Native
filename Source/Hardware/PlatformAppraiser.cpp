@@ -54,7 +54,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-  std::future<std::vector<VolumeInfo>> PlatformAppraiser::AnalyzeStorageVolumes(
+  std::future<std::vector<StoreInfo>> PlatformAppraiser::AnalyzeStorageVolumes(
     const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
       std::shared_ptr<const Tasks::CancellationWatcher>()
     ) */

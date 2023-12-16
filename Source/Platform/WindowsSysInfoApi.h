@@ -29,7 +29,6 @@ License along with this library
 #include <vector> // for std::vector
 
 #include "WindowsApi.h" // for WindowsAPI and error handling
-#include <winioctl.h> // for DeviceIoControl() and structures
 
 #undef GetVolumeInformation
 
@@ -125,11 +124,6 @@ namespace Nuclex { namespace Platform { namespace Platform {
     public: static void GetVolumeInformation(
       const std::wstring &volumeName,
       DWORD &serialNumber, std::string &label, std::string &fileSystem
-    );
-
-    public: static void DeviceIoControlStorageGetDeviceNumbers(
-      ::HANDLE volumeFileHandle,
-      ::STORAGE_DEVICE_NUMBER &storageDeviceNumber
     );
 
   };

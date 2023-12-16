@@ -432,38 +432,6 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void WindowsSysInfoApi::DeviceIoControlStorageGetDeviceNumbers(
-    ::HANDLE volumeFileHandle,
-    ::STORAGE_DEVICE_NUMBER &storageDeviceNumber
-  ) {
-    DWORD returnedByteCount = 0;
-
-    BOOL successful = ::DeviceIoControl(
-      volumeFileHandle,
-      IOCTL_STORAGE_GET_DEVICE_NUMBER,
-      nullptr,
-      0,
-      reinterpret_cast<LPVOID>(&storageDeviceNumber),
-      static_cast<DWORD>(sizeof(storageDeviceNumber)),
-      &returnedByteCount,
-      nullptr
-    );
-    if(unlikely(successful == FALSE)) {
-      DWORD lastErrorCode = ::GetLastError();
-      Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
-        u8"Could not query storage device number via DeviceIoControl()",
-        lastErrorCode
-      );
-    }
-    if(unlikely(returnedByteCount != static_cast<DWORD>(sizeof(storageDeviceNumber)))) {
-      throw std::runtime_error(
-        u8"DeviceIoControl() for storage device number returned an unexpected number of bytes"
-      );
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
 }}} // namespace Nuclex::Platform::Platform
 
 #endif // defined(NUCLEX_PLATFORM_WINDOWS)

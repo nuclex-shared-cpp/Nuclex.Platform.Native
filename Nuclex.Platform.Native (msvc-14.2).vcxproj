@@ -274,7 +274,9 @@
     <ClInclude Include="Source\Platform\WindowsApi.h" />
     <ClCompile Include="Source\Platform\WindowsConsoleApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsConsoleApi.h" />
+    <ClCompile Include="Source\Platform\WindowsDeviceApi.cpp" />
     <ClCompile Include="Source\Platform\WindowsFileApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsDeviceApi.h" />
     <ClInclude Include="Source\Platform\WindowsFileApi.h" />
     <ClCompile Include="Source\Platform\WindowsMessageBoxApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsMessageBoxApi.h" />

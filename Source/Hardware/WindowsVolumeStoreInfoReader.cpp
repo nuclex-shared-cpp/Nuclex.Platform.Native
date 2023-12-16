@@ -49,6 +49,58 @@ namespace {
   }
 
   // ------------------------------------------------------------------------------------------- //
+  
+  /// <summary>Determines the reported store type from Windows' DEVICE_TYPE enum</summary>
+  /// <param name="deviceType">Device type that has been reported by Windows</param>
+  /// <returns>Store type as which this storage unit should be exposed</returns>
+  Nuclex::Platform::Hardware::StoreType StoreTypeFromDeviceType(DEVICE_TYPE deviceType) {
+    switch(deviceType) {
+      case FILE_DEVICE_CD_ROM:
+      case FILE_DEVICE_CD_ROM_FILE_SYSTEM:
+      case FILE_DEVICE_DVD:
+      case FILE_DEVICE_TAPE_FILE_SYSTEM:
+      case FILE_DEVICE_TAPE: {
+        return Nuclex::Platform::Hardware::StoreType::LocalDiscDrive;
+      }
+
+      case FILE_DEVICE_CONTROLLER:
+      case FILE_DEVICE_DISK:
+      case FILE_DEVICE_DISK_FILE_SYSTEM:
+      case FILE_DEVICE_FILE_SYSTEM:
+      case FILE_DEVICE_VIRTUAL_DISK:
+      case FILE_DEVICE_VIRTUAL_BLOCK:
+      case FILE_DEVICE_NVDIMM:
+      case FILE_DEVICE_PERSISTENT_MEMORY: {
+        return Nuclex::Platform::Hardware::StoreType::LocalInternalDrive;
+      }
+
+      case FILE_DEVICE_MASS_STORAGE:
+      case FILE_DEVICE_BLUETOOTH:
+      case FILE_DEVICE_USBEX:
+      case FILE_DEVICE_SMARTCARD: {
+        return Nuclex::Platform::Hardware::StoreType::LocalInternalDrive;
+      }
+
+      case FILE_DEVICE_DFS:
+      case FILE_DEVICE_DATALINK:
+      case FILE_DEVICE_MULTI_UNC_PROVIDER:
+      case FILE_DEVICE_NETWORK:
+      case FILE_DEVICE_NETWORK_BROWSER:
+      case FILE_DEVICE_NETWORK_FILE_SYSTEM:
+      case FILE_DEVICE_SMB:
+      case FILE_DEVICE_DFS_FILE_SYSTEM:
+      case FILE_DEVICE_DFS_VOLUME:
+      case FILE_DEVICE_VMBUS: {
+        return Nuclex::Platform::Hardware::StoreType::NetworkServer;
+      }
+
+      default: {
+        return Nuclex::Platform::Hardware::StoreType::Unknown;
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
 
 } // anonymous namespace
 
@@ -56,7 +108,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void WindowsBasicStoreInfoReader::EnumerateVolumes() {
+  void WindowsBasicStoreInfoReader::EnumerateWindowsVolumes() {
 
     // Enumerate all the volumes the Windows system knows about. In the context of our
     // reported topology, these are on the level of partitions - mapped network shares,
@@ -98,23 +150,70 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           // Query for the device number, this contains the physical device index and
           // the type of the device which we also want to provide to the caller.
           ::STORAGE_DEVICE_NUMBER deviceNumber;
+          std::optional<bool> isSolidStateDrive;
           {
+            // Permissions:
+            //   GENERIC_READ
+            //     Requesting GENERIC_READ permissions succeeds on my Windows development VM,
+            //     but fails on my dual-boot Windows system.
+            //
+            //   FILE_READ_ATTRIBUTES | SYNCHRONIZE | FILE_TRAVERSE,
+            //     Found in a snippet (https://stackoverflow.com/questions/33615577),
+            //     works for me but one user commented that it fails for him.
+            //
+            //   0
+            //     No permissions seem to be required, so asking for none works.
+            //     Microsoft has an example that also works with a zero for permissions:
+            //     https://learn.microsoft.com/en-us/windows/win32/devio/calling-deviceiocontrol
+            //
             HANDLE volumeFileHandle = (
-              Platform::WindowsFileApi::OpenExistingFileForSharedReading(volumeName)
+              Platform::WindowsFileApi::TryOpenExistingFileForSharedReading(volumeName, 0)
             );
-            {
+            if(likely(volumeFileHandle != INVALID_HANDLE_VALUE)) {
               ON_SCOPE_EXIT{
                 Platform::WindowsFileApi::CloseFile(volumeFileHandle, false);
               };
-              Platform::WindowsSysInfoApi::DeviceIoControlStorageGetDeviceNumbers(
+
+              // Obtain the physical device number of the device the volume is on
+              Platform::WindowsDeviceApi::DeviceIoControlStorageGetDeviceNumbers(
                 volumeFileHandle, deviceNumber
               );
-            } // volume file handle closing scope
+
+              // Our basic decider for whether this is a solid state drive is whether
+              // this drive reports a seek penalty (meaning it has physical read/write
+              // heads that need to mechanically move).
+              ::DEVICE_SEEK_PENALTY_DESCRIPTOR seekPenaltyDescriptor;
+              if(
+                Platform::WindowsDeviceApi::TryDeviceIoControlStorageQuerySeekPenaltyProperty(
+                  volumeFileHandle, seekPenaltyDescriptor
+                )
+              ) {
+                isSolidStateDrive = (seekPenaltyDescriptor.IncursSeekPenalty == FALSE);
+              }
+
+              // But if a device supports the TRIM instruction (pre-erase blocks that
+              // are unallocated), it is definitely an SSD, so we query that, too.
+              ::DEVICE_TRIM_DESCRIPTOR trimDescriptor;
+              if(
+                Platform::WindowsDeviceApi::TryDeviceIoControlStorageQueryTrimProperty(
+                  volumeFileHandle, trimDescriptor
+                )
+              ) {
+                if(trimDescriptor.TrimEnabled != FALSE) {
+                  isSolidStateDrive = true;
+                }
+              }
+            } else { // If we're lacking permissions, fall back to some defaults
+              deviceNumber.DeviceNumber = static_cast<DWORD>(-1);
+              deviceNumber.DeviceType = 0;
+            } // volumeFileHandle valid / invalid
           } // deviceNumber query beauty scope
 
+          // All information collected, integrate the volume into our results list
           addVolumeToNewOrExistingStore(
             deviceNumber.DeviceNumber,
             deviceNumber.DeviceType,
+            isSolidStateDrive,
             Nuclex::Support::Text::StringConverter::Utf8FromWide(volumeName),
             serialNumber,
             label,
@@ -137,13 +236,26 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   void WindowsBasicStoreInfoReader::addVolumeToNewOrExistingStore(
     DWORD deviceNumber,
     DEVICE_TYPE deviceType,
-    const std::string& volumeName,
+    std::optional<bool> isSolidStateDrive,
+    const std::string &volumeName,
     DWORD serialNumber,
-    const std::string& label,
-    const std::string& fileSystem,
-    const std::vector<std::string>& mappedPaths
+    const std::string &label,
+    const std::string &fileSystem,
+    const std::vector<std::string> &mappedPaths
   ) {
+    DeviceNumberToStoreIndexMap::iterator mapIterator = this->deviceNumberToStoreIndex.find(
+      deviceNumber
+    );
+    if(mapIterator == this->deviceNumberToStoreIndex.end()) {
+      StoreType storeType = StoreTypeFromDeviceType(deviceType);
+      
 
+
+      
+      this->stores.emplace_back();
+
+      //StoreInfo &v = this->stores.back();
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //

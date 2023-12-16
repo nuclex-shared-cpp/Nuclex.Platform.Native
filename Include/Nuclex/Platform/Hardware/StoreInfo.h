@@ -18,14 +18,15 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_HARDWARE_VOLUMEINFO_H
-#define NUCLEX_PLATFORM_HARDWARE_VOLUMEINFO_H
+#ifndef NUCLEX_PLATFORM_HARDWARE_STOREINFO_H
+#define NUCLEX_PLATFORM_HARDWARE_STOREINFO_H
 
 #include "Nuclex/Platform/Config.h"
 
 #include <cstddef> // for std::size_t
 #include <string> // for std::string
 #include <vector> // for std::vector
+#include <optional> // for std::optional
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 
@@ -61,7 +62,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   ///     figure out the basic storage resources for logging and debugging.
   ///   </para>
   /// </remarks>
-  class NUCLEX_PLATFORM_TYPE VolumeInfo {
+  class NUCLEX_PLATFORM_TYPE StoreInfo {
 
 /*
     /// <summary>Operating-system specific identifier of the drive</summary>
@@ -78,11 +79,11 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
     */
 
-    /// <summary>Whether this is a solid state drive</summary>
-    public: bool IsSolidState;
-
     /// <summary>How the store is connected or reachable by the local machine</summary>
     public: StoreType Type;
+
+    /// <summary>Whether this is a solid state drive</summary>
+    public: std::optional<bool> IsSolidState;
 
     /// <summary>Detailed information about the mounted partitions from the drive</summary>
     public: std::vector<PartitionInfo> Partitions;
@@ -148,4 +149,4 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
 }}} // namespace Nuclex::Platform::Hardware
 
-#endif // NUCLEX_PLATFORM_HARDWARE_VOLUMEINFO_H
+#endif // NUCLEX_PLATFORM_HARDWARE_STOREINFO_H
