@@ -21,7 +21,7 @@ License along with this library
 // If the library is compiled as a DLL, this ensures symbols are exported
 #define NUCLEX_PLATFORM_SOURCE 1
 
-#include "./WindowsVolumeStoreInfoReader.h"
+#include "./WindowsBasicVolumeInfoReader.h"
 
 #if defined(NUCLEX_PLATFORM_WINDOWS)
 
@@ -53,7 +53,7 @@ namespace {
   /// <summary>Determines the reported store type from Windows' DEVICE_TYPE enum</summary>
   /// <param name="deviceType">Device type that has been reported by Windows</param>
   /// <returns>Store type as which this storage unit should be exposed</returns>
-  Nuclex::Platform::Hardware::StoreType StoreTypeFromDeviceType(DEVICE_TYPE deviceType) {
+  Nuclex::Platform::Hardware::StoreType storeTypeFromDeviceType(DEVICE_TYPE deviceType) {
     switch(deviceType) {
       case FILE_DEVICE_CD_ROM:
       case FILE_DEVICE_CD_ROM_FILE_SYSTEM:
@@ -102,13 +102,37 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>Converts a serial number stored in a DWORD into a string</summary>
+  /// <param name="serialNumber">Serial number that will be converted into a string</param>
+  /// <returns>A string stating the serial number in the style of the DOS prompt</returns>
+  std::string hexStringFromSerialNumber(DWORD serialNumber) {
+    char hexadecimalNumbers[] = u8"0123456789ABCDEF";
+
+    std::string result;
+    result.resize(9);
+
+    for(std::size_t index = 0; index < 9; ++index) {
+      if(index == 4) {
+        result[4] = '-';
+      } else {
+        std::size_t numberIndex = (serialNumber & 0xF);
+        result[8 - index] = hexadecimalNumbers[numberIndex];
+        serialNumber >>= 4;
+      }
+    }
+
+    return result;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 } // anonymous namespace
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void WindowsBasicStoreInfoReader::EnumerateWindowsVolumes() {
+  void WindowsBasicVolumeInfoReader::EnumerateWindowsVolumes() {
 
     // Enumerate all the volumes the Windows system knows about. In the context of our
     // reported topology, these are on the level of partitions - mapped network shares,
@@ -120,8 +144,9 @@ namespace Nuclex { namespace Platform { namespace Hardware {
         Platform::WindowsSysInfoApi::FindVolumeClose(findVolumeHandle, false);
       };
 
-      // 
+      // Placed at this level so it isn't reallocated every loop.
       std::vector<std::string> mappedPaths;
+      std::vector<::DISK_EXTENT> diskExtents;
 
       // Keep enumerating until we have fetched each volume the Windows API is letting us see.
       bool nextVolumeEnumerated;
@@ -136,10 +161,29 @@ namespace Nuclex { namespace Platform { namespace Hardware {
         if(wasValid) {
 
           // Query some basic information while we have the volume name with trailing slash.
-          DWORD serialNumber;
           std::string fileSystem;
           std::string label;
-          Platform::WindowsSysInfoApi::GetVolumeInformation(volumeName, serialNumber, label, fileSystem);
+          DWORD serialNumber;
+          {
+            bool volumeInformationAvailable = (
+              Platform::WindowsSysInfoApi::TryGetVolumeInformation(
+                volumeName, serialNumber, label, fileSystem
+              )
+            );
+            if(unlikely(!volumeInformationAvailable)) {
+              serialNumber = 0;
+            }
+          }
+
+          // Query the free and available disk space using the naive way
+          #if 0
+          std::uint64_t freeByteCount;
+          std::uint64_t totalByteCount;
+          bool freeSpaceQueried = Platform::WindowsSysInfoApi::TryGetDiskFreeSpace(
+            volumeName, freeByteCount, totalByteCount
+          );
+          bool extentsUsable = false;
+          #endif
 
           // Remove the trailing slash, if any. If it is present, the CreateFileW() method will
           // open the root directory of the volume as a file handle, rather than opening
@@ -151,6 +195,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           // the type of the device which we also want to provide to the caller.
           ::STORAGE_DEVICE_NUMBER deviceNumber;
           std::optional<bool> isSolidStateDrive;
+          std::optional<std::size_t> capacityInMegabytes;
           {
             // Permissions:
             //   GENERIC_READ
@@ -203,17 +248,48 @@ namespace Nuclex { namespace Platform { namespace Hardware {
                   isSolidStateDrive = true;
                 }
               }
+
+              // Now query the disk extents. A volume can span multiple disks,
+              // but we disregard that for now because we're only interested in its size.
+              if(
+                Platform::WindowsDeviceApi::TryDeviceIoControlVolumeGetVolumeDiskExtents(
+                  volumeFileHandle, diskExtents
+                )
+              ) {
+                if(diskExtents.size() == 1) {
+                  //extentsUsable = true;
+
+                  std::uint64_t lengthInBytes = static_cast<std::uint64_t>(
+                    diskExtents.back().ExtentLength.QuadPart
+                  );
+                  std::uint64_t lengthInKilobytes = (lengthInBytes + 512) / 1024;
+                  capacityInMegabytes = static_cast<std::size_t>(
+                    (lengthInKilobytes + 512) / 1024
+                  );
+                }
+              }
+
             } else { // If we're lacking permissions, fall back to some defaults
               deviceNumber.DeviceNumber = static_cast<DWORD>(-1);
               deviceNumber.DeviceType = 0;
             } // volumeFileHandle valid / invalid
           } // deviceNumber query beauty scope
 
+          #if 0
+          if(freeSpaceQueried && (!extentsUsable)) {
+            std::uint64_t lengthInKilobytes = (totalByteCount + 512) / 1024;
+            capacityInMegabytes = static_cast<std::size_t>(
+              (lengthInKilobytes + 512) / 1024
+            );
+          }
+          #endif
+
           // All information collected, integrate the volume into our results list
           addVolumeToNewOrExistingStore(
             deviceNumber.DeviceNumber,
             deviceNumber.DeviceType,
             isSolidStateDrive,
+            capacityInMegabytes,
             Nuclex::Support::Text::StringConverter::Utf8FromWide(volumeName),
             serialNumber,
             label,
@@ -233,28 +309,69 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void WindowsBasicStoreInfoReader::addVolumeToNewOrExistingStore(
+  void WindowsBasicVolumeInfoReader::addVolumeToNewOrExistingStore(
     DWORD deviceNumber,
     DEVICE_TYPE deviceType,
     std::optional<bool> isSolidStateDrive,
+    std::optional<std::size_t> capacityInMegabytes,
     const std::string &volumeName,
     DWORD serialNumber,
     const std::string &label,
     const std::string &fileSystem,
     const std::vector<std::string> &mappedPaths
   ) {
-    DeviceNumberToStoreIndexMap::iterator mapIterator = this->deviceNumberToStoreIndex.find(
-      deviceNumber
-    );
-    if(mapIterator == this->deviceNumberToStoreIndex.end()) {
-      StoreType storeType = StoreTypeFromDeviceType(deviceType);
-      
+    StoreType storeType = storeTypeFromDeviceType(deviceType);
 
+    // Get the index of the StoreInfo for the physical device. If this is the first time
+    // we're seeing said physical device, create a new StoreInfo.
+    std::size_t storeIndex;
+    {
+      // Always create a new store for local disc drives
+      bool createNewStore = (storeType == StoreType::LocalDiscDrive);
 
-      
-      this->stores.emplace_back();
+      // If an existing store may be targeted, see if we already know this device number
+      if(!createNewStore) {
+        DeviceNumberToStoreIndexMap::iterator mapIterator = this->deviceNumberToStoreIndex.find(
+          deviceNumber
+        );
+        if(mapIterator == this->deviceNumberToStoreIndex.end()) {
+          createNewStore = true; // Device number unknown, new store needed
+        } else {
+          storeIndex = mapIterator->second; // Add partition to existing store
+        }
+      }
 
-      //StoreInfo &v = this->stores.back();
+      // If we decided that a new store is needed, create it and set it up
+      if(createNewStore) {
+        storeIndex = this->stores.size();
+
+        this->stores.emplace_back();
+        StoreInfo &newStore = this->stores.back();
+
+        newStore.Type = storeType;
+        newStore.IsSolidState = isSolidStateDrive;
+
+        this->deviceNumberToStoreIndex.emplace(deviceNumber, storeIndex);
+      }
+    }
+
+    // Now we have a valid store index to either a new store or one that
+    // already existed and to which the partition belongs
+    StoreInfo &targetStore = this->stores[storeIndex];
+    targetStore.Partitions.emplace_back();
+    PartitionInfo &newPartition = targetStore.Partitions.back();
+
+    // Enter the basic partition information we obtained
+    newPartition.CapacityInMegabytes = capacityInMegabytes;
+    newPartition.FileSystem = fileSystem;
+    newPartition.Label = label;
+    if(serialNumber != 0) {
+      newPartition.Serial = hexStringFromSerialNumber(serialNumber);
+    }
+
+    std::size_t pathCount = mappedPaths.size();
+    for(std::size_t index = 0; index < pathCount; ++index) {
+      newPartition.MountPaths.push_back(mappedPaths[index]);
     }
   }
 

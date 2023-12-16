@@ -52,6 +52,19 @@ namespace Nuclex { namespace Platform { namespace Platform {
       ::STORAGE_DEVICE_NUMBER &storageDeviceNumber
     );
 
+    /// <summary>Tries to query a storage device for its extents</summary>
+    /// <param name="volumeFileHandle">
+    ///   File handle for a volume that has been opened via <see cref="CreateFile" />
+    /// </param>
+    /// <param name="diskEXtents">
+    ///   Vector into which the retrieved disk extents are placed
+    /// </param>
+    /// <returns>True if the information was obtained, false otherwise</returns>
+    public: static bool TryDeviceIoControlVolumeGetVolumeDiskExtents(
+      ::HANDLE volumeFileHandle,
+      std::vector<::DISK_EXTENT> &diskExtents
+    );
+
     /// <summary>Tries to query a storage device for TRIM support</summary>
     /// <param name="volumeFileHandle">
     ///   File handle for a volume that has been opened via <see cref="CreateFile" />

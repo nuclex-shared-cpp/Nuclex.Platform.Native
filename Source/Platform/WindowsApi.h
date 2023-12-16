@@ -53,6 +53,8 @@ License along with this library
 #undef FindFirstVolume
 #undef FindNextVolume
 #undef GetVolumePathNamesForVolumeName
+#undef GetVolumeInformation
+#undef GetDiskFreeSpace
 
 #include <string> // for std::string
 

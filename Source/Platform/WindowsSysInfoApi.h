@@ -30,8 +30,6 @@ License along with this library
 
 #include "WindowsApi.h" // for WindowsAPI and error handling
 
-#undef GetVolumeInformation
-
 namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
@@ -121,9 +119,27 @@ namespace Nuclex { namespace Platform { namespace Platform {
     /// <param name="serialNumber">Receives the serial number of the volume</param>
     /// <param name="label">Label the user has given the volume</param>
     /// <param name="fileSystem">The name of the file system used on the volume</param>
-    public: static void GetVolumeInformation(
+    /// <returns>
+    ///   True if the information about the volume could be queried,
+    ///   false if there was a permission problem or the medium was missing (disc drives),
+    ///   all other errors lead to an exception being thrown.
+    /// </returns>
+    public: static bool TryGetVolumeInformation(
       const std::wstring &volumeName,
       DWORD &serialNumber, std::string &label, std::string &fileSystem
+    );
+
+    /// <summary>Queries the amount of free and total disk space of a partition</summary>
+    /// <param name="volumeName">Name of the volume / directory with trailing slash</param>
+    /// <param name="freeByteCount">Receives the number of free bytes on the partition</param>
+    /// <param name="totalByteCount">Receives the capacity, in bytes, of the partition</param>
+    /// <returns>
+    ///   True if the information was obtained, false if one of the acceptable error cases
+    ///   happened and the system (or Wine) is unable to provide the information.
+    /// </returns>
+    public: static bool TryGetDiskFreeSpace(
+      const std::wstring &volumeName,
+      std::uint64_t &freeByteCount, std::uint64_t &totalByteCount
     );
 
   };

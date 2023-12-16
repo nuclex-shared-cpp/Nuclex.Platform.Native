@@ -124,6 +124,9 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   /// <summary>Informations about a partition mounted for access by the system</summary>
   class NUCLEX_PLATFORM_TYPE PartitionInfo {
 
+    /// <summary>Total (theoretical) capacity of the partition in megabytes</summary>
+    public: std::optional<std::size_t> CapacityInMegabytes;
+
     /// <summary>Label that has been assigned to the partition via the file system</summary>
     public: std::string Label;
 
@@ -135,9 +138,6 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
     /// <summary>Root path to which this partition has been mounted</summary>
     public: std::vector<std::string> MountPaths;
-
-    /// <summary>Total (theoretical) capacity of the partition in megabytes</summary>
-    public: std::size_t CapacityInMegabytes;
 
   };
 

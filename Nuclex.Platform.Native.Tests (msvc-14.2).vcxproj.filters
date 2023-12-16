@@ -52,6 +52,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h">
+      <Filter>Include\Errors</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h">
       <Filter>Include\Hardware</Filter>
     </ClInclude>
@@ -97,6 +100,9 @@
     <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationWatcher.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h">
+      <Filter>Include\Tasks</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ResourceManifest.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
@@ -106,60 +112,69 @@
     <ClInclude Include="Include\Nuclex\Platform\Tasks\Task.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h">
+      <Filter>Include\Tasks</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskEnvironment.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ThreadedTask.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h">
-      <Filter>Include\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h">
-      <Filter>Include\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Config.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Hardware\LinuxProcCpuInfoReader.h">
-      <Filter>Source\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hardware\LinuxProcMemInfoReader.h">
-      <Filter>Source\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hardware\LinuxSysCpuTreeReader.h">
-      <Filter>Source\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h">
-      <Filter>Include\Errors</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hardware\WindowsVolumeStoreInfoReader.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Platform\WindowsDeviceApi.h">
-      <Filter>Source\Platform</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Hardware\CpuInfo.cpp">
-      <Filter>Source\Hardware</Filter>
+    <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp">
+      <Filter>Source\Errors</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\StoreInfo.cpp">
+    <ClCompile Include="Source\Hardware\CpuInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\GpuInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Hardware\LinuxProcCpuInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Hardware\LinuxProcCpuInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClCompile Include="Source\Hardware\LinuxProcMemInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Hardware\LinuxProcMemInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClCompile Include="Source\Hardware\LinuxSysCpuTreeReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Hardware\LinuxSysCpuTreeReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
     <ClCompile Include="Source\Hardware\MemoryInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\PlatformAppraiser.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxCpuInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxMemoryInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsCpuInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsMemoryInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsStorageInfo.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\StoreInfo.cpp">
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\StringHelper.cpp">
@@ -172,6 +187,12 @@
       <Filter>Source\Hardware</Filter>
     </ClCompile>
     <ClInclude Include="Source\Hardware\WindowsBasicCpuInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClCompile Include="Source\Hardware\WindowsBasicVolumeInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Hardware\WindowsBasicVolumeInfoReader.h">
       <Filter>Source\Hardware</Filter>
     </ClInclude>
     <ClCompile Include="Source\Hardware\WindowsRegistryCpuInfoReader.cpp">
@@ -189,6 +210,9 @@
     <ClCompile Include="Source\Interaction\ActiveWindowTracker.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp">
+      <Filter>Source\Interaction</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Interaction\GuiMessageService.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
@@ -199,9 +223,6 @@
       <Filter>Source\Interaction</Filter>
     </ClCompile>
     <ClCompile Include="Source\Interaction\GuiMessageService.Windows.cpp">
-      <Filter>Source\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
     <ClCompile Include="Source\Interaction\Message.cpp">
@@ -259,6 +280,12 @@
       <Filter>Source\Platform</Filter>
     </ClCompile>
     <ClInclude Include="Source\Platform\WindowsConsoleApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClCompile Include="Source\Platform\WindowsDeviceApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Platform\WindowsDeviceApi.h">
       <Filter>Source\Platform</Filter>
     </ClInclude>
     <ClCompile Include="Source\Platform\WindowsFileApi.cpp">
@@ -339,6 +366,8 @@
     <ClCompile Include="Source\Config.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Tests\Tasks\CancellationTriggerTest.cpp">
       <Filter>Tests\Tasks</Filter>
     </ClCompile>
@@ -356,33 +385,6 @@
     </ClCompile>
     <ClCompile Include="Tests\Tasks\ThreadedTaskTest.cpp">
       <Filter>Tests\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\LinuxProcCpuInfoReader.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\LinuxProcMemInfoReader.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\LinuxSysCpuTreeReader.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxCpuInfo.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxMemoryInfo.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsStorageInfo.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp">
-      <Filter>Source\Errors</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\WindowsVolumeStoreInfoReader.cpp">
-      <Filter>Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Platform\WindowsDeviceApi.cpp">
-      <Filter>Source\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

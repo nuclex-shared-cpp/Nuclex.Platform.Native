@@ -18,8 +18,8 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_HARDWARE_WINDOWSBASICSTOREINFOREADER_H
-#define NUCLEX_PLATFORM_HARDWARE_WINDOWSBASICSTOREINFOREADER_H
+#ifndef NUCLEX_PLATFORM_HARDWARE_WINDOWSBASICVOLUMEINFOREADER_H
+#define NUCLEX_PLATFORM_HARDWARE_WINDOWSBASICVOLUMEINFOREADER_H
 
 #include "Nuclex/Platform/Config.h"
 
@@ -49,11 +49,11 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   /// <summary>Queries the Windows API to determine drives and partitions</summary>
-  class WindowsBasicStoreInfoReader {
+  class WindowsBasicVolumeInfoReader {
 
-    public: WindowsBasicStoreInfoReader() {}
+    public: WindowsBasicVolumeInfoReader() {}
 
-    public: ~WindowsBasicStoreInfoReader() {}
+    public: ~WindowsBasicVolumeInfoReader() {}
 
     /// <summary>Enumerates the volumes present in the system using the Windows API</summary>
     /// <remarks>
@@ -62,6 +62,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   documented, so we work assuming minimal permissions and hope for the best.
     /// </remarks>
     public: void EnumerateWindowsVolumes();
+
+    //private: void extractInformationFromVolume(const std::wstring &volumeName);
 
     /// <summary>
     ///   Called by the <see cref="EnumerateWindowsVolumes" /> method to integrate a discovered
@@ -73,6 +75,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// </param>
     /// <param name="deviceType">Type of the storage unit</param>
     /// <param name="isSolidStateDrive">Whether the drive is an SSD, if known</param>
+    /// <param name="capacityInMegabytes">Capacity of the partition, if known</param>
     /// <param name="volumeName">Name of the volume as used within the Windows API</param>
     /// <param name="serialNumber">Serial number reported by the Windows API</param>
     /// <param name="label">The user-given label of the volume</param>
@@ -84,6 +87,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       DWORD deviceNumber,
       DEVICE_TYPE deviceType,
       std::optional<bool> isSolidStateDrive,
+      std::optional<std::size_t> capacityInMegabytes,
       const std::string &volumeName,
       DWORD serialNumber,
       const std::string &label,
@@ -100,20 +104,6 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// <summary>Maps device numbers provided by Windows </summary>
     private: DeviceNumberToStoreIndexMap deviceNumberToStoreIndex;
 
-    /*
-    /// <summary>
-    /// 
-    /// </summary>
-    private: typedef std::map<std::size_t, std::size_t> PartitionToDriveMap;
-
-    private: PartitionToDriveMap partitionToDrive;
-    //private: std::vector<PartitionInfo
-
-    private: typedef std::map<std::string, std::size_t> PathToDriveMap;
-
-    private: PathToDriveMap paths;
-    */
-
   };
 
   // ------------------------------------------------------------------------------------------- //
@@ -122,4 +112,4 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
 #endif // defined(NUCLEX_PLATFORM_WINDOWS)
 
-#endif // NUCLEX_PLATFORM_HARDWARE_WINDOWSBASICSTOREINFOREADER_H
+#endif // NUCLEX_PLATFORM_HARDWARE_WINDOWSBASICVOLUMEINFOREADER_H

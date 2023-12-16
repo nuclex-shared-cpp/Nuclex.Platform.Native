@@ -359,7 +359,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  void WindowsSysInfoApi::GetVolumeInformation(
+  bool WindowsSysInfoApi::TryGetVolumeInformation(
     const std::wstring &volumeName,
     DWORD &serialNumber, std::string &label, std::string &fileSystem
   ) {
@@ -396,7 +396,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
       // If something went wrong, check to see whether it was just the buffers being
       // too small. Otherwise, bail out with an exception
       DWORD lastErrorCode = ::GetLastError();
-      if(lastErrorCode == ERROR_MORE_DATA) {
+      if(likely(lastErrorCode == ERROR_MORE_DATA)) {
         --attemptsRemaining;
         if(likely(attemptsRemaining >= 1)) {
           fileSystemName.resize(fileSystemName.capacity() * 2);
@@ -408,10 +408,18 @@ namespace Nuclex { namespace Platform { namespace Platform {
           );
         }
       } else { // Different kind of error we can't compensate for
-        Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
-          u8"Could not query volume label and file system via GetVolumeInformation()",
-          lastErrorCode
+        bool isAcceptedError = (
+          (lastErrorCode == ERROR_ACCESS_DENIED) ||
+          (lastErrorCode == ERROR_NOT_READY) // querying empty CD/DVD drive
         );
+        if(likely(isAcceptedError)) {
+          return false;
+        } else { 
+          Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
+            u8"Could not query volume label and file system via GetVolumeInformation()",
+            lastErrorCode
+          );
+        }
       }
     }
 
@@ -428,6 +436,46 @@ namespace Nuclex { namespace Platform { namespace Platform {
     label.assign(
       std::move(Nuclex::Support::Text::StringConverter::Utf8FromWide(volumeLabel))
     );
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  bool WindowsSysInfoApi::TryGetDiskFreeSpace(
+    const std::wstring &volumeName,
+    std::uint64_t &freeByteCount, std::uint64_t &totalByteCount
+  ) {
+    DWORD sectorsPerCluster;
+    DWORD bytesPerSector;
+    DWORD numberOfFreeClusters;
+    DWORD totalNumberOfClusters;
+
+    BOOL success = ::GetDiskFreeSpaceW(
+      volumeName.c_str(),
+      &sectorsPerCluster, &bytesPerSector,
+      &numberOfFreeClusters, &totalNumberOfClusters
+    );
+    if(unlikely(success == FALSE)) {
+      DWORD lastErrorCode = ::GetLastError();
+      if(lastErrorCode == ERROR_NOT_SUPPORTED) {
+        return false;
+      } else {
+        Nuclex::Platform::Platform::WindowsApi::ThrowExceptionForSystemError(
+          u8"Could not close storage volume enumeration handle via FindVolumeClose()",
+          lastErrorCode
+        );
+      }
+    }
+
+    std::uint64_t bytesPerCluster = (
+      static_cast<std::uint64_t>(sectorsPerCluster) *
+      static_cast<std::uint64_t>(bytesPerSector)
+    );
+    freeByteCount = (bytesPerCluster * static_cast<std::uint64_t>(numberOfFreeClusters));
+    totalByteCount = (bytesPerCluster * static_cast<std::uint64_t>(totalNumberOfClusters));
+
+    return true;
   }
 
   // ------------------------------------------------------------------------------------------- //

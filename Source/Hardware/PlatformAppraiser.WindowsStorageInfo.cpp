@@ -32,7 +32,7 @@ License along with this library
 
 #include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
 
-#include "./WindowsVolumeStoreInfoReader.h" // for WindowsBasicStoreInfoReader
+#include "./WindowsBasicVolumeInfoReader.h" // for WindowsBasicStoreInfoReader
 
 #include "../Platform/WindowsSysInfoApi.h" // for WindowsSysInfoApi
 #include "../Platform/WindowsFileApi.h" // for WindowsFileApi
@@ -53,7 +53,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   ) {
     std::vector<StoreInfo> result;
 
-    WindowsBasicStoreInfoReader r;
+    WindowsBasicVolumeInfoReader r;
     r.EnumerateWindowsVolumes();
 
     return result;

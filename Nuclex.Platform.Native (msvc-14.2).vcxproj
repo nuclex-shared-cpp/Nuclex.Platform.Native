@@ -195,7 +195,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Nuclex\Platform\Config.h" />
     <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h" />
     <ClInclude Include="Include\Nuclex\Platform\Hardware\CpuInfo.h" />
     <ClInclude Include="Include\Nuclex\Platform\Hardware\StoreInfo.h" />
@@ -219,16 +218,18 @@
     <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskCoordinator.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\TaskEnvironment.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ThreadedTask.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Config.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Config.cpp" />
     <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp" />
     <ClCompile Include="Source\Hardware\CpuInfo.cpp" />
-    <ClCompile Include="Source\Hardware\StoreInfo.cpp" />
     <ClCompile Include="Source\Hardware\GpuInfo.cpp" />
     <ClCompile Include="Source\Hardware\LinuxProcCpuInfoReader.cpp" />
+    <ClInclude Include="Source\Hardware\LinuxProcCpuInfoReader.h" />
     <ClCompile Include="Source\Hardware\LinuxProcMemInfoReader.cpp" />
+    <ClInclude Include="Source\Hardware\LinuxProcMemInfoReader.h" />
     <ClCompile Include="Source\Hardware\LinuxSysCpuTreeReader.cpp" />
+    <ClInclude Include="Source\Hardware\LinuxSysCpuTreeReader.h" />
     <ClCompile Include="Source\Hardware\MemoryInfo.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.LinuxCpuInfo.cpp" />
@@ -236,18 +237,16 @@
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsCpuInfo.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsMemoryInfo.cpp" />
     <ClCompile Include="Source\Hardware\PlatformAppraiser.WindowsStorageInfo.cpp" />
+    <ClCompile Include="Source\Hardware\StoreInfo.cpp" />
     <ClCompile Include="Source\Hardware\StringHelper.cpp" />
-    <ClInclude Include="Source\Hardware\LinuxProcCpuInfoReader.h" />
-    <ClInclude Include="Source\Hardware\LinuxProcMemInfoReader.h" />
-    <ClInclude Include="Source\Hardware\LinuxSysCpuTreeReader.h" />
     <ClInclude Include="Source\Hardware\StringHelper.h" />
     <ClCompile Include="Source\Hardware\WindowsBasicCpuInfoReader.cpp" />
     <ClInclude Include="Source\Hardware\WindowsBasicCpuInfoReader.h" />
+    <ClCompile Include="Source\Hardware\WindowsBasicVolumeInfoReader.cpp" />
+    <ClInclude Include="Source\Hardware\WindowsBasicVolumeInfoReader.h" />
     <ClCompile Include="Source\Hardware\WindowsRegistryCpuInfoReader.cpp" />
     <ClInclude Include="Source\Hardware\WindowsRegistryCpuInfoReader.h" />
-    <ClCompile Include="Source\Hardware\WindowsVolumeStoreInfoReader.cpp" />
     <ClCompile Include="Source\Hardware\WindowsWmiCpuInfoReader.cpp" />
-    <ClInclude Include="Source\Hardware\WindowsVolumeStoreInfoReader.h" />
     <ClInclude Include="Source\Hardware\WindowsWmiCpuInfoReader.h" />
     <ClCompile Include="Source\Interaction\ActiveWindowTracker.cpp" />
     <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp" />
@@ -275,8 +274,8 @@
     <ClCompile Include="Source\Platform\WindowsConsoleApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsConsoleApi.h" />
     <ClCompile Include="Source\Platform\WindowsDeviceApi.cpp" />
-    <ClCompile Include="Source\Platform\WindowsFileApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsDeviceApi.h" />
+    <ClCompile Include="Source\Platform\WindowsFileApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsFileApi.h" />
     <ClCompile Include="Source\Platform\WindowsMessageBoxApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsMessageBoxApi.h" />
@@ -301,6 +300,7 @@
     <ClCompile Include="Source\Tasks\TaskCoordinator.cpp" />
     <ClCompile Include="Source\Tasks\TaskEnvironment.cpp" />
     <ClCompile Include="Source\Tasks\ThreadedTask.cpp" />
+    <ClCompile Include="Source\Config.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Documents\Copyright.md" />
