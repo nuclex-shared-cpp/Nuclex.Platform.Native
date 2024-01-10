@@ -25,10 +25,11 @@ License along with this library
 
 #if defined(NUCLEX_PLATFORM_WINDOWS)
 
+#include "WindowsApi.h" // for WindowsAPI and error handling
+
 #include <cstdint> // for std::uint64_t
 #include <vector> // for std::vector
 
-#include "WindowsApi.h" // for WindowsAPI and error handling
 #include <winioctl.h> // for DeviceIoControl() and structures
 
 #undef GetVolumeInformation

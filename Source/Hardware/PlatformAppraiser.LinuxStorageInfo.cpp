@@ -23,7 +23,7 @@ License along with this library
 
 #include "Nuclex/Platform/Hardware/PlatformAppraiser.h"
 
-#if defined(NUCLEX_PLATFORM_WINDOWS)
+#if defined(NUCLEX_PLATFORM_LINUX)
 
 #include <Nuclex/Support/BitTricks.h> // for BitTricks
 
@@ -47,8 +47,9 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   ) {
     std::vector<StoreInfo> result;
 
-    WindowsBasicVolumeInfoReader r;
-    r.EnumerateWindowsVolumes();
+    //WindowsBasicVolumeInfoReader r;
+    //r.EnumerateWindowsVolumes();
+    throw new std::runtime_error(u8"Not implemented yet.");
 
     return result;
   }
@@ -57,4 +58,4 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
 }}} // namespace Nuclex::Platform::Hardware
 
-#endif // defined(NUCLEX_PLATFORM_WINDOWS)
+#endif // defined(NUCLEX_PLATFORM_LINUX)

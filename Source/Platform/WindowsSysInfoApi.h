@@ -25,10 +25,10 @@ License along with this library
 
 #if defined(NUCLEX_PLATFORM_WINDOWS)
 
+#include "WindowsApi.h" // for WindowsAPI and error handling
+
 #include <cstdint> // for std::uint64_t
 #include <vector> // for std::vector
-
-#include "WindowsApi.h" // for WindowsAPI and error handling
 
 namespace Nuclex { namespace Platform { namespace Platform {
 
@@ -60,87 +60,6 @@ namespace Nuclex { namespace Platform { namespace Platform {
     ///   (so it should be a multiple of that size, but the API works with bytes)
     /// </returns>
     public: static std::vector<std::uint8_t> GetLogicalProcessorInformationEx();
-
-    /// <summary>
-    ///   Starts a volume enumeration and provides the name of the first volume
-    /// </summary>
-    /// <param name="volumeName">Receives the name of the first volume</param>
-    /// <returns>
-    ///   The volume enumeration handle which needs to be closed again using
-    ///   the <see cref="FindVolumeClose" /> method
-    /// </returns>
-    public: static ::HANDLE FindFirstVolume(std::wstring &volumeName);
-
-    /// <summary>Advances to the next volume in an active volume enumeration</summary>
-    /// <param name="findHandle">
-    ///   Handle returned by <see cref="FindFirstVolume" /> that will be advanced
-    ///   to the next storage volume on the system
-    /// </param>
-    /// <param name="volumeName">
-    ///   Receives the name of the next storage volume unless the enumeration ended
-    /// </param>
-    /// <returns>
-    ///   True if the next volume name was written into the <paramref name="volumeName" />
-    ///   parameter, false if the enumeration had reached the last volume
-    /// </returns>
-    public: static bool FindNextVolume(::HANDLE findHandle, std::wstring &volumeName);
-
-    /// <summary>Closes a storage volume numeration handle</summary>
-    /// <param name="fileHandle">
-    ///   Volume enumeration handle originally obtained via
-    ///   the <see cref="FindFirstVolume" /> method.
-    /// </param>
-    /// <param name="throwOnError">
-    ///   Whether to throw an exception if the handle could not be closed.
-    ///   Can be set to false if this method is used in RAII-like scopes.
-    /// </param>
-    public: static void FindVolumeClose(::HANDLE findHandle, bool throwOnError = true);
-
-    /// <summary>Retrieves the paths mapped to a volume</summary>
-    /// <param name="volumeName">
-    ///   Name of the volume, this must be a volume name in the form that is returend by
-    ///   <see cref="FindFirstVolume" />.
-    /// </param>
-    /// <param name="pathNames">
-    ///   Receives the path names that are mapped to the volume
-    /// </param>
-    /// <returns>
-    ///   True if the volume name was valid and could be checked (the number of paths
-    ///   returned may still be zero)
-    /// </returns>
-    public: static bool TryGetVolumePathNamesForVolumeName(
-      const std::wstring &volumeName, std::vector<std::string> &pathNames
-    );
-
-    /// <summary>Retrieves informations about a storage volume</summary>
-    /// <param name="volumeName">
-    ///   Name of the volume for which informations will be queried
-    /// </param>
-    /// <param name="serialNumber">Receives the serial number of the volume</param>
-    /// <param name="label">Label the user has given the volume</param>
-    /// <param name="fileSystem">The name of the file system used on the volume</param>
-    /// <returns>
-    ///   True if the information about the volume could be queried,
-    ///   false if there was a permission problem or the medium was missing (disc drives),
-    ///   all other errors lead to an exception being thrown.
-    /// </returns>
-    public: static bool TryGetVolumeInformation(
-      const std::wstring &volumeName,
-      DWORD &serialNumber, std::string &label, std::string &fileSystem
-    );
-
-    /// <summary>Queries the amount of free and total disk space of a partition</summary>
-    /// <param name="volumeName">Name of the volume / directory with trailing slash</param>
-    /// <param name="freeByteCount">Receives the number of free bytes on the partition</param>
-    /// <param name="totalByteCount">Receives the capacity, in bytes, of the partition</param>
-    /// <returns>
-    ///   True if the information was obtained, false if one of the acceptable error cases
-    ///   happened and the system (or Wine) is unable to provide the information.
-    /// </returns>
-    public: static bool TryGetDiskFreeSpace(
-      const std::wstring &volumeName,
-      std::uint64_t &freeByteCount, std::uint64_t &totalByteCount
-    );
 
   };
 

@@ -26,6 +26,7 @@ License along with this library
 #if defined(NUCLEX_PLATFORM_WINDOWS)
 
 #include "WindowsApi.h"
+
 #include <CommCtrl.h> // for TaskDialog(), TASKDIALOG_COMMON_BUTTON_FLAGS
 
 namespace Nuclex { namespace Platform { namespace Platform {

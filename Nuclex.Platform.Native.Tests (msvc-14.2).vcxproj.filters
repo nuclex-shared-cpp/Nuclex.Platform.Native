@@ -124,6 +124,12 @@
     <ClInclude Include="Include\Nuclex\Platform\Config.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Hardware\WindowsRegistryVolumeInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\WindowsWmiStorageInfoReader.h">
+      <Filter>Source\Hardware</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Errors\InsufficientPermissionsError.cpp">
@@ -365,6 +371,12 @@
     </ClCompile>
     <ClCompile Include="Source\Config.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\WindowsRegistryVolumeInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\WindowsWmiStorageInfoReader.cpp">
+      <Filter>Source\Hardware</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

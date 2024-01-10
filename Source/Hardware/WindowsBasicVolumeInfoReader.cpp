@@ -138,10 +138,10 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     // reported topology, these are on the level of partitions - mapped network shares,
     // disk drives and actual partitions on hard disks or SSD.
     std::wstring volumeName;
-    ::HANDLE findVolumeHandle = Platform::WindowsSysInfoApi::FindFirstVolume(volumeName);
+    ::HANDLE findVolumeHandle = Platform::WindowsFileApi::FindFirstVolume(volumeName);
     {
       ON_SCOPE_EXIT {
-        Platform::WindowsSysInfoApi::FindVolumeClose(findVolumeHandle, false);
+        Platform::WindowsFileApi::FindVolumeClose(findVolumeHandle, false);
       };
 
       // Placed at this level so it isn't reallocated every loop.
@@ -155,7 +155,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
 
         // Check the path names under which this volume is mounted. While this may return
         // no paths, a successful return at least tells us that the volume name is valid.
-        bool wasValid = Platform::WindowsSysInfoApi::TryGetVolumePathNamesForVolumeName(
+        bool wasValid = Platform::WindowsFileApi::TryGetVolumePathNamesForVolumeName(
           volumeName, mappedPaths
         );
         if(wasValid) {
@@ -166,7 +166,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
           DWORD serialNumber;
           {
             bool volumeInformationAvailable = (
-              Platform::WindowsSysInfoApi::TryGetVolumeInformation(
+              Platform::WindowsFileApi::TryGetVolumeInformation(
                 volumeName, serialNumber, label, fileSystem
               )
             );
@@ -299,7 +299,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
         } // if volume name was valid
 
         // Advance to the next volume in the enumeration
-        nextVolumeEnumerated = Platform::WindowsSysInfoApi::FindNextVolume(
+        nextVolumeEnumerated = Platform::WindowsFileApi::FindNextVolume(
           findVolumeHandle, volumeName
         );
       } while(nextVolumeEnumerated);

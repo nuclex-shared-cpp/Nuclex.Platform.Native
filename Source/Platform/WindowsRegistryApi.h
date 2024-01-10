@@ -25,11 +25,11 @@ License along with this application
 
 #if defined(NUCLEX_PLATFORM_WINDOWS)
 
+#include "WindowsApi.h" // for ::HKEY via Windows.h
+
 #include <cstddef> // for std::size_t
 #include <string> // for std::string
 #include <optional> // for std::optional
-
-#include "WindowsApi.h" // for ::HKEY via Windows.h
 
 namespace Nuclex { namespace Platform { namespace Platform {
 
