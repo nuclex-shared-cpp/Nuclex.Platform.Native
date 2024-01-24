@@ -42,6 +42,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   ///     If you're a Windows developer, this is similar to Microsoft's &quot;known folders&quot;
   ///     and even defines several directories with identical purposes.
   ///   </para>
+  ///   <para>
+  ///     See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+  ///   </para>
   /// </remarks>
   class XdgDirectoryResolver {
 
