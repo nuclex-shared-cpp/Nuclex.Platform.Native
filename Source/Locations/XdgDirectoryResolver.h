@@ -66,18 +66,36 @@ namespace Nuclex { namespace Platform { namespace Locations {
     /// <returns>The directory to use for user-specific data</returns>
     /// <remarks>
     ///   <para>
-    ///     This usually points to $HOME/.local/share/ and should be used to store user-specific
-    ///     data (anything that's not configuration - screenshots, user-created maps, etc.)
-    ///     The established convention is to create one subdirectory for each application
-    ///     (i.e. $HOME/.local/share/awesome-game/).
+    ///     This usually points to $HOME/.local/share/ and should be used to store
+    ///     user-specific data (anything that's not pure configuration - screenshots,
+    ///     user-created maps, etc.). The established convention is to create one
+    ///     subdirectory for each application (i.e. $HOME/.local/share/awesome-game/).
     ///   </para>
     ///   <para>
-    ///     This path is often not required and its layout is a little confusing - first
-    ///     it uses 'local' (like /usr/local), then it states 'share' - it's local, yet
-    ///     being shared? Shared with whom and for what purpose?
+    ///     If a user moved to a different system (or had a Windows-style roaming profile
+    ///     downloaded upon login from a server), this would be a directory that would be
+    ///     moved to the new system (whereas its sibling, the 'state' directory, woudln't).
     ///   </para>
     /// </remarks>
     public: static std::string GetDataHomeDirectory();
+
+    /// <summary>Looks up the directory for persistent application states</summary>
+    /// <returns>The directory to use for application state data</returns>
+    /// <remarks>
+    ///   <para>
+    ///     This usually points to $HOME/.local/state/ and should be used to store data
+    ///     by which an application remembers its state - a list of recently used files,
+    ///     view layout, undo history or such. The established convention is to create
+    ///     one subdirectory for each application (i.e. $HOME/.local/share/awesome-game/).
+    ///   </para>
+    ///   <para>
+    ///     As per the XDG Base Directory Specification, this should be used for state
+    ///     data that is just for convenience or data that is non-portable. Compare this
+    ///     with the <see cref="GetDatahomeDirectory" /> method where information that
+    ///     is considered permanent and portable.
+    ///   </para>
+    /// </remarks>
+    public: static std::string GetStateHomeDirectory();
 
     /// <summary>Looks up the directory for cached, non-essential files</summary>
     /// <returns>The directory to use for cached, non-essential files</returns>

@@ -31,12 +31,8 @@ License along with this library
 #include "../Platform/LinuxEnvironmentApi.h"
 #include "../Platform/LinuxFileApi.h"
 
-#include <algorithm>
-#include <vector>
-
-#include <fcntl.h>
-#include <unistd.h>
-#include <pwd.h> // To get home directory from passwd file as a fallback
+#include <unistd.h> // for getuid()
+#include <pwd.h> // for getpwuid() / to get home directory from passwd file as a fallback
 
 namespace {
 
@@ -214,7 +210,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   std::string XdgDirectoryResolver::GetHomeDirectory() {
-    const static std::string homeEnvironmentVariable(u8"HOME");
+    const static std::string homeEnvironmentVariable(u8"HOME", 4);
 
     // Check the 'HOME' environment variable first. This is how it's done by
     // the official xdg lookup implementation, too.
@@ -234,14 +230,15 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // If this doesn't work, something is seriously broken. As a last line of
     // defense, just use '~' and hope the file system functions figure it out.
+    // (the tried and proven "let someone else take care of it" approach).
     return u8"~";
   }
 
   // ------------------------------------------------------------------------------------------- //
 
   std::string XdgDirectoryResolver::GetConfigHomeDirectory() {
-    const static std::string xdgConfigHomeEnvironmentVariable(u8"XDG_CONFIG_HOME");
-    const static std::string defaultConfigHomeDirectory(u8".config");
+    const static std::string xdgConfigHomeEnvironmentVariable(u8"XDG_CONFIG_HOME", 15);
+    const static std::string defaultConfigHomeDirectory(u8".config", 7);
 
     // Check the 'XDG_CONFIG_HOME' environment variable first
     std::string configHomeDirectory;
@@ -260,8 +257,34 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   std::string XdgDirectoryResolver::GetDataHomeDirectory() {
-    const static std::string xdgDataHomeVariable(u8"XDG_DATA_HOME");
-    const static std::string defaultDataHomeDirectory(u8".local/share");
+    const static std::string xdgDataHomeVariable(u8"XDG_DATA_HOME", 13);
+    const static std::string defaultDataHomeDirectory(u8".local/share", 12);
+
+    // Check the 'XDG_DATA_HOME' environment variable first
+    std::string dataHomeDirectory;
+    bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
+      xdgDataHomeVariable.c_str(), dataHomeDirectory
+    );
+    if(found && !dataHomeDirectory.empty()) {
+      return dataHomeDirectory;
+    }
+
+    // Then try the xdg user directory settings file
+    found = GetUserDirectory(xdgDataHomeVariable, dataHomeDirectory);
+    if(found && !dataHomeDirectory.empty()) {
+      return dataHomeDirectory;
+    }
+
+    // If all xdg lookups failed, assume the path to be '~/.local/share',
+    // just as the xdg specification requires.
+    return Platform::LinuxFileApi::JoinPaths(GetHomeDirectory(), defaultDataHomeDirectory);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string XdgDirectoryResolver::GetStateHomeDirectory() {
+    const static std::string xdgDataHomeVariable(u8"XDG_STATE_HOME", 14);
+    const static std::string defaultDataHomeDirectory(u8".local/state", 12);
 
     // Check the 'XDG_DATA_HOME' environment variable first
     std::string dataHomeDirectory;
@@ -286,8 +309,8 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   std::string XdgDirectoryResolver::GetCacheHomeDirectory() {
-    const static std::string xdgCacheHomeVariable(u8"XDG_CACHE_HOME");
-    const static std::string defaultCacheHomeDirectory(u8".cache");
+    const static std::string xdgCacheHomeVariable(u8"XDG_CACHE_HOME", 14);
+    const static std::string defaultCacheHomeDirectory(u8".cache", 6);
 
     // Check the 'XDG_CACHE_HOME' environment variable first
     std::string cacheHomeDirectory;
@@ -312,7 +335,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   bool XdgDirectoryResolver::GetUserDirectory(const std::string &name, std::string &path) {
-    static const std::string homePlaceholder(u8"$HOME");
+    static const std::string homePlaceholder(u8"$HOME", 5);
 
     // Try to fetch the requested xdg directory assignment from the settings file
     if(readUserDirectoryAssignment(name, path)) {
@@ -336,7 +359,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
   bool XdgDirectoryResolver::readUserDirectoryAssignment(
     const std::string &name, std::string &path
   ) {
-    const static std::string userDirectorySettingsFilename(u8"user-dirs.dirs");
+    const static std::string userDirectorySettingsFilename(u8"user-dirs.dirs", 14);
 
     // The 'user-dirs.dirs' file is only allowed to be in 'XDG_CONFIG_HOME', but not
     // in the 'XDG_CONFIG_DIRS' according to the spec and the xdg-user-dirs program.
