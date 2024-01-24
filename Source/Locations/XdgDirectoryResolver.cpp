@@ -38,6 +38,31 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>Determines the location of the user-dirs.dirs file and reads it</summary>
+  /// <param name="contents">String that will receive the entire file contents</param>
+  /// <returns>
+  ///   True if the file was read in its entirety, false if anything went wrong
+  /// </returns>
+  bool locateAndReadEntireXdgUserDirsFile(std::string &contents) {
+    using Nuclex::Platform::Platform::LinuxFileApi;
+
+    const static std::string userDirectorySettingsFilename(u8"user-dirs.dirs", 14);
+
+    // The 'user-dirs.dirs' file is only allowed to be in 'XDG_CONFIG_HOME', but not
+    // in the 'XDG_CONFIG_DIRS' according to the spec and the xdg-user-dirs program.
+    std::string userDirectorySettingsFilePath = LinuxFileApi::JoinPaths(
+      Nuclex::Platform::Locations::XdgDirectoryResolver::GetHomeDirectory(),
+      userDirectorySettingsFilename
+    );
+
+    // Read the contents of the 'user-dirs.dirs' file in one go
+    return LinuxFileApi::TryReadFileInOneReadCall(
+      userDirectorySettingsFilePath, contents
+    );    
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
   /// <summary>Extracts the next line from a string containing multiple lines</summary>
   /// <param name="fileContents">String holding multiple lines</param>
   /// <param name="startOffset">
@@ -208,6 +233,24 @@ namespace {
 namespace Nuclex { namespace Platform { namespace Locations {
 
   // ------------------------------------------------------------------------------------------- //
+  
+  XdgDirectoryResolver::XdgDirectoryResolver(
+    GetEnvironmentVariableMethod *getEnvironmentVariable /* = nullptr */,
+    ReadEntireXdgUserDirsFileMethod *readEntireXdgUserDirsFile /* = nullptr */
+  ) :
+    getEnvironmentVariable(getEnvironmentVariable),
+    readEntireXdgUserDirsFile(readEntireXdgUserDirsFile) {
+
+    if(getEnvironmentVariable == nullptr) {
+      this->getEnvironmentVariable = &Platform::LinuxEnvironmentApi::GetEnvironmentVariable;
+    }
+    if(readEntireXdgUserDirsFile == nullptr) {
+      this->readEntireXdgUserDirsFile = &locateAndReadEntireXdgUserDirsFile;
+    }
+    
+  }
+
+  // ------------------------------------------------------------------------------------------- //
 
   std::string XdgDirectoryResolver::GetHomeDirectory() {
     const static std::string homeEnvironmentVariable(u8"HOME", 4);
@@ -216,7 +259,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     // the official xdg lookup implementation, too.
     std::string homeDirectory;
     bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
-      homeEnvironmentVariable.c_str(), homeDirectory
+      homeEnvironmentVariable.c_str(), homeDirectory // ^^ intentionally w/o function pointer
     );
     if(found && !homeDirectory.empty()) {
       return homeDirectory;
@@ -242,7 +285,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Check the 'XDG_CONFIG_HOME' environment variable first
     std::string configHomeDirectory;
-    bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
+    bool found = this->getEnvironmentVariable(
       xdgConfigHomeEnvironmentVariable.c_str(), configHomeDirectory
     );
     if(found && !configHomeDirectory.empty()) {
@@ -262,7 +305,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Check the 'XDG_DATA_HOME' environment variable first
     std::string dataHomeDirectory;
-    bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
+    bool found = this->getEnvironmentVariable(
       xdgDataHomeVariable.c_str(), dataHomeDirectory
     );
     if(found && !dataHomeDirectory.empty()) {
@@ -288,7 +331,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Check the 'XDG_DATA_HOME' environment variable first
     std::string dataHomeDirectory;
-    bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
+    bool found = this->getEnvironmentVariable(
       xdgDataHomeVariable.c_str(), dataHomeDirectory
     );
     if(found && !dataHomeDirectory.empty()) {
@@ -314,7 +357,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Check the 'XDG_CACHE_HOME' environment variable first
     std::string cacheHomeDirectory;
-    bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
+    bool found = this->getEnvironmentVariable(
       defaultCacheHomeDirectory.c_str(), cacheHomeDirectory
     );
     if(found && !cacheHomeDirectory.empty()) {
@@ -359,19 +402,10 @@ namespace Nuclex { namespace Platform { namespace Locations {
   bool XdgDirectoryResolver::readUserDirectoryAssignment(
     const std::string &name, std::string &path
   ) {
-    const static std::string userDirectorySettingsFilename(u8"user-dirs.dirs", 14);
-
-    // The 'user-dirs.dirs' file is only allowed to be in 'XDG_CONFIG_HOME', but not
-    // in the 'XDG_CONFIG_DIRS' according to the spec and the xdg-user-dirs program.
-    std::string userDirectorySettingsFilePath = Platform::LinuxFileApi::JoinPaths(
-      GetConfigHomeDirectory(), userDirectorySettingsFilename
-    );
 
     // Read the contents of the 'user-dirs.dirs' file in one go
     std::string userDirectorySettings;
-    bool wasSuccessfullyRead = Platform::LinuxFileApi::TryReadFileInOneReadCall(
-      userDirectorySettingsFilePath, userDirectorySettingsFilePath
-    );
+    bool wasSuccessfullyRead = this->readEntireXdgUserDirsFile(userDirectorySettings);
     if(unlikely(!wasSuccessfullyRead)) {
       return false;
     }
@@ -380,7 +414,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     std::string line;
     std::string variableName;
     std::string::size_type lineStartOffset = 0;
-    while(GetNextLine(userDirectorySettingsFilePath, lineStartOffset, line)) {
+    while(GetNextLine(userDirectorySettings, lineStartOffset, line)) {
       std::string::size_type assignmentIndex = line.find('=');
       if(assignmentIndex == std::string::npos) {
         continue;

@@ -25,7 +25,7 @@ License along with this library
 
 #if defined(NUCLEX_PLATFORM_LINUX)
 
-#include <string>
+#include <string> // for std::string
 
 namespace Nuclex { namespace Platform { namespace Locations {
 
@@ -48,6 +48,36 @@ namespace Nuclex { namespace Platform { namespace Locations {
   /// </remarks>
   class XdgDirectoryResolver {
 
+    /// <summary>Signature of a method that reads an environment variable</summary>
+    /// <param name="name">Name of the environment variable that will be read</param>
+    /// <returns>The value of the specified environment variable or an empty string</returns>
+    public: typedef bool GetEnvironmentVariableMethod(
+      const std::string &name, std::string &value
+    );
+
+    /// <summary>
+    ///   Signature of a method that reads the entire ~/.config/user-dirs.dirs file
+    /// <summary>
+    /// <param name="contents">The full contents of the users-dirs.dirs file as a string</param>
+    /// <returns>
+    ///   True if the file was found and successfully read, false if anything went wrong
+    /// </returns>
+    public: typedef bool ReadEntireXdgUserDirsFileMethod(std::string &contents);
+
+    /// <summary>Initializes a new directory resolver</summary>
+    /// <param name="getEnvironmentVariable">
+    ///   Method to use for reading environment variables, leave empty for default.
+    ///   Mainly provided to isolate the class with mocks for unit testing.
+    /// </param>
+    /// <param name"readEntireXdgUserDirsFile">
+    ///   Method to use for reading the whole contents of the user-dirs.dirs file,
+    ///   leave empty for default. Intended to aid in mocking for unit tests.
+    /// </param>
+    public: XdgDirectoryResolver(
+      GetEnvironmentVariableMethod *getEnvironmentVariable = nullptr,
+      ReadEntireXdgUserDirsFileMethod *readEntireXdgUserDirsFile = nullptr
+    );
+
     /// <summary>Looks up the user's home directory</summary>
     /// <returns>The home directory of the user running the application</returns>
     /// <remarks>
@@ -63,7 +93,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   configuration data is stored inside this folder. The established convention is to
     ///   create one subdirectory for each application (i.e. $HOME/.config/awesome-game/).
     /// </remarks>
-    public: static std::string GetConfigHomeDirectory();
+    public: std::string GetConfigHomeDirectory();
 
     /// <summary>Looks up the directory for user-specific data</summary>
     /// <returns>The directory to use for user-specific data</returns>
@@ -80,7 +110,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///     moved to the new system (whereas its sibling, the 'state' directory, woudln't).
     ///   </para>
     /// </remarks>
-    public: static std::string GetDataHomeDirectory();
+    public: std::string GetDataHomeDirectory();
 
     /// <summary>Looks up the directory for persistent application states</summary>
     /// <returns>The directory to use for application state data</returns>
@@ -98,7 +128,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///     is considered permanent and portable.
     ///   </para>
     /// </remarks>
-    public: static std::string GetStateHomeDirectory();
+    public: std::string GetStateHomeDirectory();
 
     /// <summary>Looks up the directory for cached, non-essential files</summary>
     /// <returns>The directory to use for cached, non-essential files</returns>
@@ -108,7 +138,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   starts of your appliation (think compiled shaders or indexes that the game
     ///   can recreate when needed)
     /// </remarks>
-    public: static std::string GetCacheHomeDirectory();
+    public: std::string GetCacheHomeDirectory();
 
     /// <summary>
     ///   Looks up a user-specific directory using the behavior described in
@@ -125,7 +155,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   The resulting string can contain '$HOME' to reference to the home directory.
     ///   This is the only substitution supported by xdg.
     /// </remarks>
-    public: static bool GetUserDirectory(const std::string &name, std::string &path);
+    public: bool GetUserDirectory(const std::string &name, std::string &path);
 
     /// <summary>Reads a path assignment from the 'user-dirs.dirs' file</summary>
     /// <param name="name">Name of the path assignment that will be read</param>
@@ -134,7 +164,12 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   True if the path was successfully looked up, false if the path had no
     ///   assignment and the <see cref="path" /> parameter is unchanged
     /// <returns>
-    private: static bool readUserDirectoryAssignment(const std::string &name, std::string &path);
+    private: bool readUserDirectoryAssignment(const std::string &name, std::string &path);
+
+    /// <summary>Method used to read environment variables</summary>
+    private: GetEnvironmentVariableMethod *getEnvironmentVariable;
+    /// <summary>Method used to read the entire user-dirs.dirs file</summary>
+    private: ReadEntireXdgUserDirsFileMethod *readEntireXdgUserDirsFile;
 
   };
 

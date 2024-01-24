@@ -21,7 +21,7 @@ License along with this library
 // If the library is compiled as a DLL, this ensures symbols are exported
 #define NUCLEX_PLATFORM_SOURCE 1
 
-#include "Nuclex/Platform/Locations/CommonDirectoryResolver.h"
+#include "Nuclex/Platform/Locations/CommonLocationResolver.h"
 
 namespace {
 
@@ -38,5 +38,3 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
 }}} // namespace Nuclex::Platform::Locations
-
-#endif // defined(NUCLEX_PLATFORM_LINUX)
