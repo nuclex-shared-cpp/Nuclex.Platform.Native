@@ -43,7 +43,7 @@ namespace {
   /// <returns>
   ///   True if the file was read in its entirety, false if anything went wrong
   /// </returns>
-  bool locateAndReadEntireXdgUserDirsFile(std::string &contents) {
+  bool LocateAndReadEntireXdgUserDirsFile(std::string &contents) {
     using Nuclex::Platform::Platform::LinuxFileApi;
 
     const static std::string userDirectorySettingsFilename(u8"user-dirs.dirs", 14);
@@ -60,6 +60,25 @@ namespace {
       userDirectorySettingsFilePath, contents
     );    
   }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  /// <summary>
+  ///   Expands the '$HOME' placeholder in a string to the user's home directory
+  /// </summary>
+  /// <param name="path">Path in which the '$HOME' placeholder will be expanded</param>
+  void ExpandHomePlaceholder(std::string &path) {
+    static const std::string homePlaceholder(u8"$HOME", 5);
+
+    std::string::size_type homeDirectoryIndex = path.find(homePlaceholder);
+    if(homeDirectoryIndex != std::string::npos) {
+      path.replace(
+        homeDirectoryIndex, homePlaceholder.length(),
+        Nuclex::Platform::Locations::XdgDirectoryResolver::GetHomeDirectory()
+      );
+    }
+  }
+
 
   // ------------------------------------------------------------------------------------------- //
 
@@ -245,9 +264,8 @@ namespace Nuclex { namespace Platform { namespace Locations {
       this->getEnvironmentVariable = &Platform::LinuxEnvironmentApi::GetEnvironmentVariable;
     }
     if(readEntireXdgUserDirsFile == nullptr) {
-      this->readEntireXdgUserDirsFile = &locateAndReadEntireXdgUserDirsFile;
+      this->readEntireXdgUserDirsFile = &LocateAndReadEntireXdgUserDirsFile;
     }
-    
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -259,7 +277,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     // the official xdg lookup implementation, too.
     std::string homeDirectory;
     bool found = Platform::LinuxEnvironmentApi::GetEnvironmentVariable(
-      homeEnvironmentVariable.c_str(), homeDirectory // ^^ intentionally w/o function pointer
+      homeEnvironmentVariable, homeDirectory    // ^^ intentionally w/o function pointer
     );
     if(found && !homeDirectory.empty()) {
       return homeDirectory;
@@ -286,9 +304,10 @@ namespace Nuclex { namespace Platform { namespace Locations {
     // Check the 'XDG_CONFIG_HOME' environment variable first
     std::string configHomeDirectory;
     bool found = this->getEnvironmentVariable(
-      xdgConfigHomeEnvironmentVariable.c_str(), configHomeDirectory
+      xdgConfigHomeEnvironmentVariable, configHomeDirectory
     );
     if(found && !configHomeDirectory.empty()) {
+      ExpandHomePlaceholder(configHomeDirectory);
       return configHomeDirectory;
     }
 
@@ -305,10 +324,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Check the 'XDG_DATA_HOME' environment variable first
     std::string dataHomeDirectory;
-    bool found = this->getEnvironmentVariable(
-      xdgDataHomeVariable.c_str(), dataHomeDirectory
-    );
+    bool found = this->getEnvironmentVariable(xdgDataHomeVariable, dataHomeDirectory);
     if(found && !dataHomeDirectory.empty()) {
+      ExpandHomePlaceholder(dataHomeDirectory);
       return dataHomeDirectory;
     }
 
@@ -326,27 +344,26 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   std::string XdgDirectoryResolver::GetStateHomeDirectory() {
-    const static std::string xdgDataHomeVariable(u8"XDG_STATE_HOME", 14);
-    const static std::string defaultDataHomeDirectory(u8".local/state", 12);
+    const static std::string xdgStateHomeVariable(u8"XDG_STATE_HOME", 14);
+    const static std::string defaultStateHomeDirectory(u8".local/state", 12);
 
     // Check the 'XDG_DATA_HOME' environment variable first
-    std::string dataHomeDirectory;
-    bool found = this->getEnvironmentVariable(
-      xdgDataHomeVariable.c_str(), dataHomeDirectory
-    );
-    if(found && !dataHomeDirectory.empty()) {
-      return dataHomeDirectory;
+    std::string stateHomeDirectory;
+    bool found = this->getEnvironmentVariable(xdgStateHomeVariable, stateHomeDirectory);
+    if(found && !stateHomeDirectory.empty()) {
+      ExpandHomePlaceholder(stateHomeDirectory);
+      return stateHomeDirectory;
     }
 
     // Then try the xdg user directory settings file
-    found = GetUserDirectory(xdgDataHomeVariable, dataHomeDirectory);
-    if(found && !dataHomeDirectory.empty()) {
-      return dataHomeDirectory;
+    found = GetUserDirectory(xdgStateHomeVariable, stateHomeDirectory);
+    if(found && !stateHomeDirectory.empty()) {
+      return stateHomeDirectory;
     }
 
     // If all xdg lookups failed, assume the path to be '~/.local/share',
     // just as the xdg specification requires.
-    return Platform::LinuxFileApi::JoinPaths(GetHomeDirectory(), defaultDataHomeDirectory);
+    return Platform::LinuxFileApi::JoinPaths(GetHomeDirectory(), defaultStateHomeDirectory);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -357,10 +374,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Check the 'XDG_CACHE_HOME' environment variable first
     std::string cacheHomeDirectory;
-    bool found = this->getEnvironmentVariable(
-      defaultCacheHomeDirectory.c_str(), cacheHomeDirectory
-    );
+    bool found = this->getEnvironmentVariable(xdgCacheHomeVariable, cacheHomeDirectory);
     if(found && !cacheHomeDirectory.empty()) {
+      ExpandHomePlaceholder(cacheHomeDirectory);
       return cacheHomeDirectory;
     }
 
@@ -378,23 +394,15 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   bool XdgDirectoryResolver::GetUserDirectory(const std::string &name, std::string &path) {
-    static const std::string homePlaceholder(u8"$HOME", 5);
 
     // Try to fetch the requested xdg directory assignment from the settings file
     if(readUserDirectoryAssignment(name, path)) {
-
-      // If the assigned path contains a '$HOME' placeholder, expand it
-      std::string::size_type homeDirectoryIndex = path.find(homePlaceholder);
-      if(homeDirectoryIndex != std::string::npos) {
-        path.replace(
-          homeDirectoryIndex, homePlaceholder.length(), GetHomeDirectory()
-        );
-      }
+      ExpandHomePlaceholder(path);
       return true;
-
     } else { // Assignment was not found
       return false;
     }
+
   }
 
   // ------------------------------------------------------------------------------------------- //
