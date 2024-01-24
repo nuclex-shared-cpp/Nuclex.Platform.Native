@@ -182,7 +182,6 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   std::vector<std::uint8_t> LinuxFileApi::ReadFileIntoMemory(const std::string &path) {
     std::vector<std::uint8_t> contents;
-
     {
       int fileDescriptor = Nuclex::Platform::Platform::LinuxFileApi::OpenFileForReading(path);
       FileDescriptorClosingScope closeFileDescriptor(fileDescriptor);
@@ -203,6 +202,111 @@ namespace Nuclex { namespace Platform { namespace Platform {
     }
 
     return contents;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  bool LinuxFileApi::TryReadFileInOneReadCall(
+    const std::string &path, std::string &contents
+  ) noexcept {
+
+    // Try to open it blindly, if it fails we simply report back to the caller
+    int fileDescriptor = ::open(path.c_str(), O_RDONLY);
+    if(unlikely(fileDescriptor < 0)) {
+      return false;
+    }
+    {
+      FileDescriptorClosingScope closeFileDescriptor(fileDescriptor);
+      for(std::size_t attempt = 0; attempt < 3; ++attempt) {
+
+        // Check the size of the file (it may change after this call, but it's a starting
+        // point and unless someone's trolling us it shouldn't keep increasing :D)
+        std::size_t expectedSize;
+        {
+          struct ::stat fileStatus;
+          int result = ::fstat(fileDescriptor, &fileStatus);
+          if(unlikely(result != 0)) {
+            return false;
+          }
+
+          expectedSize = fileStatus.st_size;
+        }
+
+        // Resize the string so it can take the whole file. We add a little bit extra so
+        // we can detect if the file changed in size, even if it has grown.
+        {
+          std::size_t bufferSize = std::max(expectedSize + 256, std::size_t(1024));
+          contents.resize(bufferSize);
+        }
+
+        // Try to read the whole file in one go. This gives us the best chance avoiding
+        // a mess in case the file is updated while we're reading.
+        // This is defensive programming taken a step too far. Probably...
+        {
+          ssize_t readByteCount = ::read(fileDescriptor, contents.data(), contents.size());
+          if(unlikely(readByteCount == static_cast<ssize_t>(-1))) {
+            return false; // Read failed, we're broke...
+          }
+
+          // If we got all of the file's contents with this read, we're happy
+          if(likely(readByteCount == expectedSize)) {
+            contents.resize(readByteCount);
+            return true;
+          }
+
+          // If we got a different number of bytes, the read may have been interrupted by
+          // a signal or the file changed between calling fstat() and read(). In either case,
+          // we retry, and from the beginning, too. We absolutely want to read it in one go.
+          off_t newPosition = ::lseek(fileDescriptor, 0, SEEK_SET);
+          if(unlikely(newPosition == static_cast<off_t>(-1))) {
+            return false; // Seek failed, we're broke...
+          }
+        }
+
+      } // for each read attempt
+
+    } // file descriptor closing scope
+
+    return true;
+
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string LinuxFileApi::JoinPaths(const std::string &base, const std::string &sub) {
+
+    // If the base path is empty, return the joined path alone
+    std::size_t baseLength = base.length();
+    if(baseLength == 0) {
+      return sub;
+    }
+
+    // If the sub-path is an absolute path, use it as-is. This might be 
+    bool subIsAbsolute = (sub[0] == '/') || (sub[0] == '~');
+    if(subIsAbsolute) {
+      return sub;
+    }
+
+    // If the joined path is empty, return the base path only
+    std::size_t subLength = sub.length();
+    if(subLength == 0) {
+      return base;
+    }
+
+    // The path is assumed to be UTF-8, but both supported directory separators fit
+    // into a single 8-bit codepoint (they're ascii after all), so we can elegantly
+    // check only the final character.
+    if(base[baseLength - 1] == '/') {
+      return base + sub;
+    } else {
+      std::string result;
+      result.reserve(baseLength + 1 + subLength);
+      result.append(base);
+      result.push_back('/');
+      result.append(sub);
+      return result;
+    }
+
   }
 
   // ------------------------------------------------------------------------------------------- //

@@ -109,6 +109,29 @@ namespace Nuclex { namespace Platform { namespace Platform {
     /// <returns>A vector with the full file contents</returns>
     public: static std::vector<std::uint8_t> ReadFileIntoMemory(const std::string &path);
 
+    /// <summary>
+    ///   Attempts to read an entire file into a string with a single read() call
+    /// </summary>
+    /// <param name="path">Path of the file that will be read</param>
+    /// <param name="contents">String that will receive the contents of the file</param>
+    /// <returns>True if the read suceeded, false otherwise</returns>
+    /// <remarks>
+    ///   If the read fails, the contents and length of the output string are undefined.
+    ///   This method makes an effort to read the whole file specified in one go into
+    ///   the provided output string. This is useful to minimize the chance of mixed-up
+    ///   file data when a file might be modified during the read. It's only used for
+    ///   the XDG settings file, a small text file.
+    /// </remarks>
+    public: static bool TryReadFileInOneReadCall(
+      const std::string &path, std::string &contents
+    ) noexcept;
+
+    /// <summary>Joins two paths together, inserted a forward slash when needed</summary>
+    /// <param name="base">Base path, typically an absolute path or directory name</param>
+    /// <param name="sub">Sub path, typically a filename with or without subdirectory</param>
+    /// <returns>The joined path</returns>
+    public: static std::string JoinPaths(const std::string &base, const std::string &sub);
+
   };
 
   // ------------------------------------------------------------------------------------------- //
