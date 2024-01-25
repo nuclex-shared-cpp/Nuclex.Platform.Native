@@ -1,7 +1,7 @@
 #pragma region CPL License
 /*
 Nuclex Native Framework
-Copyright (C) 2002-2021 Nuclex Development Labs
+Copyright (C) 2002-2023 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -21,7 +21,8 @@ License along with this library
 // If the library is compiled as a DLL, this ensures symbols are exported
 #define NUCLEX_PLATFORM_SOURCE 1
 
-#include "Nuclex/Platform/Locations/CommonLocationResolver.h"
+#include "Nuclex/Platform/Locations/StandardDirectoryResolver.h"
+#include <gtest/gtest.h>
 
 namespace {
 
@@ -35,6 +36,12 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
   // ------------------------------------------------------------------------------------------- //
 
+  TEST(StandardDirectoryResolverTest, CanDetermineExecutableDirectory) {
+    StandardDirectoryResolver resolver;
+    std::string executableDirectory = resolver.GetExecutableDirectory();
+    EXPECT_FALSE(executableDirectory.empty());
+  }
+
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Locations
+}}} // namespace Nuclex::Platform::Tasks

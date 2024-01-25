@@ -71,9 +71,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     }
     catch(const std::future_error &error) {
       exceptionThrown = true;
-      EXPECT_EQ(
-        std::string(error.what()), u8"This is my custom cancellation message"
-      );
+      EXPECT_STREQ(error.what(), u8"This is my custom cancellation message");
     }
     EXPECT_TRUE(exceptionThrown);
   }

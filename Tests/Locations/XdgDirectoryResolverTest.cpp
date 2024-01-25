@@ -37,6 +37,7 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>
   bool returnOutOfTreeConfigHomeDirectory(const std::string &name, std::string &value) {
     if(name == u8"XDG_CONFIG_HOME") {
       value.assign(u8"/some/strange/directory");
@@ -140,6 +141,7 @@ namespace {
       u8"# This is just a comment\n"
       u8"XDG_CACHE_HOME=\"/var/cache/my-service\"\n"
     );
+
     return true;
   }
 
@@ -165,7 +167,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       XdgDirectoryResolver::GetHomeDirectory(), u8".config"
     );
 
-    ASSERT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -175,7 +177,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       &returnOutOfTreeConfigHomeDirectory, &dontReadEntireXdgUserDirsFile
     );
     std::string expected(u8"/some/strange/directory");
-    ASSERT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -187,7 +189,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".conf2"
     );
-    ASSERT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -201,7 +203,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       XdgDirectoryResolver::GetHomeDirectory(), u8".local/share"
     );
 
-    ASSERT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -211,7 +213,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       &returnOutOfTreeDataHomeDirectory, &dontReadEntireXdgUserDirsFile
     );
     std::string expected(u8"/another/strange/directory");
-    ASSERT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -223,7 +225,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".roaming"
     );
-    ASSERT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -237,7 +239,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       XdgDirectoryResolver::GetHomeDirectory(), u8".local/state"
     );
 
-    ASSERT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -247,7 +249,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       &returnOutOfTreeStateHomeDirectory, &dontReadEntireXdgUserDirsFile
     );
     std::string expected(u8"/yet/another/directory");
-    ASSERT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -259,7 +261,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".state2"
     );
-    ASSERT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -273,7 +275,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       XdgDirectoryResolver::GetHomeDirectory(), u8".cache"
     );
 
-    ASSERT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -283,7 +285,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
       &returnOutOfTreeCacheHomeDirectory, &dontReadEntireXdgUserDirsFile
     );
     std::string expected(u8"/tmp/cache");
-    ASSERT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -295,7 +297,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".tmp/cache"
     );
-    ASSERT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
+    EXPECT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
   }
 
 
@@ -310,9 +312,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
     std::string stateHome = resolver.GetStateHomeDirectory();
     std::string cacheHome = resolver.GetCacheHomeDirectory();
 
-    ASSERT_STREQ(dataHome.c_str(), u8"/all/my/data");
-    ASSERT_STREQ(stateHome.c_str(), u8"/var/lib/my-service/state");
-    ASSERT_STREQ(cacheHome.c_str(), u8"/var/cache/my-service");
+    EXPECT_STREQ(dataHome.c_str(), u8"/all/my/data");
+    EXPECT_STREQ(stateHome.c_str(), u8"/var/lib/my-service/state");
+    EXPECT_STREQ(cacheHome.c_str(), u8"/var/cache/my-service");
   }
 
   // ------------------------------------------------------------------------------------------- //

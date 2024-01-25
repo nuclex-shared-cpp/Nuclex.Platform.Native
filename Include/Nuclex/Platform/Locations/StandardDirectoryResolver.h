@@ -18,8 +18,8 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_LOCATIONS_COMMONLOCATIONRESOLVER_H
-#define NUCLEX_PLATFORM_LOCATIONS_COMMONLOCATIONRESOLVER_H
+#ifndef NUCLEX_PLATFORM_LOCATIONS_STANDARDDIRECTORYRESOLVER_H
+#define NUCLEX_PLATFORM_LOCATIONS_STANDARDDIRECTORYRESOLVER_H
 
 #include "Nuclex/Platform/Config.h"
 
@@ -51,7 +51,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
   ///   which defines standard user directories and methods to override them via environment
   ///   variable and the <code>user-dirs.dirs</code> file.
   /// </remarks>
-  class CommonLocationResolver {
+  class StandardDirectoryResolver {
 
     /// <summary>Initializes a new common directory resolver</summary>
     /// <param name="applicationName">
@@ -65,10 +65,10 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   without spaces will make it fit in better (though neither platform has any firm
     ///   rules requiring this).
     /// </remarks>
-    public: CommonLocationResolver(const std::string &applicationName = std::string());
+    public: StandardDirectoryResolver(const std::string &applicationName = std::string());
 
     /// <summary>Frees all resources owned by the directory resolver</summary>
-    public: ~CommonLocationResolver();
+    public: ~StandardDirectoryResolver();
 
     /// <summary>Returns the directory your executable is running from</summary>
     /// <returns>The directory in which the running executable is stored</returns>
@@ -167,10 +167,13 @@ namespace Nuclex { namespace Platform { namespace Locations {
     /// </remarks>
     public: std::string GetTemporaryDirectory() const;
 
+    /// <summary>Name of the application (directory) in the file system</summary>
+    private: std::string applicationName;
+
   }; 
 
   // ------------------------------------------------------------------------------------------- //
 
 }}} // namespace Nuclex::Platform::Locations
 
-#endif // NUCLEX_PLATFORM_LOCATIONS_COMMONLOCATIONRESOLVER_H
+#endif // NUCLEX_PLATFORM_LOCATIONS_STANDARDDIRECTORYRESOLVER_H

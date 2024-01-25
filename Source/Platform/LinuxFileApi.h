@@ -104,6 +104,21 @@ namespace Nuclex { namespace Platform { namespace Platform {
     /// </param>
     public: static void Close(int fileDescriptor, bool throwOnError = true);
 
+    /// <summary>Reads the target file or directory pointed to by a symlink</summary>
+    /// <param name="path">Path to the symlink whose target will be read</param>
+    /// <param name="target">String that will receive the link target path</param>
+    /// <param name="causingErrorNumber">
+    ///   Will be filled with the errno value in case the method returns false
+    /// </param>
+    /// <returns>
+    ///   True if the path was written into the target string, false if the link
+    ///   didn't exist or couldn't be accessed (permissions). Any other problem will
+    ///   still result in an exception being thrown.
+    /// </returns>
+    public: static bool TryReadLink(
+      const std::string &path, std::string &target, int *causingErrorNumber = nullptr
+    );
+
     /// <summary>Loads a whole file into memory and returns its contents an std::vector</summary>
     /// <param name="path">Absolute path of the file that will be loaded</param>
     /// <returns>A vector with the full file contents</returns>

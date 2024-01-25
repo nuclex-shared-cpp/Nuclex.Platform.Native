@@ -180,6 +180,59 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
+  bool LinuxFileApi::TryReadLink(
+    const std::string &path, std::string &target, int *causingErrorNumber
+  ) {
+    if(target.size() < 256) {
+      target.resize(256); // tight limit for first attempt, usually it's enough
+    }
+
+    bool firstTry = true;
+    for(;;) {
+      ::ssize_t pathByteCount = ::readlink(path.c_str(), target.data(), target.size());
+
+      // If the call returned an error, see if it indicates that the link didn't exist,
+      // was inaccessible or if it is outside of the allowed error cases.
+      if(unlikely(pathByteCount == ssize_t(-1))) {
+        int errorNumber = errno;
+        if((errorNumber == EACCES) || (errorNumber == ENOTDIR) || (errorNumber == ENOENT)) {
+          if(causingErrorNumber != nullptr) {
+            *causingErrorNumber = errorNumber;
+          }
+          return false; // link doesn't exist or is inaccessible
+        }
+
+        std::string errorMessage(u8"Could not read target of symlink '", 34);
+        errorMessage.append(path);
+        errorMessage.append(u8"'", 1);
+        PosixApi::ThrowExceptionForSystemError(errorMessage, errorNumber);
+      }
+
+      // If the path was shorter than the buffer, we know it wasn't truncated.
+      if(likely(static_cast<std::size_t>(pathByteCount) < target.size())) {
+        target.resize(pathByteCount);
+        return true;
+      }
+
+      // If the path is too long for our buffer, enlarge the buffer and give it
+      // another try. If we're already on the second try, give up.
+      if(firstTry && target.size() < PATH_MAX) {
+        target.resize(PATH_MAX);
+        firstTry = false;
+        continue; // Do another try with the larger buffer size
+      } else {
+        int errorNumber = ENAMETOOLONG; // This is us, reporting a Posix error for a change
+        std::string errorMessage(u8"Target path for symlink '", 25);
+        errorMessage.append(path);
+        errorMessage.append(u8"' too long", 10);
+        PosixApi::ThrowExceptionForSystemError(errorMessage, errorNumber);
+      }
+    } // for(;;)
+
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
   std::vector<std::uint8_t> LinuxFileApi::ReadFileIntoMemory(const std::string &path) {
     std::vector<std::uint8_t> contents;
     {
@@ -249,8 +302,8 @@ namespace Nuclex { namespace Platform { namespace Platform {
           }
 
           // If we got all of the file's contents with this read, we're happy
-          if(likely(readByteCount == expectedSize)) {
-            contents.resize(readByteCount);
+          if(likely(static_cast<std::size_t>(readByteCount) == expectedSize)) {
+            contents.resize(static_cast<std::size_t>(readByteCount));
             return true;
           }
 
