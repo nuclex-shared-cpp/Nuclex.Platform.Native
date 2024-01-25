@@ -125,6 +125,26 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  bool dontReadEntireXdgUserDirsFile(std::string &contents) {
+    return false;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  bool provideDummyXdgUserDirsFile(std::string &contents) {
+    contents.assign(
+      u8"XDG_DATA_HOME=\"/all/my/data\"\n"
+      u8"#XDG_DATA_HOME=\"/this/is/commented/out\"\n"
+      u8"\n"
+      u8"XDG_STATE_HOME=\"/var/lib/my-service/state\"\n"
+      u8"# This is just a comment\n"
+      u8"XDG_CACHE_HOME=\"/var/cache/my-service\"\n"
+    );
+    return true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 } // anonymous namespace
 
 namespace Nuclex { namespace Platform { namespace Locations {
@@ -139,7 +159,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, CanLocateDefaultConfigHomeDirectory) {
-    XdgDirectoryResolver resolver(&dontGetEnvironmentVariable);
+    XdgDirectoryResolver resolver(&dontGetEnvironmentVariable, &dontReadEntireXdgUserDirsFile);
 
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".config"
@@ -151,7 +171,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, ConfigHomeDirectoryCanBeOverriddenWithFreePath) {
-    XdgDirectoryResolver resolver(&returnOutOfTreeConfigHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnOutOfTreeConfigHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected(u8"/some/strange/directory");
     ASSERT_STREQ(resolver.GetConfigHomeDirectory().c_str(), expected.c_str());
   }
@@ -159,7 +181,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, ConfigHomeDirectoryCanBeOverriddenWithHomePath) {
-    XdgDirectoryResolver resolver(&returnAlternateConfigHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnAlternateConfigHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".conf2"
     );
@@ -169,7 +193,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, CanLocateDefaultDataHomeDirectory) {
-    XdgDirectoryResolver resolver(&dontGetEnvironmentVariable);
+    XdgDirectoryResolver resolver(
+      &dontGetEnvironmentVariable, &dontReadEntireXdgUserDirsFile
+    );
 
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".local/share"
@@ -181,7 +207,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, DataHomeDirectoryCanBeOverriddenWithFreePath) {
-    XdgDirectoryResolver resolver(&returnOutOfTreeDataHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnOutOfTreeDataHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected(u8"/another/strange/directory");
     ASSERT_STREQ(resolver.GetDataHomeDirectory().c_str(), expected.c_str());
   }
@@ -189,7 +217,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, DataHomeDirectoryCanBeOverriddenWithHomePath) {
-    XdgDirectoryResolver resolver(&returnAlternateDataHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnAlternateDataHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".roaming"
     );
@@ -199,7 +229,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, CanLocateDefaultStateHomeDirectory) {
-    XdgDirectoryResolver resolver(&dontGetEnvironmentVariable);
+    XdgDirectoryResolver resolver(
+      &dontGetEnvironmentVariable, &dontReadEntireXdgUserDirsFile
+    );
 
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".local/state"
@@ -211,7 +243,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, StateHomeDirectoryCanBeOverriddenWithFreePath) {
-    XdgDirectoryResolver resolver(&returnOutOfTreeStateHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnOutOfTreeStateHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected(u8"/yet/another/directory");
     ASSERT_STREQ(resolver.GetStateHomeDirectory().c_str(), expected.c_str());
   }
@@ -219,7 +253,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, StateHomeDirectoryCanBeOverriddenWithHomePath) {
-    XdgDirectoryResolver resolver(&returnAlternateStateHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnAlternateStateHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".state2"
     );
@@ -229,7 +265,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, CanLocateDefaultCacheHomeDirectory) {
-    XdgDirectoryResolver resolver(&dontGetEnvironmentVariable);
+    XdgDirectoryResolver resolver(
+      &dontGetEnvironmentVariable, &dontReadEntireXdgUserDirsFile
+    );
 
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".cache"
@@ -241,7 +279,9 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, CacheHomeDirectoryCanBeOverriddenWithFreePath) {
-    XdgDirectoryResolver resolver(&returnOutOfTreeCacheHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnOutOfTreeCacheHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected(u8"/tmp/cache");
     ASSERT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
   }
@@ -249,11 +289,30 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   TEST(XdgDirectoryResolverTest, CacheHomeDirectoryCanBeOverriddenWithHomePath) {
-    XdgDirectoryResolver resolver(&returnAlternateCacheHomeDirectory);
+    XdgDirectoryResolver resolver(
+      &returnAlternateCacheHomeDirectory, &dontReadEntireXdgUserDirsFile
+    );
     std::string expected = Platform::LinuxFileApi::JoinPaths(
       XdgDirectoryResolver::GetHomeDirectory(), u8".tmp/cache"
     );
     ASSERT_STREQ(resolver.GetCacheHomeDirectory().c_str(), expected.c_str());
+  }
+
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(XdgDirectoryResolverTest, DirectoriesCanBeOverridenViaUserDirsFile) {
+    XdgDirectoryResolver resolver(
+      &dontGetEnvironmentVariable, &provideDummyXdgUserDirsFile
+    );
+
+    std::string dataHome = resolver.GetDataHomeDirectory();
+    std::string stateHome = resolver.GetStateHomeDirectory();
+    std::string cacheHome = resolver.GetCacheHomeDirectory();
+
+    ASSERT_STREQ(dataHome.c_str(), u8"/all/my/data");
+    ASSERT_STREQ(stateHome.c_str(), u8"/var/lib/my-service/state");
+    ASSERT_STREQ(cacheHome.c_str(), u8"/var/cache/my-service");
   }
 
   // ------------------------------------------------------------------------------------------- //

@@ -41,9 +41,33 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>
+  ///   Looks up and reports common directories based on a platform's conventients and
+  ///   any configuration that needs to be honored
+  /// </summary>
+  /// <remarks>
+  ///   On Windows, this looks up the known folders via its classic Windows API interface
+  ///   and, for extended folders, via COM. On Linux, this follows the XDG specification
+  ///   which defines standard user directories and methods to override them via environment
+  ///   variable and the <code>user-dirs.dirs</code> file.
+  /// </remarks>
   class CommonLocationResolver {
 
+    /// <summary>Initializes a new common directory resolver</summary>
+    /// <param name="applicationName">
+    ///   Name of the application subdirectory. If specified, it will be injected into
+    ///   any paths returned where appropriate.
+    /// </param>
+    /// <remarks>
+    ///   It is a good idea to also follow a platform's unwritten conventions. For Windows
+    ///   builds, passing a human-readable name (starting words with uppercase letters and
+    ///   using spaces if needed) is advices. For Linux builds, using an all-lowercase name
+    ///   without spaces will make it fit in better (though neither platform has any firm
+    ///   rules requiring this).
+    /// </remarks>
     public: CommonLocationResolver(const std::string &applicationName = std::string());
+
+    /// <summary>Frees all resources owned by the directory resolver</summary>
     public: ~CommonLocationResolver();
 
     /// <summary>Returns the directory your executable is running from</summary>
