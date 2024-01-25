@@ -44,4 +44,28 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
   // ------------------------------------------------------------------------------------------- //
 
+  TEST(StandardDirectoryResolverTest, CanDetermineSettingsDirectory) {
+    StandardDirectoryResolver resolver;
+    std::string settingsDirectory = resolver.GetSettingsDirectory();
+    EXPECT_FALSE(settingsDirectory.empty());
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(StandardDirectoryResolverTest, CanDetermineStateDirectory) {
+    StandardDirectoryResolver resolver;
+    std::string stateDirectory = resolver.GetStateDirectory();
+    EXPECT_FALSE(stateDirectory.empty());
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  TEST(StandardDirectoryResolverTest, CanDetermineCacheDirectory) {
+    StandardDirectoryResolver resolver;
+    std::string cacheDirectory = resolver.GetCacheDirectory();
+    EXPECT_FALSE(cacheDirectory.empty());
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 }}} // namespace Nuclex::Platform::Tasks

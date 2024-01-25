@@ -51,7 +51,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
   ///   which defines standard user directories and methods to override them via environment
   ///   variable and the <code>user-dirs.dirs</code> file.
   /// </remarks>
-  class StandardDirectoryResolver {
+  class NUCLEX_PLATFORM_TYPE StandardDirectoryResolver {
 
     /// <summary>Initializes a new common directory resolver</summary>
     /// <param name="applicationName">
@@ -65,10 +65,12 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   without spaces will make it fit in better (though neither platform has any firm
     ///   rules requiring this).
     /// </remarks>
-    public: StandardDirectoryResolver(const std::string &applicationName = std::string());
+    public: NUCLEX_PLATFORM_API StandardDirectoryResolver(
+      const std::string &applicationName = std::string()
+    );
 
     /// <summary>Frees all resources owned by the directory resolver</summary>
-    public: ~StandardDirectoryResolver();
+    public: NUCLEX_PLATFORM_API ~StandardDirectoryResolver();
 
     /// <summary>Returns the directory your executable is running from</summary>
     /// <returns>The directory in which the running executable is stored</returns>
@@ -83,7 +85,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///     such files instead.
     ///   </para>
     /// </remarks>
-    public: std::string GetExecutableDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetExecutableDirectory() const;
     
     /// <summary>Returns the directory your application's static data is stored in</summary>
     /// <returns>The directory in which static application data is stored</returns>
@@ -93,7 +95,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   when installed by a package manager that treats it as a standard application,
     ///   to <code>/usr/share/application-name</code>.
     /// </remarks>
-    public: std::string GetStaticDataDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetStaticDataDirectory() const;
 
     /// <summary>Retrieves the settings directory for user-specific settings</summary>
     /// <returns>The directory in which user-specific settings can be stored</returns>
@@ -109,7 +111,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///    &quot;roaming&quot; data.
     ///  </para>
     /// </remarks>
-    public: std::string GetSettingsDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetSettingsDirectory() const;
 
     /// <summary>Retrieves the state directory retaining the application's state</summary>
     /// <returns>The directory in which the application's state can be saved</returns>
@@ -119,7 +121,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   to other systems, such as a list of running or monitored jobs on the system, but
     ///   also the preferred graphics adapter or machine-specific performance adjustments.
     /// </remarks>
-    public: std::string GetStateDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetStateDirectory() const;
 
     /// <summary>Retrieves the cache directory for semi-temporary data</summary>
     /// <returns>The directory in which the application can cache things</returns>
@@ -131,7 +133,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   or movie files, shaders specifically compiled for the installed GPU brand or
     ///   an index database for files managed by your application.
     /// </remarks>
-    public: std::string GetCacheDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetCacheDirectory() const;
 
     /// <summary>Retrieves the documents directory of the current user</summary>
     /// <returns>The directory in which created documents should be saved</returns>
@@ -140,7 +142,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   &quot;save&quot; dialog and that they may wish to share with others or copy
     ///   around to other systems, TVs or phones.
     /// </remarks>
-    public: std::string GetDocumentsDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetDocumentsDirectory() const;
 
     /// <summary>Retrieves the directory in which video games should store save states</summary>
     /// <returns>The directory in which video games should store save states</returns>
@@ -153,7 +155,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   to the user and should move with them to the next system, so it belongs in
     ///   <code>~/.local/share</code>).
     /// </remarks>
-    public: std::string GetSavedGameDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetSavedGameDirectory() const;
 
     /// <summary>Retrieves the system's temporary directory</summary>
     /// <returns>The directory in which temporary files can be stored</returns>
@@ -165,7 +167,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   of the temp directory generally vanish after a reboot, commonly because a ramdisk
     ///   is used.
     /// </remarks>
-    public: std::string GetTemporaryDirectory() const;
+    public: NUCLEX_PLATFORM_API std::string GetTemporaryDirectory() const;
 
     /// <summary>Name of the application (directory) in the file system</summary>
     private: std::string applicationName;

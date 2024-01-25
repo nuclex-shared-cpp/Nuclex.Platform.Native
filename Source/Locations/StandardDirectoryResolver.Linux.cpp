@@ -28,6 +28,8 @@ License along with this library
 #include <linux/limits.h> // for PATH_MAX
 #include <unistd.h> // for getpid()
 
+#include <stdexcept> // for runtime_error
+
 #include <Nuclex/Support/Text/LexicalAppend.h> // for lexical_append()
 
 #include "XdgDirectoryResolver.h" // for XdgDirectoryResolver
@@ -110,6 +112,59 @@ namespace Nuclex { namespace Platform { namespace Locations {
     }
 
     return executablePath;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetStaticDataDirectory() const {
+    XdgDirectoryResolver resolver;
+
+    // Perhaps this method needs to return a path list to fully honor the XDG spec?
+
+    // TODO: Check if application name subdirectory is present in XDG_DATA_HOME
+    // TODO: Check if executables redies in /opt/ and if so, use that path
+    // TODO: Check if executable is in /usr/local/bin, if so, use /usr/local/share
+    // TODO: Check if executable is in /usr/bin, if so, use /usr/share
+    return resolver.GetDataHomeDirectory();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetSettingsDirectory() const {
+    XdgDirectoryResolver resolver;
+    return resolver.GetConfigHomeDirectory();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetStateDirectory() const {
+    XdgDirectoryResolver resolver;
+    return resolver.GetStateHomeDirectory();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetCacheDirectory() const {
+    XdgDirectoryResolver resolver;
+    return resolver.GetCacheHomeDirectory();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetDocumentsDirectory() const {
+    throw std::runtime_error(u8"Not implemented yet");
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetSavedGameDirectory() const {
+    throw std::runtime_error(u8"Not implemented yet");
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
+  std::string StandardDirectoryResolver::GetTemporaryDirectory() const {
+    throw std::runtime_error(u8"Not implemented yet");
   }
 
   // ------------------------------------------------------------------------------------------- //
