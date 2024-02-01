@@ -24,6 +24,11 @@ License along with this library
 #include "Nuclex/Platform/Config.h"
 
 #include <string> // for std::string
+#include <optional> // for std::optional
+#include <atomic> // for std::atomic
+#include <mutex> // for std::mutex
+
+// Rename this to simply "StandardDirectoryLookup"?
 
 // * Support looking up locations
 //   * Install folder (/opt, /usr/local/bin or C:\Program Files)
@@ -169,8 +174,44 @@ namespace Nuclex { namespace Platform { namespace Locations {
     /// </remarks>
     public: NUCLEX_PLATFORM_API std::string GetTemporaryDirectory() const;
 
+    /// <summary>Platform-specific code to locate the executable directory</summary>
+    /// <returns>The full path to the directory holding the running executable</returns>
+    private: static std::string locateExecutableDirectory();
+
+    /// <summary>Platform-specific code to locate the static data directory</summary>
+    /// <returns>The full path to the directory holding static application data</returns>
+    private: static std::string locateStaticDataDirectory();
+
+    /// <summary>Platform-specific code to locate the settings directory</summary>
+    /// <returns>The full path to the directory holding application settings</returns>
+    private: static std::string locateSettingsDirectory();
+
+    /// <summary>Platform-specific code to locate the state directory</summary>
+    /// <returns>The full path to the directory holding the application's state</returns>
+    private: static std::string locateStateDirectory();
+
     /// <summary>Name of the application (directory) in the file system</summary>
     private: std::string applicationName;
+
+    /// <summary>Can be held by the methods as directories are figured out</summary>
+    private: mutable std::mutex updateMutex;
+
+    /// <summary>Whether the executable directory has been determined yet</summary>
+    private: mutable std::atomic<bool> executableDirectoryKnown;
+    /// <summary>The path in which the running executable resides</summary>
+    private: mutable std::string executableDirectory;
+    /// <summary>Whether the static data directory has been determined yet</summary>
+    private: mutable std::atomic<bool> staticDataDirectoryKnown;
+    /// <summary>Path to the application's static data directory</summary>
+    private: mutable std::string staticDataDirectory;
+    /// <summary>Whether the settings directory has been determined yet</summary>
+    private: mutable std::atomic<bool> settingsDirectoryKnown;
+    /// <summary>Path to the settings directory</summary>
+    private: mutable std::string settingsDirectory;
+    /// <summary>Whether the state directory has been determined yet</summary>
+    private: mutable std::atomic<bool> stateDirectoryKnown;
+    /// <summary>Path to the state directory</summary>
+    private: mutable std::string stateDirectory;
 
   }; 
 

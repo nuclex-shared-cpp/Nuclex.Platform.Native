@@ -28,8 +28,6 @@ License along with this library
 #include <linux/limits.h> // for PATH_MAX
 #include <unistd.h> // for getpid()
 
-#include <stdexcept> // for runtime_error
-
 #include <Nuclex/Support/Text/LexicalAppend.h> // for lexical_append()
 
 #include "XdgDirectoryResolver.h" // for XdgDirectoryResolver
@@ -73,6 +71,8 @@ namespace {
         ownProcessLink, target
       );
       if(unlikely(!wasSuccessfullyRead)) {
+        // Report the original error. The non-recursive symlink was a nice try,
+        // but what we really want is for the vanilla, standard way to work.
         Nuclex::Platform::Platform::PosixApi::ThrowExceptionForSystemError(
           u8"Could not follow '/proc/self/exe' to own path", originalErrorNumber
         );
@@ -84,28 +84,40 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  bool stringStartsWith(const std::string &haystack, const std::string &needle) {
+    std::string::size_type haystackLength = haystack.length();
+    if(haystackLength == 0) {
+      return needle.empty();
+    }
+
+    std::string::size_type needleLength = needle.length();
+    if(haystackLength < needleLength) {
+      return false;
+    }
+
+    for(std::string::size_type index = 0; index < needleLength; ++index) {
+      if(haystack[index] != needle[index]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+
 } // anonymous namespace
 
 namespace Nuclex { namespace Platform { namespace Locations {
 
   // ------------------------------------------------------------------------------------------- //
 
-  StandardDirectoryResolver::StandardDirectoryResolver(
-    const std::string &applicationName /* = std::string() */
-  ) :
-    applicationName(applicationName) {}
-
-  // ------------------------------------------------------------------------------------------- //
-
-  StandardDirectoryResolver::~StandardDirectoryResolver() {
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
-  std::string StandardDirectoryResolver::GetExecutableDirectory() const {
+  std::string StandardDirectoryResolver::locateExecutableDirectory() {
     std::string executablePath = getExecutablePath();
 
-    // Remove the filename fro mthe path
+    // Remove the filename from the path so we're left with only the directory.
+    // If there are no slashes in the path, we honestly don't know what's going on
+    // and just leave the strign unmodified (would an exception be less confusing?)
     std::string::size_type lastBackslashIndex = executablePath.find_last_of('/');
     if(lastBackslashIndex != std::string::npos) {
       executablePath.resize(lastBackslashIndex + 1); // Keep the slash on
@@ -116,55 +128,42 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
   // ------------------------------------------------------------------------------------------- //
 
-  std::string StandardDirectoryResolver::GetStaticDataDirectory() const {
-    XdgDirectoryResolver resolver;
+  std::string StandardDirectoryResolver::locateStaticDataDirectory() {
+    const static std::string usrLocalBinPath(u8"/usr/local/bin/", 15);
+    const static std::string usrBinPath(u8"/usr/bin/", 9);
 
-    // Perhaps this method needs to return a path list to fully honor the XDG spec?
+    std::string staticDataDirectory;
+    {
+      // Check where the executable resides, this will tell us where and how
+      // the application is installed
+      staticDataDirectory = getExecutablePath();
+      if(stringStartsWith(staticDataDirectory, usrLocalBinPath)) {
+        staticDataDirectory.assign(u8"/usr/local/share/", 17);
+      } else if(stringStartsWith(staticDataDirectory, usrBinPath)) {
+        staticDataDirectory.assign(u8"/usr/share/", 11);
+      } else { // it's likely in /opt/ or a custom path
+        std::string::size_type lastBackslashIndex = staticDataDirectory.find_last_of('/');
+        if(lastBackslashIndex != std::string::npos) {
+          staticDataDirectory.resize(lastBackslashIndex + 1); // Keep the slash on
+        }
+      }
+    }
 
-    // TODO: Check if application name subdirectory is present in XDG_DATA_HOME
-    // TODO: Check if executables redies in /opt/ and if so, use that path
-    // TODO: Check if executable is in /usr/local/bin, if so, use /usr/local/share
-    // TODO: Check if executable is in /usr/bin, if so, use /usr/share
-    return resolver.GetDataHomeDirectory();
+    return staticDataDirectory;
   }
 
   // ------------------------------------------------------------------------------------------- //
 
-  std::string StandardDirectoryResolver::GetSettingsDirectory() const {
+  std::string StandardDirectoryResolver::locateSettingsDirectory() {
     XdgDirectoryResolver resolver;
     return resolver.GetConfigHomeDirectory();
   }
 
   // ------------------------------------------------------------------------------------------- //
 
-  std::string StandardDirectoryResolver::GetStateDirectory() const {
+  std::string StandardDirectoryResolver::locateStateDirectory() {
     XdgDirectoryResolver resolver;
     return resolver.GetStateHomeDirectory();
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
-  std::string StandardDirectoryResolver::GetCacheDirectory() const {
-    XdgDirectoryResolver resolver;
-    return resolver.GetCacheHomeDirectory();
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
-  std::string StandardDirectoryResolver::GetDocumentsDirectory() const {
-    throw std::runtime_error(u8"Not implemented yet");
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
-  std::string StandardDirectoryResolver::GetSavedGameDirectory() const {
-    throw std::runtime_error(u8"Not implemented yet");
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-
-  std::string StandardDirectoryResolver::GetTemporaryDirectory() const {
-    throw std::runtime_error(u8"Not implemented yet");
   }
 
   // ------------------------------------------------------------------------------------------- //
