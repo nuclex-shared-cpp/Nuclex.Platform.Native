@@ -59,6 +59,33 @@ namespace Nuclex { namespace Platform { namespace Locations {
   class NUCLEX_PLATFORM_TYPE StandardDirectoryResolver {
 
     /// <summary>Initializes a new common directory resolver</summary>
+    /// <param name="linuxStyleApplicationDirectoryName">
+    ///   Name of the application subdirectory on Linux, should be all-lowercase and
+    ///   either a single word or as few words as possible separated by dashes.
+    /// </param>
+    /// <param name="windowsStyleApplicationDirectoryName">
+    ///   Name of the application subdirectory on Windows, should be in title case
+    ///   and use spaces inbetween words.
+    /// </param>
+    /// <remarks>
+    ///   This constructor is provided for your convenience, so you can keep macros
+    ///   selecting between Windows/Linux code paths to a minimum in your code.
+    /// </remarks>
+    public: NUCLEX_PLATFORM_API StandardDirectoryResolver(
+      const std::string &linuxStyleApplicationDirectoryName,
+      const std::string &windowsStyleApplicationDirectoryName
+    ) :
+#if defined(NUCLEX_PLATFORM_WINDOWS)
+      StandardDirectoryResolver(windowsStyleApplicationDirectoryName) {
+      (void)linuxStyleApplicationDirectoryName; // prevent unused variable warning
+    }
+#else
+      StandardDirectoryResolver(linuxStyleApplicationDirectoryName) {
+      (void)windowsStyleApplicationDirectoryName; // prevent unused variable warning
+    }
+#endif
+
+    /// <summary>Initializes a new common directory resolver</summary>
     /// <param name="applicationName">
     ///   Name of the application subdirectory. If specified, it will be injected into
     ///   any paths returned where appropriate.
@@ -173,6 +200,13 @@ namespace Nuclex { namespace Platform { namespace Locations {
     ///   is used.
     /// </remarks>
     public: NUCLEX_PLATFORM_API std::string GetTemporaryDirectory() const;
+
+    // GetMediaDirectory()
+    //   MediaType::Music directory
+    //   MediaType::Pictures directory
+    //   MediaType::Videos directory
+    // GetSaveGameDirectory()
+    // GetDocumentsDirectory()
 
     /// <summary>Platform-specific code to locate the executable directory</summary>
     /// <returns>The full path to the directory holding the running executable</returns>

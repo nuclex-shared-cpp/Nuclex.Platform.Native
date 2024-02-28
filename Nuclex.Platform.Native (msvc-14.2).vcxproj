@@ -209,6 +209,7 @@
     <ClInclude Include="Include\Nuclex\Platform\Interaction\MessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\ModernGuiMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\TerminalMessageService.h" />
+    <ClInclude Include="Include\Nuclex\Platform\Locations\StandardDirectoryResolver.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationTrigger.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationWatcher.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h" />
@@ -261,10 +262,20 @@
     <ClCompile Include="Source\Interaction\ModernGuiMessageService.Windows.cpp" />
     <ClCompile Include="Source\Interaction\TerminalMessageService.cpp" />
     <ClCompile Include="Source\Interaction\TerminalMessageService.Windows.cpp" />
+    <ClCompile Include="Source\Locations\PathHelper.cpp" />
+    <ClCompile Include="Source\Locations\StandardDirectoryResolver.cpp" />
+    <ClCompile Include="Source\Locations\StandardDirectoryResolver.Linux.cpp" />
+    <ClCompile Include="Source\Locations\StandardDirectoryResolver.Windows.cpp" />
+    <ClCompile Include="Source\Locations\XdgDirectoryResolver.cpp" />
+    <ClInclude Include="Source\Locations\XdgDirectoryResolver.h" />
     <ClCompile Include="Source\Platform\GtkApi.cpp" />
     <ClInclude Include="Source\Platform\GtkApi.h" />
     <ClCompile Include="Source\Platform\GtkDialogApi.cpp" />
     <ClInclude Include="Source\Platform\GtkDialogApi.h" />
+    <ClCompile Include="Source\Platform\LinuxEnvironmentApi.cpp" />
+    <ClInclude Include="Source\Platform\LinuxEnvironmentApi.h" />
+    <ClCompile Include="Source\Platform\LinuxFileApi.cpp" />
+    <ClInclude Include="Source\Platform\LinuxFileApi.h" />
     <ClCompile Include="Source\Platform\PosixApi.cpp" />
     <ClInclude Include="Source\Platform\PosixApi.h" />
     <ClCompile Include="Source\Platform\PosixDynamicLibraryApi.cpp" />
@@ -279,6 +290,8 @@
     <ClInclude Include="Source\Platform\WindowsFileApi.h" />
     <ClCompile Include="Source\Platform\WindowsMessageBoxApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsMessageBoxApi.h" />
+    <ClCompile Include="Source\Platform\WindowsProcessApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsProcessApi.h" />
     <ClCompile Include="Source\Platform\WindowsRegistryApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsRegistryApi.h" />
     <ClCompile Include="Source\Platform\WindowsSysInfoApi.cpp" />

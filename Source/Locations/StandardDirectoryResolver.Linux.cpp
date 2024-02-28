@@ -43,7 +43,7 @@ namespace {
   /// </summary>
   /// <param name="target">String that will receive the path of the executable</param>
   std::string getExecutablePath() {
-    std::string target(256, '\0');
+    std::string target(256, '\0'); // 256 as initial size, but will be resized as needed
 
     std::string ownProcessLink;
     ownProcessLink.reserve(16);
@@ -84,6 +84,10 @@ namespace {
 
   // ------------------------------------------------------------------------------------------- //
 
+  /// <summary>Checks whether the a string begins with the specified substring</summary>
+  /// <param name="haystack">String that will be checked</param>
+  /// <param name="needle">Substring the other string needs to start with</param>
+  /// <returns>True if the string starts with the specified substring, false otherwise</returns>
   bool stringStartsWith(const std::string &haystack, const std::string &needle) {
     std::string::size_type haystackLength = haystack.length();
     if(haystackLength == 0) {
@@ -117,7 +121,7 @@ namespace Nuclex { namespace Platform { namespace Locations {
 
     // Remove the filename from the path so we're left with only the directory.
     // If there are no slashes in the path, we honestly don't know what's going on
-    // and just leave the strign unmodified (would an exception be less confusing?)
+    // and just leave the string unmodified (would an exception be less confusing?)
     std::string::size_type lastBackslashIndex = executablePath.find_last_of('/');
     if(lastBackslashIndex != std::string::npos) {
       executablePath.resize(lastBackslashIndex + 1); // Keep the slash on

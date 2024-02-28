@@ -55,6 +55,7 @@ License along with this library
 #undef GetVolumePathNamesForVolumeName
 #undef GetVolumeInformation
 #undef GetDiskFreeSpace
+#undef GetModuleHandle
 
 #include <string> // for std::string
 

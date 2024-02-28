@@ -44,6 +44,12 @@
     <Filter Include="Source\Errors">
       <UniqueIdentifier>{33981dc2-f22c-4949-94b9-8b8850a3267c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Locations">
+      <UniqueIdentifier>{e02f5e68-1deb-4696-8e49-377b53379cbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Locations">
+      <UniqueIdentifier>{2e7c4157-9d3a-41c5-ba4b-53c7bb08ed43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Nuclex\Platform\Errors\InsufficientPermissionsError.h">
@@ -117,6 +123,12 @@
     </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Config.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Locations\PathHelper.h">
+      <Filter>Include\Locations</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Nuclex\Platform\Locations\StandardDirectoryResolver.h">
+      <Filter>Include\Locations</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -240,16 +252,40 @@
     <ClCompile Include="Source\Interaction\TerminalMessageService.Windows.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Platform\GtkApi.cpp">
+    <ClCompile Include="Source\Locations\PathHelper.cpp">
+      <Filter>Source\Locations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Locations\StandardDirectoryResolver.cpp">
+      <Filter>Source\Locations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Locations\StandardDirectoryResolver.Linux.cpp">
+      <Filter>Source\Locations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Locations\StandardDirectoryResolver.Windows.cpp">
+      <Filter>Source\Locations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Locations\XdgDirectoryResolver.cpp">
+      <Filter>Source\Locations</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Locations\XdgDirectoryResolver.h">
+      <Filter>Source\Locations</Filter>
+    </ClInclude>
+    <ClCompile Include="Source\Platform\LinuxEnvironmentApi.cpp">
       <Filter>Source\Platform</Filter>
     </ClCompile>
-    <ClInclude Include="Source\Platform\GtkApi.h">
+    <ClInclude Include="Source\Platform\LinuxEnvironmentApi.h">
       <Filter>Source\Platform</Filter>
     </ClInclude>
-    <ClCompile Include="Source\Platform\GtkDialogApi.cpp">
+    <ClCompile Include="Source\Platform\LinuxFileApi.cpp">
       <Filter>Source\Platform</Filter>
     </ClCompile>
-    <ClInclude Include="Source\Platform\GtkDialogApi.h">
+    <ClInclude Include="Source\Platform\LinuxFileApi.h">
+      <Filter>Source\Platform</Filter>
+    </ClInclude>
+    <ClCompile Include="Source\Platform\WindowsProcessApi.cpp">
+      <Filter>Source\Platform</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Platform\WindowsProcessApi.h">
       <Filter>Source\Platform</Filter>
     </ClInclude>
     <ClCompile Include="Source\Platform\PosixApi.cpp">
