@@ -51,13 +51,13 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   std::string_view StringHelper::FindNextFloat(
     const std::string_view &text, std::string::size_type startIndex /* = 0 */
   ) {
-    typedef Nuclex::Support::Text::UnicodeHelper::char8_t char8_t;
+    typedef Nuclex::Support::Text::UnicodeHelper::Char8Type Char8Type;
     char32_t codepoint;
 
     // Hunt for the first non-whitespace character
-    const char8_t *current = reinterpret_cast<const char8_t *>(text.data()) + startIndex;
-    const char8_t *end = current + text.length();
-    const char8_t *start;
+    const Char8Type *current = reinterpret_cast<const Char8Type *>(text.data()) + startIndex;
+    const Char8Type *end = current + text.length();
+    const Char8Type *start;
     for(;;) {
       if(current >= end) {
         return std::string_view();
@@ -118,7 +118,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     }
 
     // We have a number with start and end index, return a string_view for that segment
-    startIndex = start - reinterpret_cast<const char8_t *>(text.data());
+    startIndex = start - reinterpret_cast<const Char8Type *>(text.data());
     std::size_t length = current - start;
     return text.substr(startIndex, length - 1);
   }

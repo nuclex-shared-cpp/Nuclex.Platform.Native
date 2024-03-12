@@ -294,7 +294,9 @@
     <ClInclude Include="Source\Platform\WindowsProcessApi.h" />
     <ClCompile Include="Source\Platform\WindowsRegistryApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsRegistryApi.h" />
+    <ClCompile Include="Source\Platform\WindowsShellApi.cpp" />
     <ClCompile Include="Source\Platform\WindowsSysInfoApi.cpp" />
+    <ClInclude Include="Source\Platform\WindowsShellApi.h" />
     <ClInclude Include="Source\Platform\WindowsSysInfoApi.h" />
     <ClCompile Include="Source\Platform\WindowsTaskDialogApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h" />

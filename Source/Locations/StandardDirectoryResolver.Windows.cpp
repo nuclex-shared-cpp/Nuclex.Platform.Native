@@ -29,6 +29,7 @@ License along with this library
 
 #include "../Platform/WindowsApi.h" // for ThrowExceptionForSystemError()
 #include "../Platform/WindowsProcessApi.h" // for GetModuleHandle(), GetModuleFileName()
+#include "../Platform/WindowsShellApi.h" // for GetKnownFolderPath()
 
 namespace {
 
@@ -70,12 +71,21 @@ namespace Nuclex { namespace Platform { namespace Locations {
   // ------------------------------------------------------------------------------------------- //
 
   std::string StandardDirectoryResolver::locateStaticDataDirectory() {
-    throw std::runtime_error(u8"Not implemented yet");
+
+    // Windows applications, the standard way of shipping is to place all static
+    // data inside the same directory as the executable
+    return locateExecutableDirectory();
+
   }
 
   // ------------------------------------------------------------------------------------------- //
 
   std::string StandardDirectoryResolver::locateSettingsDirectory() {
+
+    //return Platform::WindowsShellApi::GetKnownFolderPath(
+    //  KNOWNFOLDERID_
+    //);
+
     throw std::runtime_error(u8"Not implemented yet");
   }
 

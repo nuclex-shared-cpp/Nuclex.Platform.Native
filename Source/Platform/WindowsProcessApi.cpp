@@ -58,30 +58,54 @@ namespace Nuclex { namespace Platform { namespace Platform {
   std::string WindowsProcessApi::GetModuleFileName(::HMODULE moduleHandle) {
     std::wstring path(MAX_PATH, L'\0');
 
+    DWORD lastErrorCode;
+
+    // If the path is particularly long, we may need to re-try with larger buffer
+    // sizes, so we'll query for the path in a loop.
     DWORD bufferSize = static_cast<DWORD>(path.size());
-    for(;;) {
+    for(std::size_t attempt = 0; attempt < 4; ++attempt) {
+
+      // Try to obtain the path. If the function returns a positive length that
+      // is less than the buffer size, we know it succeeded.
       DWORD result = ::GetModuleFileNameW(moduleHandle, path.data(), bufferSize);
       if(likely((result >= 0) && (result < bufferSize))) {
-        break;
+        return Nuclex::Support::Text::StringConverter::Utf8FromWide(path);
       }
 
-      DWORD lastErrorCode = ::GetLastError();
+      // Something went wrong! Immediately capture the error code before any
+      // other call may reset or replace it.
+      lastErrorCode = ::GetLastError();
 
+      // If the returned length was the buffer size and the last error value is
+      // ERROR_INSUFFICIENT_BUFFER, indicating that our buffer was too small,
+      // quintuple the size of the buffer and try again. This will result in buffer
+      // sizes of 260, 1300, 6500 and 32500 bytes before giving up.
       if(likely(result >= bufferSize)) {
-        if(lastErrorCode == ERROR_INSUFFICIENT_BUFFER) {
-          bufferSize *= 4;
+        if(likely(lastErrorCode == ERROR_INSUFFICIENT_BUFFER)) {
+          bufferSize *= 5;
           path.resize(static_cast<std::size_t>(bufferSize));
+          continue;
+        } else if(unlikely(lastErrorCode == ERROR_SUCCESS)) {
+          // This could be a success with the length perfectly matching the buffer
+          // size, but MSDN docs aren't explicit about this, so better try again
+          // with a larger buffer to be safe.
           continue;
         }
       }
 
+      // Error was something other than insufficient buffer space
       WindowsApi::ThrowExceptionForSystemError(
         u8"Error retrieving path of loaded module handle",
         lastErrorCode
       );
     }
 
-    return Nuclex::Support::Text::StringConverter::Utf8FromWide(path);
+    // We gave it 4 tries, but even a 32000+ character buffer didn't
+    // make the GetModuleFileNameW() method happy, so we give up.
+    WindowsApi::ThrowExceptionForSystemError(
+      u8"GetModuleFileNameW() keeps asking for larger buffers",
+      lastErrorCode
+    );
   }
 
   // ------------------------------------------------------------------------------------------- //
