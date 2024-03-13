@@ -158,6 +158,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
     std::string utf8ErrorMessage;
     {
       using Nuclex::Support::Text::UnicodeHelper;
+      typedef UnicodeHelper::Char8Type Char8Type;
 
       LocalAllocScope errorMessageScope(errorMessageBuffer);
 
@@ -165,19 +166,17 @@ namespace Nuclex { namespace Platform { namespace Platform {
       {
         const char16_t *current = reinterpret_cast<const char16_t *>(errorMessageBuffer);
         const char16_t *end = current + errorMessageLength;
-        UnicodeHelper::char8_t *write = reinterpret_cast<UnicodeHelper::char8_t *>(
-          utf8ErrorMessage.data()
-        );
+        Char8Type *write = reinterpret_cast<Char8Type *>(utf8ErrorMessage.data());
         while(current < end) {
           char32_t codePoint = UnicodeHelper::ReadCodePoint(current, end);
           if(codePoint == char32_t(-1)) {
             break;
           }
-          UnicodeHelper::WriteCodePoint(codePoint, write);
+          UnicodeHelper::WriteCodePoint(write, codePoint);
         }
 
         utf8ErrorMessage.resize(
-          write - reinterpret_cast<UnicodeHelper::char8_t *>(utf8ErrorMessage.data())
+          write - reinterpret_cast<Char8Type *>(utf8ErrorMessage.data())
         );
       }
     }
@@ -188,7 +187,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
     while(length > 0) {
       using Nuclex::Support::Text::ParserHelper;
 
-      if(!ParserHelper::IsWhitespace(std::uint8_t(utf8ErrorMessage[length - 1]))) {
+      if(!ParserHelper::IsWhitespace(utf8ErrorMessage[length - 1])) {
         break;
       }
       --length;

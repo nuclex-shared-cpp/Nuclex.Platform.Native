@@ -217,6 +217,7 @@ namespace Nuclex { namespace Platform { namespace Platform {
       utf8Value.resize(static_cast<std::size_t>(length));
       {
         using Nuclex::Support::Text::UnicodeHelper;
+        typedef UnicodeHelper::Char8Type Char8Type;
 
         // BSTR is a pointer to the string (so it works as a (wchar_t *) or in Microsoft
         // language, an LPWSTR). The length is stored in the 4 bytes before the pointer.
@@ -225,19 +226,17 @@ namespace Nuclex { namespace Platform { namespace Platform {
         // waltz into the BSTR's memory and read the UTF-16 string.
         const char16_t *current = reinterpret_cast<const char16_t *>(value.bstrVal);
         const char16_t *end = current + length;
-        UnicodeHelper::char8_t *write = reinterpret_cast<UnicodeHelper::char8_t *>(
-          utf8Value.data()
-        );
+        Char8Type *write = reinterpret_cast<Char8Type *>(utf8Value.data());
         while(current < end) {
           char32_t codePoint = UnicodeHelper::ReadCodePoint(current, end);
           if(codePoint == char32_t(-1)) {
             break;
           }
-          UnicodeHelper::WriteCodePoint(codePoint, write);
+          UnicodeHelper::WriteCodePoint(write, codePoint);
         }
 
         utf8Value.resize(
-          write - reinterpret_cast<UnicodeHelper::char8_t *>(utf8Value.data())
+          write - reinterpret_cast<Char8Type *>(utf8Value.data())
         );
       }
     }

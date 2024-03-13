@@ -116,7 +116,7 @@ namespace {
       // the double colons float like a dividing line at the same column.
       std::string_view::size_type keyEnd = doubleColonIndex;
       while(keyEnd > 0) {
-        if(ParserHelper::IsWhitespace(static_cast<std::uint8_t>(line[keyEnd - 1]))) {
+        if(ParserHelper::IsWhitespace(line[keyEnd - 1])) {
           --keyEnd;
         } else {
           break;
@@ -126,7 +126,7 @@ namespace {
       // Trim any whitespace between the double colon and where the value starts
       std::string_view::size_type valueStart = doubleColonIndex + 1;
       while(valueStart < line.length()) {
-        if(ParserHelper::IsWhitespace(static_cast<std::uint8_t>(line[valueStart]))) {
+        if(ParserHelper::IsWhitespace(line[valueStart])) {
           ++valueStart;
         } else {
           break;

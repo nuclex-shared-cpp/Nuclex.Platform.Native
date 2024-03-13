@@ -18,34 +18,35 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_HARDWARE_STRINGHELPER_H
-#define NUCLEX_PLATFORM_HARDWARE_STRINGHELPER_H
+#ifndef NUCLEX_PLATFORM_PLATFORM_WINDOWSSHELLAPI_H
+#define NUCLEX_PLATFORM_PLATFORM_WINDOWSSHELLAPI_H
 
 #include "Nuclex/Platform/Config.h"
 
-#include <Nuclex/Support/Text/ParserHelper.h>
+#if defined(NUCLEX_PLATFORM_WINDOWS)
 
-#include <string> // for std::string
+#include "WindowsApi.h"
 
-namespace Nuclex { namespace Platform { namespace Hardware {
+#include <ShlObj.h> // for REFKNOWNFOLDERID
+
+namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  /// <summary>Helper methods for dealing with strings</summary>
-  class StringHelper {
+  /// <summary>Wraps shell information functions from the Windows desktop API</summary>
+  class WindowsShellApi {
 
-    /// <summary>Locates the next floating-point number within a string</summary>
-    /// <param name="text">Text in which the next floating-point numbers will be found</param>
-    /// <param name="startIndex">Index from which onwards to look for a number</param>
-    /// <returns>The first number found in the string or an empty string_view</returns>
-    public: static std::string_view FindNextFloat(
-      const std::string_view &text, std::string::size_type startIndex = 0
-    );
+    /// <summary>Looks up the path of a known folder for the current user</summary>
+    /// <param name="knownFolderId">GUID of the known folder that will be looked up</param>
+    /// <returns>The full path of the specified known folder</returns>
+    public: static std::string GetKnownFolderPath(const ::KNOWNFOLDERID &knownFolderId);
 
   };
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Hardware
+}}} // namespace Nuclex::Platform::Platform
 
-#endif // NUCLEX_PLATFORM_HARDWARE_STRINGHELPER_H
+#endif // defined(NUCLEX_PLATFORM_WINDOWS)
+
+#endif // NUCLEX_PLATFORM_PLATFORM_WINDOWSSHELLAPI_H

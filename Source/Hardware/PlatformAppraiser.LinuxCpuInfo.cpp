@@ -27,6 +27,7 @@ License along with this library
 
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast<>
 #include <Nuclex/Support/Text/LexicalAppend.h> // for lexical_append<>
+#include <Nuclex/Support/Text/StringHelper.h> // for StringHelper
 
 #include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
 
@@ -79,7 +80,7 @@ namespace {
   /// <param name="cpuName">CPU make and model string that will be sanitized</param>
   /// <returns>The CPU name minus any trademark signs and filler words</returns>
   std::string sanitizeCpuName(const std::string_view &cpuName) {
-    using Nuclex::Platform::Hardware::StringHelper;
+    using Nuclex::Support::Text::StringHelper;
 
     std::string sanitized(cpuName);
     StringHelper::EraseSubstrings(sanitized, u8"(R)"); // Registered
@@ -92,7 +93,7 @@ namespace {
       sanitized.erase(atIndex);
     }
 
-    StringHelper::EraseDuplicateWhitespace(sanitized);
+    StringHelper::CollapseDuplicateWhitespace(sanitized);
 
     return sanitized;
   }
