@@ -30,8 +30,10 @@ option(
 
 # -------------------------------------------------------------------------------------------------
 
-# Contains compiler options, compiler tag for output directory, etc.
-include("../BuildSystem/cmake/cplusplus.cmake")
+# This sets a bunch of compile flags and defined ${NUCLEX_COMPILER_TAG} to
+# say something like linux-gcc-13.2-amd64-debug. You should have this directory
+# if you do a full clone of a project that is using this third-party library build.
+include("../build-system/cmake/cplusplus.cmake")
 
 # The Unix build pipeline doesn't automatically include threading, so search for
 # the pthreads library in order to link against it later on.
@@ -46,11 +48,6 @@ if(NOT (TARGET NuclexSupportNative))
 	)
 endif()
 
-# Already included by Nuclex.Support.Native, CMake doesn't like a second inclusion...
-if(NOT (TARGET GoogleTest))
-	add_subdirectory(${PROJECT_SOURCE_DIR}/../ThirdParty/gtest ${CMAKE_BINARY_DIR}/gtest)
-endif()
-
 message(STATUS "Enabled options for Nuclex.Platform.Native:")
 message(STATUS "  ⚫ Build core library")
 
@@ -59,7 +56,10 @@ if(BUILD_UNIT_TESTS)
 
 	# Add GoogleTest as a sub-project so we can link our unit test executable
 	if(NOT (TARGET GoogleTest))
-		add_subdirectory(${PROJECT_SOURCE_DIR}/../ThirdParty/gtest ${CMAKE_BINARY_DIR}/gtest)
+		add_subdirectory(
+			${PROJECT_SOURCE_DIR}/../third-party/nuclex-googletest
+			${CMAKE_BINARY_DIR}/nuclex-googletest
+		)
 	endif()
 endif()
 
@@ -68,7 +68,10 @@ if(BUILD_BENCHMARK)
 
 	# Add Celero as a sub-project so we can link our benchmark executable
 	if(NOT (TARGET Celero))
-		add_subdirectory(${PROJECT_SOURCE_DIR}/../ThirdParty/celero ${CMAKE_BINARY_DIR}/celero)
+		add_subdirectory(
+			${PROJECT_SOURCE_DIR}/../third-party/nuclex-celero
+			${CMAKE_BINARY_DIR}/nuclex-celero
+		)
 	endif()
 endif()
 

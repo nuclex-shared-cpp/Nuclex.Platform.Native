@@ -18,8 +18,8 @@ License along with this library
 */
 #pragma endregion // CPL License
 
-#ifndef NUCLEX_PLATFORM_PLATFORM_GTKDIALOGAPI_H
-#define NUCLEX_PLATFORM_PLATFORM_GTKDIALOGAPI_H
+#ifndef NUCLEX_PLATFORM_PLATFORM_KDEWIDGETSADDONSAPI_H
+#define NUCLEX_PLATFORM_PLATFORM_KDEWIDGETSADDONSAPI_H
 
 #include "Nuclex/Platform/Config.h"
 
@@ -31,25 +31,30 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
   // ------------------------------------------------------------------------------------------- //
 
-  /// <summary>Offers generic methods for dealing with the GTK dialogs API</summary>
-  class GtkDialogApi {
+  /// <summary>Offers generic methods for dealing with the KDE widgets addons API</summary>
+  class KdeWidgetsAddonsApi {
 
-    /// <summary>Attempts to load the dynamic GTK library on the current system</summary>
+    /// <summary>
+    ///   Attempts to load the dynamic KDE widgets addons library on the current system
+    /// </summary>
     /// <returns>A handle for the loaded GTK library or a null pointer if not found</returns>
     public: static void *TryLoadLibrary();
 
     /// <summary>>
-    ///   Unloads the GTK library after it has been loaded via <see cref="TryLoadLibrary" />
+    ///   Unloads the KDE widgets addons library after it has been loaded via
+    ///   <see cref="TryLoadLibrary" />
     /// </summary>
-    /// <param name="gtkLibraryHandle">
-    ///   Handle that was returned by <see cref="TryLoadLibrary" /> when the GTK library
-    ///   was loaded.
+    /// <param name="kdeWidgetsAddonsLibraryHandle">
+    ///   Handle that was returned by <see cref="TryLoadLibrary" /> when
+    ///   the KDE widgets addons library was loaded.
     /// </param>
     /// <param name="throwOnError">
     ///   Whether an exception will be thrown if the library can not be unloaded.
     ///   This is provided to suppress errors in shutdown code or RAII destructors.
     /// </param>
-    public: static void UnloadLibrary(void *gtkLibraryHandle, bool throwOnError = true);
+    public: static void UnloadLibrary(
+      void *kdeWidgetsAddonsLibraryHandle, bool throwOnError = true
+    );
 
   };
 
@@ -59,4 +64,4 @@ namespace Nuclex { namespace Platform { namespace Platform {
 
 #endif // !defined(NUCLEX_PLATFORM_WINDOWS)
 
-#endif // NUCLEX_PLATFORM_PLATFORM_GTKDIALOGAPI_H
+#endif // NUCLEX_PLATFORM_PLATFORM_KDEWIDGETSADDONSAPI_H

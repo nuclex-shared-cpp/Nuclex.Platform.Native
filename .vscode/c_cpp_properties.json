@@ -5,8 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/Include/**",
                 "${workspaceFolder}/../Nuclex.Support.Native/Include/**",
-                "${workspaceFolder}/../ThirdParty/gtest/build/googletest/include/**",
-                "${workspaceFolder}/../ThirdParty/celero/build/include/**"
+                "${workspaceFolder}/../third-party/nuclex-googletest/build/googletest/include/**",
+                "${workspaceFolder}/../third-party/nuclex-celero/build/include/**"
             ],
             "defines": [
                 "NUCLEX_PLATFORM_EXECUTABLE",
