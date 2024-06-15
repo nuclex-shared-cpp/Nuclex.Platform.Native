@@ -1,3 +1,9 @@
+  - **Status:** Early development. Most of the planned features do not work,
+    including message boxes, the task coordinator and half of the hardware info.
+
+  - **Platforms:** Cross-platform, developed on Linux, will eventually
+    receive testing on Windows.
+
 Nuclex.Platform.Native
 ======================
 
@@ -31,34 +37,36 @@ available resources between them.
 PlatformAppraiser
 -----------------
 
+Planning...
+
 ```
-  vector<CpuInfo>
-    + ModelName
-    + CoreCount
-    + EcoCoreCount
+vector<CpuInfo>
+  + ModelName
+  + CoreCount
+  + EcoCoreCount
+  + ThreadCount
+  + vector<CoreInfo> Cores
+    + FrequencyInMhz
+    + IsEcoCore
     + ThreadCount
-    + vector<CoreInfo> Cores
-      + FrequencyInMhz
-      + IsEcoCore
-      + ThreadCount
 ```
 
 ```
-  MemoryInfo
-    + InstalledMegabytes
-    + MaximumProgramMegabytes
+MemoryInfo
+  + InstalledMegabytes
+  + MaximumProgramMegabytes
 ```
 
 ```
-  vector<DriveInfo>
-    + ManfacturerName
-    + ModelName
+vector<DriveInfo>
+  + ManfacturerName
+  + ModelName
+  + CapacityInMegabytes
+  + IsSolidState
+  + vector<PartitionInfo> Partitions
+    + MountPath
+    + Label
     + CapacityInMegabytes
-    + IsSolidState
-    + vector<PartitionInfo> Partitions
-      + MountPath
-      + Label
-      + CapacityInMegabytes
-      + FileSystemName
+    + FileSystemName
 ```
 
