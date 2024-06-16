@@ -205,7 +205,7 @@ if(BUILD_UNIT_TESTS)
 	# additional unused code and warn about it)
 	target_compile_definitions(
 		NuclexPlatformNativeTests
-		PRIVATE NUCLEX_PIXELS_EXECUTABLE
+		PRIVATE NUCLEX_PLATFORM_EXECUTABLE
 	)
 
 	# Add directory with public headers to include path
@@ -266,7 +266,7 @@ if(BUILD_BENCHMARK)
 	# additional unused code and warn about it)
 	target_compile_definitions(
 		NuclexPlatformNativeBenchmark
-		PRIVATE NUCLEX_PIXELS_EXECUTABLE
+		PRIVATE NUCLEX_PLATFORM_EXECUTABLE
 	)
 
 	# Add directory with public headers to include path
@@ -317,6 +317,9 @@ install(
 	LIBRARY DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
 	RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/bin/${NUCLEX_COMPILER_TAG}
 )
+
+# Install .pdb files on Windows platforms for the main library.
+install_debug_symbols(NuclexPlatformNative)
 
 # Do the same for Nuclex.Support.Native. Since we depend on this library
 # and have set the rpath accordingly, it needs to be in the same directory
