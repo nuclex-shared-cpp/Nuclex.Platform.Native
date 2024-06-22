@@ -26,10 +26,9 @@ limitations under the License.
 
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast
 #include <Nuclex/Support/Text/ParserHelper.h> // for ParserHelper
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "../Platform/LinuxFileApi.h" // for LinuxFileApi::ReadFileIntoMemory()
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
 
 namespace {
 
@@ -222,7 +221,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   void LinuxProcCpuInfoReader::TryReadCpuInfos(
     void *userPointer,
     CallbackFunction *callback,
-    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller
+    const std::shared_ptr<const Support::Threading::StopToken> &canceller
   ) {
     CpuInfoCollector collector(callback, userPointer);
     {

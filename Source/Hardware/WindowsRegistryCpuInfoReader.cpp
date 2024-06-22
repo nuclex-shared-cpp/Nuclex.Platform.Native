@@ -27,8 +27,7 @@ limitations under the License.
 #include <Nuclex/Support/BitTricks.h> // for BitTricks
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast<>
 #include <Nuclex/Support/ScopeGuard.h> // for ScopeGuard
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "../Platform/WindowsRegistryApi.h" // for WindowsRegistryApi
 #include "./StringHelper.h" // for StringHelper
@@ -41,7 +40,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     std::size_t processorCount,
     void *userPointer,
     CallbackFunction *callback,
-    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller
+    const std::shared_ptr<const Tasks::StopToken> &canceller
   ) {
     using Nuclex::Platform::Platform::WindowsRegistryApi;
 

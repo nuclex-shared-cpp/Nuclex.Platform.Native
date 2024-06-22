@@ -83,7 +83,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </param>
     public: NUCLEX_PLATFORM_API void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
-      const CancellationWatcher &cancellationWatcher
+      const Nuclex::Support::Threading::StopToken &cancellationWatcher
     ) noexcept override;
 
     /// <summary>
@@ -104,7 +104,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </param>
     protected: NUCLEX_PLATFORM_API virtual void ThreadedRun(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
-      const CancellationWatcher &cancellationWatcher
+      const Nuclex::Support::Threading::StopToken &cancellationWatcher
     ) noexcept = 0;
 
     /// <summary>
@@ -124,7 +124,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     private: static void invokeThreadedRun(
       ThreadedTask *self,
       const std::array<std::size_t, MaximumResourceType + 1> *resourceUnitIndices,
-      const CancellationWatcher *cancellationWatcher
+      const Nuclex::Support::Threading::StopToken *cancellationWatcher
     );
 
     /// <summary>Thread pool that will be used to run work in multiple threads</summary>

@@ -26,8 +26,7 @@ limitations under the License.
 
 #include <Nuclex/Support/ScopeGuard.h> // for ScopeGuard
 #include <Nuclex/Support/Text/StringConverter.h> // for StringConverter
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "../Platform/WindowsSysInfoApi.h" // for WindowsSysInfoApi
 #include "../Platform/WindowsFileApi.h" // for WindowsFileApi

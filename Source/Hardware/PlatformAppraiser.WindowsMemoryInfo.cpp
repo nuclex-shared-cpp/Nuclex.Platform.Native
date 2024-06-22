@@ -27,8 +27,7 @@ limitations under the License.
 #include <Nuclex/Support/BitTricks.h> // for BitTricks
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast<>
 #include <Nuclex/Support/Text/LexicalAppend.h> // for lexical_append<>
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "../Platform/WindowsSysInfoApi.h"
 
@@ -44,7 +43,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   MemoryInfo PlatformAppraiser::analyzeMemoryAsync(
-    std::shared_ptr<const Tasks::CancellationWatcher> canceller
+    std::shared_ptr<const Tasks::StopToken> canceller
   ) {
     MemoryInfo result;
 

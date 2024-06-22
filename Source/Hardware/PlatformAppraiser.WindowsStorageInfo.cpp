@@ -25,8 +25,7 @@ limitations under the License.
 #if defined(NUCLEX_PLATFORM_WINDOWS)
 
 #include <Nuclex/Support/BitTricks.h> // for BitTricks
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "./WindowsBasicVolumeInfoReader.h" // for WindowsBasicStoreInfoReader
 
@@ -42,7 +41,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   std::vector<StoreInfo> PlatformAppraiser::analyzeStorageVolumesAsync(
-    std::shared_ptr<const Tasks::CancellationWatcher> canceller
+    std::shared_ptr<const Tasks::StopToken> canceller
   ) {
     std::vector<StoreInfo> result;
 

@@ -22,8 +22,8 @@ limitations under the License.
 
 #include "Nuclex/Platform/Tasks/ThreadedTask.h"
 #include "Nuclex/Platform/Tasks/ResourceType.h"
-#include "Nuclex/Platform/Tasks/CancellationTrigger.h"
 
+#include <Nuclex/Support/Threading/StopSource.h> // for StopSource
 #include <Nuclex/Support/Threading/ThreadPool.h>
 
 #include <gtest/gtest.h>
@@ -52,15 +52,15 @@ namespace {
     /// <param name="resourceUnitIndices">
     ///   Indices of the resource units the task coordinator has assigned this task
     /// </param>
-    /// <param name="cancellationWatcher">
+    /// <param name="stopToken">
     ///   Lets the task detect when it is requested to cancel its processing
     /// </param>
     protected: void ThreadedRun(
       const Nuclex::Platform::Tasks::ResourceUnitArray &resourceUnitIndices,
-      const Nuclex::Platform::Tasks::CancellationWatcher &cancellationWatcher
+      const Nuclex::Support::Threading::StopToken &stopToken
     ) noexcept override {
       (void)resourceUnitIndices;
-      (void)cancellationWatcher;
+      (void)stopToken;
       this->RunCounter.fetch_add(1, std::memory_order_acq_rel);
     }
 
@@ -79,13 +79,16 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   TEST(ThreadedTaskTest, CanRunSingleThreaded) {
     Nuclex::Support::Threading::ThreadPool tp(1, 1);
-    std::shared_ptr<CancellationTrigger> trigger = CancellationTrigger::Create();
+
+    std::shared_ptr<Nuclex::Support::Threading::StopSource> source = (
+      Nuclex::Support::Threading::StopSource::Create()
+    );
     {
       TestTask test(tp, 1);
 
       std::array<std::size_t, MaximumResourceType + 1> units;
-      const CancellationWatcher &watcher = *trigger->GetWatcher().get();
-      test.Run(units, watcher);
+      const Nuclex::Support::Threading::StopToken &token = *source->GetToken().get();
+      test.Run(units, token);
 
       EXPECT_EQ(test.RunCounter.load(std::memory_order::memory_order_acquire), 1U);
     }
@@ -95,13 +98,16 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   TEST(ThreadedTaskTest, CanRunLowThreaded) {
     Nuclex::Support::Threading::ThreadPool tp(4, 4);
-    std::shared_ptr<CancellationTrigger> trigger = CancellationTrigger::Create();
+
+    std::shared_ptr<Nuclex::Support::Threading::StopSource> source = (
+      Nuclex::Support::Threading::StopSource::Create()
+    );
     {
       TestTask test(tp, 4);
 
       std::array<std::size_t, MaximumResourceType + 1> units;
-      const CancellationWatcher &watcher = *trigger->GetWatcher().get();
-      test.Run(units, watcher);
+      const Nuclex::Support::Threading::StopToken &token = *source->GetToken().get();
+      test.Run(units, token);
 
       EXPECT_EQ(test.RunCounter.load(std::memory_order::memory_order_acquire), 4U);
     }
@@ -111,13 +117,16 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   TEST(ThreadedTaskTest, CanRunHighThreaded) {
     Nuclex::Support::Threading::ThreadPool tp;
-    std::shared_ptr<CancellationTrigger> trigger = CancellationTrigger::Create();
+
+    std::shared_ptr<Nuclex::Support::Threading::StopSource> source = (
+      Nuclex::Support::Threading::StopSource::Create()
+    );
     {
       TestTask test(tp, 32);
 
       std::array<std::size_t, MaximumResourceType + 1> units;
-      const CancellationWatcher &watcher = *trigger->GetWatcher().get();
-      test.Run(units, watcher);
+      const Nuclex::Support::Threading::StopToken &token = *source->GetToken().get();
+      test.Run(units, token);
 
       EXPECT_EQ(test.RunCounter.load(std::memory_order::memory_order_acquire), 32U);
     }

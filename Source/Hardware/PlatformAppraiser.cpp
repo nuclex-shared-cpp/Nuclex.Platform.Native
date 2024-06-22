@@ -21,15 +21,16 @@ limitations under the License.
 #define NUCLEX_PLATFORM_SOURCE 1
 
 #include "Nuclex/Platform/Hardware/PlatformAppraiser.h"
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h"
+
+#include <Nuclex/Support/Threading/StopToken.h>
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 
   // ------------------------------------------------------------------------------------------- //
 
   std::future<std::vector<CpuInfo>> PlatformAppraiser::AnalyzeCpuTopology(
-    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
-      std::shared_ptr<const Tasks::CancellationWatcher>()
+    const std::shared_ptr<const Support::Threading::StopToken> &canceller /* = (
+      std::shared_ptr<const Tasks::StopToken>()
     ) */
   ) {
     return std::async(
@@ -41,8 +42,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   std::future<MemoryInfo> PlatformAppraiser::AnalyzeMemory(
-    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
-      std::shared_ptr<const Tasks::CancellationWatcher>()
+    const std::shared_ptr<const Support::Threading::StopToken> &canceller /* = (
+      std::shared_ptr<const Tasks::StopToken>()
     ) */
   ) {
     return std::async(
@@ -54,8 +55,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   std::future<std::vector<StoreInfo>> PlatformAppraiser::AnalyzeStorageVolumes(
-    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller /* = (
-      std::shared_ptr<const Tasks::CancellationWatcher>()
+    const std::shared_ptr<const Support::Threading::StopToken> &canceller /* = (
+      std::shared_ptr<const Tasks::StopToken>()
     ) */
   ) {
     return std::async(

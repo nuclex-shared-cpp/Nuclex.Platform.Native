@@ -44,18 +44,19 @@ limitations under the License.
 // All of the above, with typedefs!
 //   -> Woohoo!
 
-namespace Nuclex { namespace Platform { namespace Tasks {
+namespace Nuclex { namespace Support { namespace Threading {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CancellationWatcher;
+  class StopToken;
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Tasks
+}}} // namespace Nuclex::Support::Threading
 
 namespace Nuclex { namespace Platform { namespace Hardware {
-  void removeTrailingSlash(std::wstring& volumeName);
+
+  //void removeTrailingSlash(std::wstring &volumeName);
 
   // ------------------------------------------------------------------------------------------- //
 
@@ -79,8 +80,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   the CPU topology when the detection has completed
     /// </returns>
     public: NUCLEX_PLATFORM_API static std::future<std::vector<CpuInfo>> AnalyzeCpuTopology(
-      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
-        std::shared_ptr<const Tasks::CancellationWatcher>()
+      const std::shared_ptr<const Support::Threading::StopToken> &canceller = (
+        std::shared_ptr<const Support::Threading::StopToken>()
       )
     );
 
@@ -90,8 +91,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   the installed and available memory in the system
     /// </returns>
     public: NUCLEX_PLATFORM_API static std::future<MemoryInfo> AnalyzeMemory(
-      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
-        std::shared_ptr<const Tasks::CancellationWatcher>()
+      const std::shared_ptr<const Support::Threading::StopToken> &canceller = (
+        std::shared_ptr<const Support::Threading::StopToken>()
       )
     );
 
@@ -103,8 +104,8 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     public: NUCLEX_PLATFORM_API static std::future<
       std::vector<StoreInfo>
     > AnalyzeStorageVolumes(
-      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller = (
-        std::shared_ptr<const Tasks::CancellationWatcher>()
+      const std::shared_ptr<const Support::Threading::StopToken> &canceller = (
+        std::shared_ptr<const Support::Threading::StopToken>()
       )
     );
 
@@ -112,21 +113,21 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     /// <param name="canceller">Allows the information collection to be cancelled</param>
     /// <returns>A description of the system's CPU topology</returns>
     private: static std::vector<CpuInfo> analyzeCpuTopologyAsync(
-      std::shared_ptr<const Tasks::CancellationWatcher> canceller
+      std::shared_ptr<const Support::Threading::StopToken> canceller
     );
 
     /// <summary>Runs in a thread to analyze the system's memory</summary>
     /// <param name="canceller">Allows the information collection to be cancelled</param>
     /// <returns>A description of the system's memory</returns>
     private: static MemoryInfo analyzeMemoryAsync(
-      std::shared_ptr<const Tasks::CancellationWatcher> canceller
+      std::shared_ptr<const Support::Threading::StopToken> canceller
     );
 
     /// <summary>Runs in a thread to analyze th system's storage volumes</summary>
     /// <param name="canceller">Allows the information collection to be cancelled</param>
     /// <returns>A description of the system's storage volumes</returns>
     private: static std::vector<StoreInfo> analyzeStorageVolumesAsync(
-      std::shared_ptr<const Tasks::CancellationWatcher> canceller
+      std::shared_ptr<const Support::Threading::StopToken> canceller
     );
 
     // --------------------------------

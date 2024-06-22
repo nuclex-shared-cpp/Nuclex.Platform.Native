@@ -26,11 +26,19 @@ limitations under the License.
 #include <array> // for std:;array
 #include <memory> // for std::shared_ptr
 
+namespace Nuclex { namespace Support { namespace Threading {
+  // ------------------------------------------------------------------------------------------- //
+
+  class StopToken;
+
+  // ------------------------------------------------------------------------------------------- //
+
+}}} // namespace Nuclex::Support::Threading
+
 namespace Nuclex { namespace Platform { namespace Tasks {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CancellationWatcher;
   class ResourceManifest;
 
   // ------------------------------------------------------------------------------------------- //
@@ -96,7 +104,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
     /// </remarks>
     public: NUCLEX_PLATFORM_API virtual void Run(
       const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
-      const CancellationWatcher &cancellationWatcher
+      const Nuclex::Support::Threading::StopToken &cancellationWatcher
     ) noexcept = 0;
 
   };

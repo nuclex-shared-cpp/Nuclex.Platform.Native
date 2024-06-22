@@ -33,15 +33,15 @@ limitations under the License.
 
 #include "../Platform/WindowsDeviceApi.h" // for DEVICE_TYPE, WindowsApi
 
-namespace Nuclex { namespace Platform { namespace Tasks {
+namespace Nuclex { namespace Support { namespace Threading {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CancellationWatcher;
+  class StopToken;
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Tasks
+}}} // namespace Nuclex::Support::Threading
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 

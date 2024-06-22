@@ -31,15 +31,15 @@ limitations under the License.
 
 #include "../Platform/WindowsSysInfoApi.h" // for WindowsSysInfoApi, WindowsApi
 
-namespace Nuclex { namespace Platform { namespace Tasks {
+namespace Nuclex { namespace Support { namespace Threading {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CancellationWatcher;
+  class StopToken;
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Tasks
+}}} // namespace Nuclex::Support::Threading
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 

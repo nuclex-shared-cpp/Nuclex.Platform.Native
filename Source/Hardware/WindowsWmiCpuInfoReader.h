@@ -28,15 +28,15 @@ limitations under the License.
 #include <cstddef> // for std::size_t
 #include <memory> // for std::shared_ptr
 
-namespace Nuclex { namespace Platform { namespace Tasks {
+namespace Nuclex { namespace Support { namespace Threading {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CancellationWatcher;
+  class StopToken;
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Tasks
+}}} // namespace Nuclex::Support::Threading
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 
@@ -65,12 +65,12 @@ namespace Nuclex { namespace Platform { namespace Hardware {
     ///   user pointer, processor index, processor name and base frequency in GHz
     /// </param>
     /// <param name="canceller">
-    ///   Cancellation watcher by which the query process can be aborted early
+    ///   Stop token by which the query process can be aborted early
     /// </param>
     public: static void TryQueryCpuInfos(
       void *userPointer,
       CallbackFunction *callback,
-      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller
+      const std::shared_ptr<const Support::Threading::StopToken> &canceller
     );
 
   };

@@ -28,8 +28,7 @@ limitations under the License.
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast<>
 #include <Nuclex/Support/Text/UnicodeHelper.h> // for UnicodeHelper
 #include <Nuclex/Support/ScopeGuard.h> // for ScopeGuard
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "./StringHelper.h" // for StringHelper
 #include "../Platform/WindowsWmiApi.h" // for WindowsWmiApi, WindowsApi
@@ -152,7 +151,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   void WindowsWmiCpuInfoReader::TryQueryCpuInfos(
     void *userPointer,
     CallbackFunction *callback,
-    const std::shared_ptr<const Tasks::CancellationWatcher> &canceller
+    const std::shared_ptr<const Tasks::StopToken> &canceller
   ) {
     ComInitializationScope comScope;
 

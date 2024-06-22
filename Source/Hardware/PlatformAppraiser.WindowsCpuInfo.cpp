@@ -28,8 +28,7 @@ limitations under the License.
 #include <Nuclex/Support/Text/LexicalCast.h> // for lexical_cast<>
 #include <Nuclex/Support/Text/LexicalAppend.h> // for lexical_append<>
 #include <Nuclex/Support/Text/StringHelper.h> // for StringHelper
-
-#include "Nuclex/Platform/Tasks/CancellationWatcher.h" // for CancellationWatcher
+#include <Nuclex/Support/Threading/StopToken.h> // for StopToken
 
 #include "./WindowsBasicCpuInfoReader.h"
 #include "./WindowsRegistryCpuInfoReader.h"
@@ -345,7 +344,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   std::vector<CpuInfo> PlatformAppraiser::analyzeCpuTopologyAsync(
-    std::shared_ptr<const Tasks::CancellationWatcher> canceller
+    std::shared_ptr<const Tasks::StopToken> canceller
   ) {
     // We may have been canceled before the thread got a chance to start,
     // so it makes sense to check once before actually doing anything.

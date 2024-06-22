@@ -28,15 +28,15 @@ limitations under the License.
 #include <cstddef> // for std::size_t
 #include <memory> // for std::shared_ptr
 
-namespace Nuclex { namespace Platform { namespace Tasks {
+namespace Nuclex { namespace Support { namespace Threading {
 
   // ------------------------------------------------------------------------------------------- //
 
-  class CancellationWatcher;
+  class StopToken;
 
   // ------------------------------------------------------------------------------------------- //
 
-}}} // namespace Nuclex::Platform::Tasks
+}}} // namespace Nuclex::Support::Threading
 
 namespace Nuclex { namespace Platform { namespace Hardware {
 
@@ -88,7 +88,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
       std::size_t processorCount,
       void *userPointer,
       CallbackFunction *callback,
-      const std::shared_ptr<const Tasks::CancellationWatcher> &canceller
+      const std::shared_ptr<const Support::Threading::StopToken> &canceller
     );
 
   };

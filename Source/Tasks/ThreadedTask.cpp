@@ -66,7 +66,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
 
   void ThreadedTask::Run(
     const std::array<std::size_t, MaximumResourceType + 1> &resourceUnitIndices,
-    const CancellationWatcher &cancellationWatcher
+    const Nuclex::Support::Threading::StopToken &cancellationWatcher
   ) noexcept {
     constexpr const std::size_t MaximumStackMemoryAllowed = 256; // bytes
 
@@ -111,7 +111,7 @@ namespace Nuclex { namespace Platform { namespace Tasks {
   void ThreadedTask::invokeThreadedRun(
     ThreadedTask *self,
     const std::array<std::size_t, MaximumResourceType + 1> *resourceUnitIndices,
-    const CancellationWatcher *cancellationWatcher
+    const Nuclex::Support::Threading::StopToken *cancellationWatcher
   ) {
     self->ThreadedRun(*resourceUnitIndices, *cancellationWatcher);
   }
