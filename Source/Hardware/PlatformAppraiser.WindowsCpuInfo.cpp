@@ -344,7 +344,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   std::vector<CpuInfo> PlatformAppraiser::analyzeCpuTopologyAsync(
-    std::shared_ptr<const Tasks::StopToken> canceller
+    std::shared_ptr<const Nuclex::Support::Threading::StopToken> canceller
   ) {
     // We may have been canceled before the thread got a chance to start,
     // so it makes sense to check once before actually doing anything.

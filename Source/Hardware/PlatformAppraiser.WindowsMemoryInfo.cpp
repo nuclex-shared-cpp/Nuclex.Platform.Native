@@ -43,7 +43,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   MemoryInfo PlatformAppraiser::analyzeMemoryAsync(
-    std::shared_ptr<const Tasks::StopToken> canceller
+    std::shared_ptr<const Nuclex::Support::Threading::StopToken> canceller
   ) {
     MemoryInfo result;
 

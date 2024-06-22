@@ -41,7 +41,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   // ------------------------------------------------------------------------------------------- //
 
   std::vector<StoreInfo> PlatformAppraiser::analyzeStorageVolumesAsync(
-    std::shared_ptr<const Tasks::StopToken> canceller
+    std::shared_ptr<const Nuclex::Support::Threading::StopToken> canceller
   ) {
     std::vector<StoreInfo> result;
 

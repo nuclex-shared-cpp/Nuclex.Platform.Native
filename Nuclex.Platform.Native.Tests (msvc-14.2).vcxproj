@@ -211,8 +211,6 @@
     <ClInclude Include="Include\Nuclex\Platform\Interaction\MessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\ModernGuiMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\TerminalMessageService.h" />
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationTrigger.h" />
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationWatcher.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ResourceManifest.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ResourceType.h" />
@@ -293,8 +291,6 @@
     <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h" />
     <ClCompile Include="Source\Platform\WindowsWmiApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsWmiApi.h" />
-    <ClCompile Include="Source\Tasks\CancellationTrigger.cpp" />
-    <ClCompile Include="Source\Tasks\CancellationWatcher.cpp" />
     <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.Allocate.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.cpp" />
@@ -309,8 +305,6 @@
     <ClCompile Include="Source\Config.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Tests\Tasks\CancellationTriggerTest.cpp" />
-    <ClCompile Include="Tests\Tasks\CancellationWatcherTest.cpp" />
     <ClCompile Include="Tests\Tasks\NaiveTaskCoordinatorTest.cpp" />
     <ClCompile Include="Tests\Tasks\ResourceBudgetTest.cpp" />
     <ClCompile Include="Tests\Tasks\ResourceManifestTest.cpp" />

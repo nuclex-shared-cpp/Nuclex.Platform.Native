@@ -151,7 +151,7 @@ namespace Nuclex { namespace Platform { namespace Hardware {
   void WindowsWmiCpuInfoReader::TryQueryCpuInfos(
     void *userPointer,
     CallbackFunction *callback,
-    const std::shared_ptr<const Tasks::StopToken> &canceller
+    const std::shared_ptr<const Nuclex::Support::Threading::StopToken> &canceller
   ) {
     ComInitializationScope comScope;
 

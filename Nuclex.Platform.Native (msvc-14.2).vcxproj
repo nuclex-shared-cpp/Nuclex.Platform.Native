@@ -210,8 +210,6 @@
     <ClInclude Include="Include\Nuclex\Platform\Interaction\ModernGuiMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Interaction\TerminalMessageService.h" />
     <ClInclude Include="Include\Nuclex\Platform\Locations\StandardDirectoryResolver.h" />
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationTrigger.h" />
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationWatcher.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ResourceManifest.h" />
     <ClInclude Include="Include\Nuclex\Platform\Tasks\ResourceType.h" />
@@ -252,8 +250,6 @@
     <ClCompile Include="Source\Interaction\ActiveWindowTracker.cpp" />
     <ClCompile Include="Source\Interaction\ExtendedMessageService.cpp" />
     <ClCompile Include="Source\Interaction\GuiMessageService.cpp" />
-    <ClCompile Include="Source\Interaction\GuiMessageService.Gtk.cpp" />
-    <ClCompile Include="Source\Interaction\GuiMessageService.Kde.cpp" />
     <ClCompile Include="Source\Interaction\GuiMessageService.Windows.cpp" />
     <ClCompile Include="Source\Interaction\Message.cpp" />
     <ClCompile Include="Source\Interaction\MessageIcon.cpp" />
@@ -262,14 +258,11 @@
     <ClCompile Include="Source\Interaction\ModernGuiMessageService.Windows.cpp" />
     <ClCompile Include="Source\Interaction\TerminalMessageService.cpp" />
     <ClCompile Include="Source\Interaction\TerminalMessageService.Windows.cpp" />
-    <ClCompile Include="Source\Locations\PathHelper.cpp" />
     <ClCompile Include="Source\Locations\StandardDirectoryResolver.cpp" />
     <ClCompile Include="Source\Locations\StandardDirectoryResolver.Linux.cpp" />
     <ClCompile Include="Source\Locations\StandardDirectoryResolver.Windows.cpp" />
     <ClCompile Include="Source\Locations\XdgDirectoryResolver.cpp" />
     <ClInclude Include="Source\Locations\XdgDirectoryResolver.h" />
-    <ClCompile Include="Source\Platform\GtkApi.cpp" />
-    <ClInclude Include="Source\Platform\GtkApi.h" />
     <ClCompile Include="Source\Platform\GtkDialogApi.cpp" />
     <ClInclude Include="Source\Platform\GtkDialogApi.h" />
     <ClCompile Include="Source\Platform\LinuxEnvironmentApi.cpp" />
@@ -302,8 +295,6 @@
     <ClInclude Include="Source\Platform\WindowsTaskDialogApi.h" />
     <ClCompile Include="Source\Platform\WindowsWmiApi.cpp" />
     <ClInclude Include="Source\Platform\WindowsWmiApi.h" />
-    <ClCompile Include="Source\Tasks\CancellationTrigger.cpp" />
-    <ClCompile Include="Source\Tasks\CancellationWatcher.cpp" />
     <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.Allocate.cpp" />
     <ClCompile Include="Source\Tasks\ResourceBudget.cpp" />

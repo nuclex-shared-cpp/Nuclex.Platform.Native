@@ -94,12 +94,6 @@
     <ClInclude Include="Include\Nuclex\Platform\Interaction\TerminalMessageService.h">
       <Filter>Include\Interaction</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationTrigger.h">
-      <Filter>Include\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Nuclex\Platform\Tasks\CancellationWatcher.h">
-      <Filter>Include\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Tasks\NaiveTaskCoordinator.h">
       <Filter>Include\Tasks</Filter>
     </ClInclude>
@@ -126,9 +120,6 @@
     </ClInclude>
     <ClInclude Include="Include\Nuclex\Platform\Locations\StandardDirectoryResolver.h">
       <Filter>Include\Locations</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Platform\GtkApi.h">
-      <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\Platform\GtkDialogApi.h">
       <Filter>Source</Filter>
@@ -228,12 +219,6 @@
     <ClCompile Include="Source\Interaction\GuiMessageService.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Interaction\GuiMessageService.Gtk.cpp">
-      <Filter>Source\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Interaction\GuiMessageService.Kde.cpp">
-      <Filter>Source\Interaction</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Interaction\GuiMessageService.Windows.cpp">
       <Filter>Source\Interaction</Filter>
     </ClCompile>
@@ -257,9 +242,6 @@
     </ClCompile>
     <ClCompile Include="Source\Interaction\TerminalMessageService.Windows.cpp">
       <Filter>Source\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Locations\PathHelper.cpp">
-      <Filter>Source\Locations</Filter>
     </ClCompile>
     <ClCompile Include="Source\Locations\StandardDirectoryResolver.cpp">
       <Filter>Source\Locations</Filter>
@@ -360,12 +342,6 @@
     <ClInclude Include="Source\Platform\WindowsWmiApi.h">
       <Filter>Source\Platform</Filter>
     </ClInclude>
-    <ClCompile Include="Source\Tasks\CancellationTrigger.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Tasks\CancellationWatcher.cpp">
-      <Filter>Source\Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Tasks\NaiveTaskCoordinator.cpp">
       <Filter>Source\Tasks</Filter>
     </ClCompile>
@@ -400,9 +376,6 @@
       <Filter>Source\Tasks</Filter>
     </ClCompile>
     <ClCompile Include="Source\Config.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Platform\GtkApi.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Platform\GtkDialogApi.cpp">
